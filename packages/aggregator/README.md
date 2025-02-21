@@ -21,7 +21,7 @@ Our aggregator contract is a smart contract that allows users to swap tokens usi
 ## Install
 
 ```sh
-npm i @derivation-tech/context @derivation-tech/tx-plugin @synfutures/oyster-sdk3-aggregator
+npm i @derivation-tech/context @derivation-tech/tx-plugin @synfutures/sdks-aggregator
 ```
 
 ### Initialization example
@@ -30,7 +30,7 @@ npm i @derivation-tech/context @derivation-tech/tx-plugin @synfutures/oyster-sdk
 // initialize the SDK
 import { Context } from '@derivation-tech/context';
 import { txPlugin } from '@derivation-tech/tx-plugin';
-import { aggregatorPlugin } from '@synfutures/oyster-sdk3-aggregator';
+import { aggregatorPlugin } from '@synfutures/sdks-aggregator';
 
 ctx = new Context('base', { url: 'your rpc url' });
 ctx.use(aggregatorPlugin());
