@@ -19,7 +19,8 @@
     "dependencies": {
         "@derivation-tech/context": "catalog:",
         "@derivation-tech/tx-plugin": "catalog:",
-        "ethers": "catalog:"
+        "ethers": "catalog:",
+        "yallist": "catalog:"
     },
     "devDependencies": {},
     "jest": {
