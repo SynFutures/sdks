@@ -39,14 +39,14 @@ Perp includes the following modules:
 ## Install
 
 ```sh
-npm i @synfutures/oyster-sdk3-perp
+npm i @synfutures/sdks-perp
 ```
 
 ## Initialization example
 
 ```ts
 import { Context } from '@derivation-tech/context';
-import { perpPlugin, utils } from '@synfutures/oyster-sdk3-perp';
+import { perpPlugin, utils } from '@synfutures/sdks-perp';
 import { txPlugin } from '@derivation-tech/tx-plugin';
 
 const ctx = new Context('base', {
