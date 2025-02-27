@@ -98,3 +98,6 @@ dist
 .pnp.*
 .idea
 .nx
+
+# npmrc
+.npmrc
