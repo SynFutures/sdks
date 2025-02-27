@@ -25,11 +25,6 @@ import {
 } from './params';
 
 export interface AggregatorInterface {
-    wethConvert(arg0: {
-        fromTokenAddress: string;
-        toTokenAddress: string;
-        amount: import('ethers').BigNumber;
-    }): unknown;
     get querySingleRouteContract(): QuerySingleRoute;
     get querySplitRouteContract(): QuerySplitRoute;
     get oysterAggregator(): OysterAggregator;
@@ -79,4 +74,12 @@ export interface AggregatorInterface {
         },
         txOptions?: TxOptions,
     ): Promise<PopulatedTransaction>;
+    wethConvert(
+        params: {
+            fromTokenAddress: string;
+            toTokenAddress: string;
+            amount: BigNumber;
+        },
+        txOptions?: TxOptions,
+    ): Promise<TransactionReceipt | PopulatedTransaction>;
 }

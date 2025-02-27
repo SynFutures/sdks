@@ -13,7 +13,7 @@ export const QUERY_SINGLE_ROUTE_ADDRESS: { [chainId: number]: string } = {
 };
 
 export const QUERY_SPLIT_ROUTE_ADDRESS: { [chainId: number]: string } = {
-    [CHAIN_ID.BASE]: '0x7920151b7C326072b2Ad2e466CeE3Bc389D15aa6',
+    [CHAIN_ID.BASE]: '0x0DE5690A91c559d520A075792DCa1405ebA9ED33',
 };
 
 export const OYSTER_AGGREGATOR_ADDRESS: { [chainId: number]: string } = {
