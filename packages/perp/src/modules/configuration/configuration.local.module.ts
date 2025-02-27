@@ -13,38 +13,38 @@ import * as baseConfig from './config/base.json';
 import { ConfigurationModuleBase } from './configuration.base.module';
 
 export class LocalConfigurationModule extends ConfigurationModuleBase {
-  protected async getConfig(): Promise<SynFuturesConfig | null> {
-    switch (this.context.chainId) {
-      case CHAIN_ID.LOCAL: {
-        return loadConfig(localConfig);
-      }
-      case CHAIN_ID.GOERLI: {
-        return loadConfig(goerliConfig);
-      }
-      case CHAIN_ID.POLYGON: {
-        return loadConfig(polygonConfig);
-      }
-      case CHAIN_ID.SCROLL: {
-        return loadConfig(scrollConfig);
-      }
-      case CHAIN_ID.LINEA: {
-        return loadConfig(lineaConfig);
-      }
-      case CHAIN_ID.ARBITRUM: {
-        return loadConfig(arbitrumConfig);
-      }
-      case CHAIN_ID.BLASTSEPOLIA: {
-        return loadConfig(blastsepoliaConfig);
-      }
-      case CHAIN_ID.BLAST: {
-        return loadConfig(blastConfig);
-      }
-      case CHAIN_ID.BASE: {
-        return loadConfig(baseConfig);
-      }
-      default: {
-        return null;
-      }
+    protected async getConfig(): Promise<SynFuturesConfig | null> {
+        switch (this.context.chainId) {
+            case CHAIN_ID.LOCAL: {
+                return loadConfig(localConfig);
+            }
+            case CHAIN_ID.GOERLI: {
+                return loadConfig(goerliConfig);
+            }
+            case CHAIN_ID.POLYGON: {
+                return loadConfig(polygonConfig);
+            }
+            case CHAIN_ID.SCROLL: {
+                return loadConfig(scrollConfig);
+            }
+            case CHAIN_ID.LINEA: {
+                return loadConfig(lineaConfig);
+            }
+            case CHAIN_ID.ARBITRUM: {
+                return loadConfig(arbitrumConfig);
+            }
+            case CHAIN_ID.BLASTSEPOLIA: {
+                return loadConfig(blastsepoliaConfig);
+            }
+            case CHAIN_ID.BLAST: {
+                return loadConfig(blastConfig);
+            }
+            case CHAIN_ID.BASE: {
+                return loadConfig(baseConfig);
+            }
+            default: {
+                return null;
+            }
+        }
     }
-  }
 }

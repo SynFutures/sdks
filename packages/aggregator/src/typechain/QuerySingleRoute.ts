@@ -2,208 +2,208 @@
 /* tslint:disable */
 /* eslint-disable */
 import type {
-  BaseContract,
-  BigNumber,
-  BigNumberish,
-  BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+    BaseContract,
+    BigNumber,
+    BigNumberish,
+    BytesLike,
+    CallOverrides,
+    ContractTransaction,
+    Overrides,
+    PopulatedTransaction,
+    Signer,
+    utils,
 } from 'ethers';
 import type { FunctionFragment, Result } from '@ethersproject/abi';
 import type { Listener, Provider } from '@ethersproject/providers';
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from './common';
 
 export declare namespace LibTypes {
-  export type ResultAmountStruct = {
-    bestAmount: BigNumberish;
-    midPrice: BigNumberish;
-  };
+    export type ResultAmountStruct = {
+        bestAmount: BigNumberish;
+        midPrice: BigNumberish;
+    };
 
-  export type ResultAmountStructOutput = [BigNumber, BigNumber] & {
-    bestAmount: BigNumber;
-    midPrice: BigNumber;
-  };
+    export type ResultAmountStructOutput = [BigNumber, BigNumber] & {
+        bestAmount: BigNumber;
+        midPrice: BigNumber;
+    };
 
-  export type PairStruct = {
-    token0: string;
-    token1: string;
-    poolAddr: string;
-    poolType: BigNumberish;
-    fee: BigNumberish;
-    swapType: BigNumberish;
-  };
+    export type PairStruct = {
+        token0: string;
+        token1: string;
+        poolAddr: string;
+        poolType: BigNumberish;
+        fee: BigNumberish;
+        swapType: BigNumberish;
+    };
 
-  export type PairStructOutput = [string, string, string, number, BigNumber, number] & {
-    token0: string;
-    token1: string;
-    poolAddr: string;
-    poolType: number;
-    fee: BigNumber;
-    swapType: number;
-  };
+    export type PairStructOutput = [string, string, string, number, BigNumber, number] & {
+        token0: string;
+        token1: string;
+        poolAddr: string;
+        poolType: number;
+        fee: BigNumber;
+        swapType: number;
+    };
 }
 
 export interface QuerySingleRouteInterface extends utils.Interface {
-  functions: {
-    'config()': FunctionFragment;
-    'queryDirectRoute(address,address,uint256,uint256)': FunctionFragment;
-    'querySingleRoute(address,address,uint256,uint256)': FunctionFragment;
-  };
+    functions: {
+        'config()': FunctionFragment;
+        'queryDirectRoute(address,address,uint256,uint256)': FunctionFragment;
+        'querySingleRoute(address,address,uint256,uint256)': FunctionFragment;
+    };
 
-  getFunction(nameOrSignatureOrTopic: 'config' | 'queryDirectRoute' | 'querySingleRoute'): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: 'config' | 'queryDirectRoute' | 'querySingleRoute'): FunctionFragment;
 
-  encodeFunctionData(functionFragment: 'config', values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: 'queryDirectRoute',
-    values: [string, string, BigNumberish, BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'querySingleRoute',
-    values: [string, string, BigNumberish, BigNumberish],
-  ): string;
+    encodeFunctionData(functionFragment: 'config', values?: undefined): string;
+    encodeFunctionData(
+        functionFragment: 'queryDirectRoute',
+        values: [string, string, BigNumberish, BigNumberish],
+    ): string;
+    encodeFunctionData(
+        functionFragment: 'querySingleRoute',
+        values: [string, string, BigNumberish, BigNumberish],
+    ): string;
 
-  decodeFunctionResult(functionFragment: 'config', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'queryDirectRoute', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'querySingleRoute', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'config', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'queryDirectRoute', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'querySingleRoute', data: BytesLike): Result;
 
-  events: {};
+    events: {};
 }
 
 export interface QuerySingleRoute extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+    connect(signerOrProvider: Signer | Provider | string): this;
+    attach(addressOrName: string): this;
+    deployed(): Promise<this>;
 
-  interface: QuerySingleRouteInterface;
+    interface: QuerySingleRouteInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
-    fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>;
+    queryFilter<TEvent extends TypedEvent>(
+        event: TypedEventFilter<TEvent>,
+        fromBlockOrBlockhash?: string | number | undefined,
+        toBlock?: string | number | undefined,
+    ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+    listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+    listeners(eventName?: string): Array<Listener>;
+    removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+    removeAllListeners(eventName?: string): this;
+    off: OnEvent<this>;
+    on: OnEvent<this>;
+    once: OnEvent<this>;
+    removeListener: OnEvent<this>;
 
-  functions: {
-    config(overrides?: CallOverrides): Promise<[string]>;
+    functions: {
+        config(overrides?: CallOverrides): Promise<[string]>;
 
-    queryDirectRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
+        queryDirectRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: Overrides & { from?: string },
+        ): Promise<ContractTransaction>;
 
-    querySingleRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-  };
+        querySingleRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: Overrides & { from?: string },
+        ): Promise<ContractTransaction>;
+    };
 
-  config(overrides?: CallOverrides): Promise<string>;
-
-  queryDirectRoute(
-    fromToken: string,
-    toToken: string,
-    fromAmount: BigNumberish,
-    dexFlag: BigNumberish,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  querySingleRoute(
-    fromToken: string,
-    toToken: string,
-    fromAmount: BigNumberish,
-    dexFlag: BigNumberish,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
     config(overrides?: CallOverrides): Promise<string>;
 
     queryDirectRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<
-      [LibTypes.ResultAmountStructOutput, string[], LibTypes.PairStructOutput[]] & {
-        resAmount: LibTypes.ResultAmountStructOutput;
-        bestPath: string[];
-        bestPoolPath: LibTypes.PairStructOutput[];
-      }
-    >;
+        fromToken: string,
+        toToken: string,
+        fromAmount: BigNumberish,
+        dexFlag: BigNumberish,
+        overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
 
     querySingleRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<
-      [LibTypes.ResultAmountStructOutput, string[], LibTypes.PairStructOutput[]] & {
-        resAmount: LibTypes.ResultAmountStructOutput;
-        bestPath: string[];
-        bestPoolPath: LibTypes.PairStructOutput[];
-      }
-    >;
-  };
+        fromToken: string,
+        toToken: string,
+        fromAmount: BigNumberish,
+        dexFlag: BigNumberish,
+        overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
 
-  filters: {};
+    callStatic: {
+        config(overrides?: CallOverrides): Promise<string>;
 
-  estimateGas: {
-    config(overrides?: CallOverrides): Promise<BigNumber>;
+        queryDirectRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: CallOverrides,
+        ): Promise<
+            [LibTypes.ResultAmountStructOutput, string[], LibTypes.PairStructOutput[]] & {
+                resAmount: LibTypes.ResultAmountStructOutput;
+                bestPath: string[];
+                bestPoolPath: LibTypes.PairStructOutput[];
+            }
+        >;
 
-    queryDirectRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
+        querySingleRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: CallOverrides,
+        ): Promise<
+            [LibTypes.ResultAmountStructOutput, string[], LibTypes.PairStructOutput[]] & {
+                resAmount: LibTypes.ResultAmountStructOutput;
+                bestPath: string[];
+                bestPoolPath: LibTypes.PairStructOutput[];
+            }
+        >;
+    };
 
-    querySingleRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-  };
+    filters: {};
 
-  populateTransaction: {
-    config(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    estimateGas: {
+        config(overrides?: CallOverrides): Promise<BigNumber>;
 
-    queryDirectRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
+        queryDirectRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: Overrides & { from?: string },
+        ): Promise<BigNumber>;
 
-    querySingleRoute(
-      fromToken: string,
-      toToken: string,
-      fromAmount: BigNumberish,
-      dexFlag: BigNumberish,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-  };
+        querySingleRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: Overrides & { from?: string },
+        ): Promise<BigNumber>;
+    };
+
+    populateTransaction: {
+        config(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        queryDirectRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: Overrides & { from?: string },
+        ): Promise<PopulatedTransaction>;
+
+        querySingleRoute(
+            fromToken: string,
+            toToken: string,
+            fromAmount: BigNumberish,
+            dexFlag: BigNumberish,
+            overrides?: Overrides & { from?: string },
+        ): Promise<PopulatedTransaction>;
+    };
 }

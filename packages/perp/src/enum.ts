@@ -1,22 +1,22 @@
 // Trade side
 export enum Side {
-  FLAT,
-  SHORT,
-  LONG,
+    FLAT,
+    SHORT,
+    LONG,
 }
 
 // Amm Status
 export enum Status {
-  DORMANT,
-  TRADING,
-  SETTLING,
-  SETTLED,
+    DORMANT,
+    TRADING,
+    SETTLING,
+    SETTLED,
 }
 
 export enum InstrumentCondition {
-  NORMAL,
-  FROZEN,
-  RESOLVED,
+    NORMAL,
+    FROZEN,
+    RESOLVED,
 }
 
 // 0 for neither base/quote are stableCoin,
@@ -24,36 +24,36 @@ export enum InstrumentCondition {
 // 2 for base is stableCoin & quote is not,
 // 3 for base/quote both stableCoin
 export enum FeederType {
-  NONE_STABLE,
-  QUOTE_STABLE,
-  BASE_STABLE,
-  BOTH_STABLE,
+    NONE_STABLE,
+    QUOTE_STABLE,
+    BASE_STABLE,
+    BOTH_STABLE,
 }
 
 export enum QuoteType {
-  INVALID,
-  STABLE,
-  NONSTABLE,
+    INVALID,
+    STABLE,
+    NONSTABLE,
 }
 
 // Leverage, corresponding to IMR of 10%, 5%, 3%, 1% respectively
 export enum Leverage {
-  LOW,
-  MEDIUM,
-  HIGH,
-  RISKY,
+    LOW,
+    MEDIUM,
+    HIGH,
+    RISKY,
 }
 
 export enum MarketType {
-  LINK = 'LINK',
-  DEXV2 = 'DEXV2',
-  EMG = 'EMG',
-  PYTH = 'PYTH',
+    LINK = 'LINK',
+    DEXV2 = 'DEXV2',
+    EMG = 'EMG',
+    PYTH = 'PYTH',
 }
 
 export enum BatchOrderSizeDistribution {
-  FLAT,
-  UPPER,
-  LOWER,
-  RANDOM,
+    FLAT,
+    UPPER,
+    LOWER,
+    RANDOM,
 }

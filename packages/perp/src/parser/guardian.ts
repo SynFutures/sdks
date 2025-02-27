@@ -10,49 +10,49 @@ import { FeederType, QuoteType } from '../enum';
 import { extractFeeRatioParams, formatCompactEmaParam, formatRatio } from './farmat';
 
 export class GuardianParser extends ContractParser {
-  constructor() {
-    super(Guardian__factory.createInterface());
-  }
-
-  async parseBaseParam(
-    _description: TransactionDescription | LogDescription | ErrorDescription,
-    param: ParamType,
-    data: any,
-  ): Promise<string> {
-    switch (param.name) {
-      case 'tradingFeeRatio':
-      case 'protocolFeeRatio':
-        return formatRatio(data);
-      case 'stabilityFeeRatioParam':
-        return extractFeeRatioParams(BigNumber.from(data))
-          .map((p) => formatWad(p))
-          .toString();
-      case 'tip':
-      case 'minMarginAmount':
-        return formatWad(data);
-      case 'expiry':
-        return formatExpiry(data);
-      case 'qtype':
-        return QuoteType[Number(data)];
-      case 'ftype':
-        return FeederType[Number(data)];
-      case 'compactEmaParam':
-        return formatCompactEmaParam(BigNumber.from(data));
-      default:
-        return data.toString();
+    constructor() {
+        super(Guardian__factory.createInterface());
     }
-  }
 
-  async parseBaseArrayParam(
-    description: TransactionDescription | LogDescription | ErrorDescription,
-    param: ParamType,
-    value: any[],
-  ): Promise<string> {
-    if (description.name === 'recycleInsuranceFund' && param.name === 'expiries') {
-      return value.map((expiry) => formatExpiry(expiry)).toString();
-    } else if (description.name === 'claimProtocolFee' && param.name === 'expiries') {
-      return value.map((expiry) => formatExpiry(expiry)).toString();
+    async parseBaseParam(
+        _description: TransactionDescription | LogDescription | ErrorDescription,
+        param: ParamType,
+        data: any,
+    ): Promise<string> {
+        switch (param.name) {
+            case 'tradingFeeRatio':
+            case 'protocolFeeRatio':
+                return formatRatio(data);
+            case 'stabilityFeeRatioParam':
+                return extractFeeRatioParams(BigNumber.from(data))
+                    .map((p) => formatWad(p))
+                    .toString();
+            case 'tip':
+            case 'minMarginAmount':
+                return formatWad(data);
+            case 'expiry':
+                return formatExpiry(data);
+            case 'qtype':
+                return QuoteType[Number(data)];
+            case 'ftype':
+                return FeederType[Number(data)];
+            case 'compactEmaParam':
+                return formatCompactEmaParam(BigNumber.from(data));
+            default:
+                return data.toString();
+        }
     }
-    return await super.parseBaseArrayParam(description, param, value);
-  }
+
+    async parseBaseArrayParam(
+        description: TransactionDescription | LogDescription | ErrorDescription,
+        param: ParamType,
+        value: any[],
+    ): Promise<string> {
+        if (description.name === 'recycleInsuranceFund' && param.name === 'expiries') {
+            return value.map((expiry) => formatExpiry(expiry)).toString();
+        } else if (description.name === 'claimProtocolFee' && param.name === 'expiries') {
+            return value.map((expiry) => formatExpiry(expiry)).toString();
+        }
+        return await super.parseBaseArrayParam(description, param, value);
+    }
 }

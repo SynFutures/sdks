@@ -1,27 +1,27 @@
 # Perp
 
 - [Perp](#perp)
-  - [Introduction](#introduction)
-  - [Install](#install)
-  - [Initialization example](#initialization-example)
-  - [Examples](#examples)
-    - [Get All Instruments](#get-all-instruments)
-    - [Get Instrument By Symbol](#get-instrument-by-symbol)
-    - [Get Instrument By Quote \& Base Symbol](#get-instrument-by-quote--base-symbol)
-    - [Get Account Portfolio](#get-account-portfolio)
-    - [Deposit to `Gate`](#deposit-to-gate)
-    - [Withdraw from `Gate`](#withdraw-from-gate)
-    - [Add Liquidity](#add-liquidity)
-    - [Add asymmetric liquidity](#add-asymmetric-liquidity)
-    - [Remove liquidity](#remove-liquidity)
-    - [Place Market Order](#place-market-order)
-    - [Adjust Position](#adjust-position)
-    - [Close Position](#close-position)
-    - [Place Limit order](#place-limit-order)
-    - [Cancel limit order](#cancel-limit-order)
-    - [Batch Scaled Limit Orders](#batch-scaled-limit-orders)
-    - [Batch Cancel Limit Orders](#batch-cancel-limit-orders)
-    - [Place Cross Market Order](#place-cross-market-order)
+    - [Introduction](#introduction)
+    - [Install](#install)
+    - [Initialization example](#initialization-example)
+    - [Examples](#examples)
+        - [Get All Instruments](#get-all-instruments)
+        - [Get Instrument By Symbol](#get-instrument-by-symbol)
+        - [Get Instrument By Quote \& Base Symbol](#get-instrument-by-quote--base-symbol)
+        - [Get Account Portfolio](#get-account-portfolio)
+        - [Deposit to `Gate`](#deposit-to-gate)
+        - [Withdraw from `Gate`](#withdraw-from-gate)
+        - [Add Liquidity](#add-liquidity)
+        - [Add asymmetric liquidity](#add-asymmetric-liquidity)
+        - [Remove liquidity](#remove-liquidity)
+        - [Place Market Order](#place-market-order)
+        - [Adjust Position](#adjust-position)
+        - [Close Position](#close-position)
+        - [Place Limit order](#place-limit-order)
+        - [Cancel limit order](#cancel-limit-order)
+        - [Batch Scaled Limit Orders](#batch-scaled-limit-orders)
+        - [Batch Cancel Limit Orders](#batch-cancel-limit-orders)
+        - [Place Cross Market Order](#place-cross-market-order)
 
 ## Perp Contract Architecture
 
@@ -62,10 +62,10 @@ import { perpPlugin, utils } from '@synfutures/sdks-perp';
 import { txPlugin } from '@derivation-tech/tx-plugin';
 
 const ctx = new Context('base', {
-  url: process.env['BASE_RPC'],
+    url: process.env['BASE_RPC'],
 })
-  .use(perpPlugin())
-  .use(txPlugin());
+    .use(perpPlugin())
+    .use(txPlugin());
 await ctx.init();
 ```
 
@@ -79,7 +79,7 @@ await ctx.init();
 const allInstruments = await ctx.perp.observer.getAllInstruments();
 
 for (const instrument of allInstruments) {
-  console.log(`${instrument.symbol}: ${utils.formatInstrument(instrument)}`);
+    console.log(`${instrument.symbol}: ${utils.formatInstrument(instrument)}`);
 }
 ```
 
@@ -124,27 +124,27 @@ const accAddr = process.env['ACCOUNT_ADDRESS'];
 // Get the balance of the account in Gate
 const balances = await ctx.perp.observer.getGateBalances(accAddr);
 for (let i = 0; i < balances.length; i++) {
-  console.log(
-    `Token ${balances[i].symbol} balance: ${ethers.utils.formatUnits(balances[i].balance, balances[i].decimals)}`,
-  );
+    console.log(
+        `Token ${balances[i].symbol} balance: ${ethers.utils.formatUnits(balances[i].balance, balances[i].decimals)}`,
+    );
 }
 
 // Get account Portfolio
 const allInstruments = await ctx.perp.observer.getAllInstruments();
 const params = allInstruments.flatMap((instrument) => {
-  return Array.from(instrument.amms.keys()).map((expiry) => {
-    return {
-      traderAddr: accAddr,
-      instrumentAddr: instrument.instrumentAddr,
-      expiry,
-    };
-  });
+    return Array.from(instrument.amms.keys()).map((expiry) => {
+        return {
+            traderAddr: accAddr,
+            instrumentAddr: instrument.instrumentAddr,
+            expiry,
+        };
+    });
 });
 const portfolios = await ctx.perp.observer.getPortfolio(params);
 
 for (let i = 0; i < portfolios.length; i++) {
-  const instrument = allInstruments.find((instrument) => instrument.instrumentAddr === portfolios[i].instrumentAddr);
-  console.log(`Portfolio for ${instrument.symbol}: ${utils.formatPortfolio(portfolios[i], instrument)}`);
+    const instrument = allInstruments.find((instrument) => instrument.instrumentAddr === portfolios[i].instrumentAddr);
+    console.log(`Portfolio for ${instrument.symbol}: ${utils.formatPortfolio(portfolios[i], instrument)}`);
 }
 ```
 
@@ -164,7 +164,7 @@ await erc20.approve(ctx.perp.contracts.gate.address, ethers.constants.MaxUint256
 
 // deposit
 await ctx.gate.deposit(usdc.address, ethers.utils.parseUnits('10', usdc.decimals), {
-  signer,
+    signer,
 });
 
 console.log('Deposit 10 USDC to gate');
@@ -180,26 +180,26 @@ const signer = new ethers.Wallet(process.env['YOUR_PRIVATE_KEY'], ctx.provider);
 // get USDB token info
 const usdc = await ctx.getTokenInfo('USDC');
 await ctx.gate.withdrawWad(usdc.address, ethers.utils.parseUnits('1', usdc.decimals), {
-  signer,
+    signer,
 });
 console.log('Withdraw 1 USDC from the gate');
 
 // 2. withdraw WETH
 await ctx.gate.withdrawWad(
-  ctx.wrappedNative.address,
-  ethers.utils.parseUnits('0.01', await ctx.wrappedNative.decimals()),
-  {
-    signer,
-  },
+    ctx.wrappedNative.address,
+    ethers.utils.parseUnits('0.01', await ctx.wrappedNative.decimals()),
+    {
+        signer,
+    },
 );
 
 // 3. withdraw all WETH to ETH
 await ctx.gate.withdrawWad(
-  NATIVE_TOKEN_ADDRESS,
-  await ctx.contracts.gate.reserveOf(ctx.wrappedNative.address, signer.address),
-  {
-    signer,
-  },
+    NATIVE_TOKEN_ADDRESS,
+    await ctx.contracts.gate.reserveOf(ctx.wrappedNative.address, signer.address),
+    {
+        signer,
+    },
 );
 ```
 
@@ -223,11 +223,11 @@ const slippage = 100;
 
 // Get the simulated result
 const simulateResult = await ctx.perp.simulate.simulateAddLiquidity({
-  expiry,
-  instrument,
-  alphaWad,
-  slippage,
-  margin,
+    expiry,
+    instrument,
+    alphaWad,
+    slippage,
+    margin,
 });
 
 // simulated result e.g
@@ -244,17 +244,17 @@ console.log(utils.formatSimulateAddLiquidityResult(simulateResult, amm, instrume
 
 // Use the simulated result to add liquidity
 await ctx.perp.instrument.addLiquidity(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    tickDeltaLower: simulateResult.tickDelta,
-    tickDeltaUpper: simulateResult.tickDelta,
-    margin,
-    limitTicks: simulateResult.limitTicks,
-    deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
-    referralCode: 'YOUR_REF_CODE_OR_UNDIFINED',
-  },
-  { signer },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        tickDeltaLower: simulateResult.tickDelta,
+        tickDeltaUpper: simulateResult.tickDelta,
+        margin,
+        limitTicks: simulateResult.limitTicks,
+        deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
+        referralCode: 'YOUR_REF_CODE_OR_UNDIFINED',
+    },
+    { signer },
 );
 ```
 
@@ -279,12 +279,12 @@ const slippage = 100;
 
 // Get the simulated result
 const simulateResult = await ctx.perp.simulate.simulateAddLiquidityWithAsymmetricRange({
-  expiry,
-  instrument,
-  alphaWadLower,
-  alphaWadUpper,
-  slippage,
-  margin,
+    expiry,
+    instrument,
+    alphaWadLower,
+    alphaWadUpper,
+    slippage,
+    margin,
 });
 //e,g
 // "Current Price": "1.919121265723978277",
@@ -294,27 +294,27 @@ const simulateResult = await ctx.perp.simulate.simulateAddLiquidityWithAsymmetri
 // "minEffectiveQuoteAmount": "200.0",
 // "minMargin": "23.368586432310517677"
 console.log(
-  utils.formatSimulateAddLiquidityWithAsymmetricRangeResult(
-    simulateResult,
-    amm,
-    instrument.setting.maintenanceMarginRatio,
-  ),
+    utils.formatSimulateAddLiquidityWithAsymmetricRangeResult(
+        simulateResult,
+        amm,
+        instrument.setting.maintenanceMarginRatio,
+    ),
 );
 
 // To meet the minimum effective liquidity: simulateResult.minEffectiveQuoteAmount
 // the margin should be greater than simulateResult.minMargin, please check it
 await ctx.perp.instrument.addLiquidity(
-  {
-    instrumentAddr: instrumentAddress,
-    expiry,
-    tickDeltaLower: simulateResult.tickDeltaLower,
-    tickDeltaUpper: simulateResult.tickDeltaUpper,
-    margin,
-    limitTicks: simulateResult.limitTicks,
-    deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
-    referralCode: 'YOUR_REF_CODE_OR_UNDIFINED',
-  },
-  { signer },
+    {
+        instrumentAddr: instrumentAddress,
+        expiry,
+        tickDeltaLower: simulateResult.tickDeltaLower,
+        tickDeltaUpper: simulateResult.tickDeltaUpper,
+        margin,
+        limitTicks: simulateResult.limitTicks,
+        deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
+        referralCode: 'YOUR_REF_CODE_OR_UNDIFINED',
+    },
+    { signer },
 );
 ```
 
@@ -327,9 +327,9 @@ const signer = new ethers.Wallet(process.env['YOUR_PRIVATE_KEY'], ctx.provider);
 const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const amm = instrument.amms.get(expiry)!;
 const portfolio = await ctx.perp.observer.getPortfolio({
-  traderAddr: signer.address,
-  instrumentAddr: instrument.instrumentAddr,
-  expiry: PERP_EXPIRY,
+    traderAddr: signer.address,
+    instrumentAddr: instrument.instrumentAddr,
+    expiry: PERP_EXPIRY,
 });
 // Get the first range of ranges map
 const range = portfolio.ranges.values().next().value;
@@ -350,10 +350,10 @@ const slippage = 100;
 // The generated position `removedPosition` and the existing position are merged to produce a new position,
 // which is called the `postPosition`.
 const simulateResult = await ctx.perp.simulate.simulateRemoveLiquidity({
-  tradeInfo: portfolio,
-  tickLower: range.tickLower,
-  tickUpper: range.tickUpper,
-  slippage: slippage,
+    tradeInfo: portfolio,
+    tickLower: range.tickLower,
+    tickUpper: range.tickUpper,
+    slippage: slippage,
 });
 //e.g
 // "Removed position": {
@@ -377,18 +377,18 @@ const simulateResult = await ctx.perp.simulate.simulateRemoveLiquidity({
 console.log(utils.formatSimulateRemoveLiquidityResult(simulateResult, amm, instrument.setting.maintenanceMarginRatio));
 // Remove liquidity
 await ctx.perp.instrument.removeLiquidity(
-  {
-    expiry: PERP_EXPIRY,
-    traderAddr: signer.address,
-    tickLower: range.tickLower,
-    tickUpper: range.tickUpper,
-    limitTicks: simulateResult.limitTicks,
-    deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
-    instrumentAddr: instrument.instrumentAddr,
-  },
-  {
-    signer,
-  },
+    {
+        expiry: PERP_EXPIRY,
+        traderAddr: signer.address,
+        tickLower: range.tickLower,
+        tickUpper: range.tickUpper,
+        limitTicks: simulateResult.limitTicks,
+        deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
+        instrumentAddr: instrument.instrumentAddr,
+    },
+    {
+        signer,
+    },
 );
 ```
 
@@ -406,9 +406,9 @@ const amm = instrument.amms.get(expiry)!;
 // Place by margin
 // TradeInfo
 const tradeInfo = {
-  instrumentAddr: instrument.instrumentAddr,
-  expiry,
-  traderAddr: signer.address,
+    instrumentAddr: instrument.instrumentAddr,
+    expiry,
+    traderAddr: signer.address,
 };
 // side: Side.SHORT or Side.LONG
 const side = Side.LONG;
@@ -443,11 +443,11 @@ const sizeByQuote = { quote: instrument.minTradeValue };
 const margin = parseEther('100');
 
 const resultByMargin = await ctx.perp.simulate.simulateMarketOrderByMargin({
-  tradeInfo,
-  side,
-  size: sizeByQuote,
-  slippage,
-  margin,
+    tradeInfo,
+    side,
+    size: sizeByQuote,
+    slippage,
+    margin,
 });
 
 // postPosition is the simulated position after the order is placed
@@ -470,44 +470,44 @@ const resultByMargin = await ctx.perp.simulate.simulateMarketOrderByMargin({
 console.log(utils.formatSimulateMarketOrderResult(resultByMargin, amm, instrument.setting.maintenanceMarginRatio));
 
 await ctx.perp.instrument.placeMarketOrder(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    side,
-    baseSize: resultByMargin.size.base,
-    margin: margin,
-    limitTick: resultByMargin.limitTick,
-    deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
-  },
-  {
-    signer,
-  },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        side,
+        baseSize: resultByMargin.size.base,
+        margin: margin,
+        limitTick: resultByMargin.limitTick,
+        deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
+    },
+    {
+        signer,
+    },
 );
 
 // Place by leverage
 // Leverage is the leverage you want to use to open a position
 // by Leverage will simulate the Margin
 const resultByLeverage = await ctx.perp.simulate.simulateMarketOrderByLeverage({
-  tradeInfo,
-  side,
-  size: sizeByQuote,
-  slippage,
-  leverage: parseEther('5'),
+    tradeInfo,
+    side,
+    size: sizeByQuote,
+    slippage,
+    leverage: parseEther('5'),
 });
 console.log(utils.formatSimulateMarketOrderResult(resultByLeverage, amm, instrument.setting.maintenanceMarginRatio));
 await ctx.perp.instrument.placeMarketOrder(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    side,
-    baseSize: resultByLeverage.size.base,
-    margin: resultByLeverage.margin,
-    limitTick: resultByLeverage.limitTick,
-    deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
-  },
-  {
-    signer,
-  },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        side,
+        baseSize: resultByLeverage.size.base,
+        margin: resultByLeverage.margin,
+        limitTick: resultByLeverage.limitTick,
+        deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
+    },
+    {
+        signer,
+    },
 );
 ```
 
@@ -522,15 +522,15 @@ const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const amm = instrument.amms.get(expiry)!;
 // Get your existing position first
 const portfolio = await ctx.perp.observer.getPortfolio({
-  traderAddr: signer.address,
-  expiry,
-  instrumentAddr: instrument.instrumentAddr,
+    traderAddr: signer.address,
+    expiry,
+    instrumentAddr: instrument.instrumentAddr,
 });
 // If position.size is 0 means no position
 const position = portfolio.position;
 if (position.size.eq(ZERO)) {
-  console.log('No position found');
-  return;
+    console.log('No position found');
+    return;
 }
 // Print your position info
 console.log('Position info', utils.formatPosition(position, amm, instrument.setting.maintenanceMarginRatio));
@@ -542,10 +542,10 @@ const slippage = 100;
 // For example ,now we want to add 100 quote asset to the position
 // Simulate the result first
 const resultByMargin = await ctx.perp.simulate.simulateAdjustMarginByMargin({
-  tradeInfo: position,
-  slippage,
-  transferIn: true, // transfer into the position or out of the position
-  margin: parseEther('100'), // margin to transfer in/out
+    tradeInfo: position,
+    slippage,
+    transferIn: true, // transfer into the position or out of the position
+    margin: parseEther('100'), // margin to transfer in/out
 });
 //e.g
 // "Leverage": "0.000503582363205094",
@@ -559,27 +559,27 @@ const resultByMargin = await ctx.perp.simulate.simulateAdjustMarginByMargin({
 //     "Mark Price": "1.935253071862064287"
 // }
 console.log(
-  'Simulated result by margin',
-  utils.formatSimulateAdjustMarginByMarginResult(resultByMargin, amm, instrument.setting.maintenanceMarginRatio),
+    'Simulated result by margin',
+    utils.formatSimulateAdjustMarginByMarginResult(resultByMargin, amm, instrument.setting.maintenanceMarginRatio),
 );
 // Send the transaction to adjust the margin
 await ctx.perp.instrument.adjustMargin(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    deadline: Math.floor(Date.now() / 1000) + 5 * 60,
-    transferIn: true,
-    margin: parseEther('20'),
-  },
-  { signer },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        deadline: Math.floor(Date.now() / 1000) + 5 * 60,
+        transferIn: true,
+        margin: parseEther('20'),
+    },
+    { signer },
 );
 
 // Adjust position by adjust leverage
 // For example, now we want to adjust the leverage to 2
 const resultByLeverage = await ctx.perp.simulate.simulateAdjustMarginByLeverage({
-  tradeInfo: position,
-  slippage,
-  leverage: parseEther('2'), // leverage to adjust to
+    tradeInfo: position,
+    slippage,
+    leverage: parseEther('2'), // leverage to adjust to
 });
 
 //e.g
@@ -595,19 +595,19 @@ const resultByLeverage = await ctx.perp.simulate.simulateAdjustMarginByLeverage(
 //     "Mark Price": "1.935253071862064287"
 //   }
 console.log(
-  'Simulated result by leverage',
-  utils.formatSimulateAdjustMarginByLeverageResult(resultByLeverage, amm, instrument.setting.maintenanceMarginRatio),
+    'Simulated result by leverage',
+    utils.formatSimulateAdjustMarginByLeverageResult(resultByLeverage, amm, instrument.setting.maintenanceMarginRatio),
 );
 // Send the transaction to adjust the margin
 await ctx.perp.instrument.adjustMargin(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    deadline: Math.floor(Date.now() / 1000) + 5 * 60,
-    transferIn: resultByLeverage.transferIn,
-    margin: resultByLeverage.margin,
-  },
-  { signer },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        deadline: Math.floor(Date.now() / 1000) + 5 * 60,
+        transferIn: resultByLeverage.transferIn,
+        margin: resultByLeverage.margin,
+    },
+    { signer },
 );
 ```
 
@@ -622,16 +622,16 @@ const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const amm = instrument.amms.get(expiry)!;
 
 const portfolio = await ctx.perp.observer.getPortfolio({
-  traderAddr: signer.address,
-  expiry,
-  instrumentAddr: instrument.instrumentAddr,
+    traderAddr: signer.address,
+    expiry,
+    instrumentAddr: instrument.instrumentAddr,
 });
 
 // Get your position
 const position = portfolio.position;
 if (position.size.eq(ZERO)) {
-  console.log('No position found');
-  return;
+    console.log('No position found');
+    return;
 }
 console.log(`Position Now: ${utils.formatPosition(position, amm, instrument.setting.maintenanceMarginRatio)}`);
 
@@ -640,9 +640,9 @@ const slippage = 100;
 
 // simulate close the position
 const result = await ctx.perp.simulate.simulateClose({
-  tradeInfo: position,
-  size: { base: position.size.abs() }, // close the whole position
-  slippage,
+    tradeInfo: position,
+    size: { base: position.size.abs() }, // close the whole position
+    slippage,
 });
 
 console.log(utils.formatSimulateMarketOrderResult(result, amm, instrument.setting.maintenanceMarginRatio));
@@ -650,16 +650,16 @@ console.log(utils.formatSimulateMarketOrderResult(result, amm, instrument.settin
 // Close the existing position means place a market order with the opposite side
 // and the same size
 await ctx.perp.instrument.placeMarketOrder(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    side: utils.reverseSide(position.side), // reverse the side to close the position
-    baseSize: result.size.base,
-    margin: result.margin,
-    limitTick: result.limitTick,
-    deadline: Math.floor(Date.now() / 1000) + 5 * 60,
-  },
-  { signer },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        side: utils.reverseSide(position.side), // reverse the side to close the position
+        baseSize: result.size.base,
+        margin: result.margin,
+        limitTick: result.limitTick,
+        deadline: Math.floor(Date.now() / 1000) + 5 * 60,
+    },
+    { signer },
 );
 ```
 
@@ -680,9 +680,9 @@ const targetTick = utils.alignTick(amm.tick + 100, PEARL_SPACING);
 
 // tradeInfo
 const tradeInfo = {
-  instrumentAddr: instrument.instrumentAddr,
-  expiry,
-  traderAddr: signer.address,
+    instrumentAddr: instrument.instrumentAddr,
+    expiry,
+    traderAddr: signer.address,
 };
 //priceInfo, we excpet the targettick
 const priceInfo = targetTick;
@@ -690,7 +690,7 @@ const priceInfo = targetTick;
 // the quote number must greater than instrument.minOrderValue
 // the base number must greater than wdiv(instrument.minOrderValue,TickMath.getWadAtTick(targetTick))
 const byQuoteSize = {
-  quote: ethers.utils.parseUnits('50'),
+    quote: ethers.utils.parseUnits('50'),
 };
 // side
 const side = Side.SHORT;
@@ -698,11 +698,11 @@ const side = Side.SHORT;
 const leverageInput = ethers.utils.parseUnits('10');
 
 const result = await ctx.perp.simulate.simulateLimitOrder({
-  tradeInfo,
-  side,
-  priceInfo,
-  size: byQuoteSize,
-  leverage: leverageInput,
+    tradeInfo,
+    side,
+    priceInfo,
+    size: byQuoteSize,
+    leverage: leverageInput,
 });
 
 //e.g
@@ -715,16 +715,16 @@ console.log(`simulate result: ${utils.formatSimulateLimitOrderResult(result)}`);
 
 // place limit order
 await ctx.perp.instrument.placeLimitOrder(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    tick: result.tick,
-    baseSize: result.size.base,
-    side,
-    margin: result.margin,
-    deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
-  },
-  { signer },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        tick: result.tick,
+        baseSize: result.size.base,
+        side,
+        margin: result.margin,
+        deadline: Math.floor(Date.now() / 1000) + 300, // deadline, set to 5 minutes later
+    },
+    { signer },
 );
 ```
 
@@ -737,25 +737,25 @@ const expiry = PERP_EXPIRY;
 // Get instrument info, e.g. SUI-USDC-EMG
 const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const portfolio = await ctx.perp.observer.getPortfolio({
-  traderAddr: signer.address,
-  instrumentAddr: instrument.instrumentAddr,
-  expiry,
+    traderAddr: signer.address,
+    instrumentAddr: instrument.instrumentAddr,
+    expiry,
 });
 // Get the first order to cancel
 const order = portfolio.orders.values().next().value;
 if (!order) {
-  console.error('No order found');
-  return;
+    console.error('No order found');
+    return;
 }
 
 await ctx.perp.instrument.cancelLimitOrder(
-  {
-    expiry,
-    tick: order.tick,
-    deadline: Math.floor(Date.now() / 1000) + 60, // 1 minute
-    instrumentAddr: instrument.instrumentAddr,
-  },
-  { signer },
+    {
+        expiry,
+        tick: order.tick,
+        deadline: Math.floor(Date.now() / 1000) + 60, // 1 minute
+        instrumentAddr: instrument.instrumentAddr,
+    },
+    { signer },
 );
 ```
 
@@ -770,9 +770,9 @@ const expiry = PERP_EXPIRY;
 const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const amm = instrument.amms.get(expiry)!;
 const tradeInfo = {
-  instrumentAddr: instrument.instrumentAddr,
-  expiry,
-  traderAddr: signer.address,
+    instrumentAddr: instrument.instrumentAddr,
+    expiry,
+    traderAddr: signer.address,
 };
 
 // batch Scaled limit order need to specify the price range
@@ -787,22 +787,22 @@ const orderCount = 2;
 const sizeDistribution = BatchOrderSizeDistribution.FLAT;
 // size by quote
 const sizeByQuote = {
-  quote: ethers.utils.parseUnits('200'),
+    quote: ethers.utils.parseUnits('200'),
 };
 // side, leverage
 const side = Side.SHORT;
 const leverage = ethers.utils.parseUnits('5');
 // simulate the scaled limit order
 const result = await ctx.perp.simulate.simulateScaledLimitOrder({
-  tradeInfo,
-  lowerPriceInfo,
-  upperPriceInfo,
-  orderCount,
-  sizeDistribution,
-  size: sizeByQuote,
-  side,
-  leverage,
-  instrument,
+    tradeInfo,
+    lowerPriceInfo,
+    upperPriceInfo,
+    orderCount,
+    sizeDistribution,
+    size: sizeByQuote,
+    side,
+    leverage,
+    instrument,
 });
 //e.g
 //   "orders": [
@@ -825,19 +825,19 @@ console.log(`Simulated Result: ${utils.formatSimulateBatchPlaceResult(result)}`)
 
 //Please note that the limit orders do not guarantee to execute all successfully.
 await ctx.perp.instrument.batchPlaceLimitOrder(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    ticks: result.orders.map((order) => order!.tick),
-    ratios: result.orders.map((order) => order!.ratio),
-    baseSize: result.size.base,
-    side,
-    leverage,
-    deadline: Math.floor(Date.now() / 1000) + 300, // 5 minutes
-  },
-  {
-    signer,
-  },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        ticks: result.orders.map((order) => order!.tick),
+        ratios: result.orders.map((order) => order!.ratio),
+        baseSize: result.size.base,
+        side,
+        leverage,
+        deadline: Math.floor(Date.now() / 1000) + 300, // 5 minutes
+    },
+    {
+        signer,
+    },
 );
 ```
 
@@ -849,28 +849,28 @@ const signer = new ethers.Wallet(process.env['YOUR_PRIVATE_KEY'], ctx.provider);
 // Get instrument info, e.g. SUI-USDC-EMG
 const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const portfolio = await ctx.perp.observer.getPortfolio({
-  traderAddr: signer.address,
-  instrumentAddr: instrument.instrumentAddr,
-  expiry,
+    traderAddr: signer.address,
+    instrumentAddr: instrument.instrumentAddr,
+    expiry,
 });
 
 // Get yout all orders
 const orders = Array.from(portfolio.orders.values());
 if (orders.length === 0) {
-  console.log('No orders found');
-  return;
+    console.log('No orders found');
+    return;
 }
 
 const ticks = orders.map((order) => order.tick);
 
 await ctx.perp.instrument.batchCancelLimitOrder(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    orderTicks: ticks,
-    deadline: Math.floor(Date.now() / 1000) + 300, // 5 minutes
-  },
-  { signer },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        orderTicks: ticks,
+        deadline: Math.floor(Date.now() / 1000) + 300, // 5 minutes
+    },
+    { signer },
 );
 ```
 
@@ -884,16 +884,16 @@ const expiry = PERP_EXPIRY;
 const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const amm = instrument.amms.get(expiry)!;
 const tradeInfo = {
-  instrumentAddr: instrument.instrumentAddr,
-  expiry,
-  traderAddr: signer.address,
+    instrumentAddr: instrument.instrumentAddr,
+    expiry,
+    traderAddr: signer.address,
 };
 const side = Side.SHORT;
 const leverage = ethers.utils.parseEther('10');
 //slippage, 100 means 100 / 10000 = 1%
 const slippage = 100;
 const sizeByBase = {
-  base: ethers.utils.parseEther('200'),
+    base: ethers.utils.parseEther('200'),
 };
 // we try to place a short cross market order,
 // so the price of the order must be lower than the fair price
@@ -901,12 +901,12 @@ const sizeByBase = {
 // order spacing is 5, so the tick must be divisible by 5
 const targetTick = utils.alignTick(amm.tick - 100, PEARL_SPACING);
 const result = await ctx.perp.simulate.simulateCrossMarketOrder({
-  tradeInfo,
-  side,
-  leverage,
-  slippage,
-  size: sizeByBase,
-  priceInfo: targetTick,
+    tradeInfo,
+    side,
+    leverage,
+    slippage,
+    size: sizeByBase,
+    priceInfo: targetTick,
 });
 // e.g
 //   "Can Place Order": true,
@@ -937,20 +937,20 @@ const result = await ctx.perp.simulate.simulateCrossMarketOrder({
 console.log(utils.formatSimulateCrossMarketOrderResult(result, amm, instrument.setting.maintenanceMarginRatio));
 
 await ctx.perp.instrument.placeCrossMarketOrder(
-  {
-    instrumentAddr: instrument.instrumentAddr,
-    expiry,
-    side,
-    tradeSize: result.tradeSimulation.size.base,
-    tradeMargin: result.tradeSimulation.margin,
-    tradeLimitTick: result.tradeSimulation.limitTick,
-    orderTick: result.orderSimulation.tick,
-    orderSize: result.orderSimulation.size.base,
-    orderMargin: result.orderSimulation.margin,
-    deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
-  },
-  {
-    signer,
-  },
+    {
+        instrumentAddr: instrument.instrumentAddr,
+        expiry,
+        side,
+        tradeSize: result.tradeSimulation.size.base,
+        tradeMargin: result.tradeSimulation.margin,
+        tradeLimitTick: result.tradeSimulation.limitTick,
+        orderTick: result.orderSimulation.tick,
+        orderSize: result.orderSimulation.size.base,
+        orderMargin: result.orderSimulation.margin,
+        deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
+    },
+    {
+        signer,
+    },
 );
 ```

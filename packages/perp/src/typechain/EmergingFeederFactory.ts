@@ -2,419 +2,331 @@
 /* tslint:disable */
 
 import type {
-  BaseContract,
-  BigNumber,
-  BigNumberish,
-  BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+    BaseContract,
+    BigNumber,
+    BigNumberish,
+    BytesLike,
+    CallOverrides,
+    ContractTransaction,
+    Overrides,
+    PopulatedTransaction,
+    Signer,
+    utils,
 } from 'ethers';
 import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi';
 import type { Listener, Provider } from '@ethersproject/providers';
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common';
 
 export interface EmergingFeederFactoryInterface extends utils.Interface {
-  functions: {
-    'DEFAULT_ADMIN_ROLE()': FunctionFragment;
-    'OPERATOR_ROLE()': FunctionFragment;
-    'allFeeders(uint256)': FunctionFragment;
-    'baseIndexToFeeder(bytes32)': FunctionFragment;
-    'batchCreateFeeder(bytes32[],bytes32[])': FunctionFragment;
-    'batchGetPrice(bytes32[])': FunctionFragment;
-    'batchSetRawPrice(bytes32[],bytes32[])': FunctionFragment;
-    'beacon()': FunctionFragment;
-    'createFeeder(bytes32,uint128)': FunctionFragment;
-    'feederToBaseIndex(address)': FunctionFragment;
-    'getAllFeeders()': FunctionFragment;
-    'getAllFeedersLength()': FunctionFragment;
-    'getAllIndexes()': FunctionFragment;
-    'getDecimals(bytes32)': FunctionFragment;
-    'getPrice(bytes32)': FunctionFragment;
-    'getRoleAdmin(bytes32)': FunctionFragment;
-    'grantRole(bytes32,address)': FunctionFragment;
-    'guardian()': FunctionFragment;
-    'hasRole(bytes32,address)': FunctionFragment;
-    'initialize(address,address[])': FunctionFragment;
-    'renounceRole(bytes32,address)': FunctionFragment;
-    'revokeRole(bytes32,address)': FunctionFragment;
-    'setRawPrice(bytes32,uint128)': FunctionFragment;
-    'supportsInterface(bytes4)': FunctionFragment;
-  };
+    functions: {
+        'DEFAULT_ADMIN_ROLE()': FunctionFragment;
+        'OPERATOR_ROLE()': FunctionFragment;
+        'allFeeders(uint256)': FunctionFragment;
+        'baseIndexToFeeder(bytes32)': FunctionFragment;
+        'batchCreateFeeder(bytes32[],bytes32[])': FunctionFragment;
+        'batchGetPrice(bytes32[])': FunctionFragment;
+        'batchSetRawPrice(bytes32[],bytes32[])': FunctionFragment;
+        'beacon()': FunctionFragment;
+        'createFeeder(bytes32,uint128)': FunctionFragment;
+        'feederToBaseIndex(address)': FunctionFragment;
+        'getAllFeeders()': FunctionFragment;
+        'getAllFeedersLength()': FunctionFragment;
+        'getAllIndexes()': FunctionFragment;
+        'getDecimals(bytes32)': FunctionFragment;
+        'getPrice(bytes32)': FunctionFragment;
+        'getRoleAdmin(bytes32)': FunctionFragment;
+        'grantRole(bytes32,address)': FunctionFragment;
+        'guardian()': FunctionFragment;
+        'hasRole(bytes32,address)': FunctionFragment;
+        'initialize(address,address[])': FunctionFragment;
+        'renounceRole(bytes32,address)': FunctionFragment;
+        'revokeRole(bytes32,address)': FunctionFragment;
+        'setRawPrice(bytes32,uint128)': FunctionFragment;
+        'supportsInterface(bytes4)': FunctionFragment;
+    };
 
-  getFunction(
-    nameOrSignatureOrTopic:
-      | 'DEFAULT_ADMIN_ROLE'
-      | 'OPERATOR_ROLE'
-      | 'allFeeders'
-      | 'baseIndexToFeeder'
-      | 'batchCreateFeeder'
-      | 'batchGetPrice'
-      | 'batchSetRawPrice'
-      | 'beacon'
-      | 'createFeeder'
-      | 'feederToBaseIndex'
-      | 'getAllFeeders'
-      | 'getAllFeedersLength'
-      | 'getAllIndexes'
-      | 'getDecimals'
-      | 'getPrice'
-      | 'getRoleAdmin'
-      | 'grantRole'
-      | 'guardian'
-      | 'hasRole'
-      | 'initialize'
-      | 'renounceRole'
-      | 'revokeRole'
-      | 'setRawPrice'
-      | 'supportsInterface',
-  ): FunctionFragment;
+    getFunction(
+        nameOrSignatureOrTopic:
+            | 'DEFAULT_ADMIN_ROLE'
+            | 'OPERATOR_ROLE'
+            | 'allFeeders'
+            | 'baseIndexToFeeder'
+            | 'batchCreateFeeder'
+            | 'batchGetPrice'
+            | 'batchSetRawPrice'
+            | 'beacon'
+            | 'createFeeder'
+            | 'feederToBaseIndex'
+            | 'getAllFeeders'
+            | 'getAllFeedersLength'
+            | 'getAllIndexes'
+            | 'getDecimals'
+            | 'getPrice'
+            | 'getRoleAdmin'
+            | 'grantRole'
+            | 'guardian'
+            | 'hasRole'
+            | 'initialize'
+            | 'renounceRole'
+            | 'revokeRole'
+            | 'setRawPrice'
+            | 'supportsInterface',
+    ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: 'DEFAULT_ADMIN_ROLE', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'OPERATOR_ROLE', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'allFeeders', values: [PromiseOrValue<BigNumberish>]): string;
-  encodeFunctionData(functionFragment: 'baseIndexToFeeder', values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(
-    functionFragment: 'batchCreateFeeder',
-    values: [PromiseOrValue<BytesLike>[], PromiseOrValue<BytesLike>[]],
-  ): string;
-  encodeFunctionData(functionFragment: 'batchGetPrice', values: [PromiseOrValue<BytesLike>[]]): string;
-  encodeFunctionData(
-    functionFragment: 'batchSetRawPrice',
-    values: [PromiseOrValue<BytesLike>[], PromiseOrValue<BytesLike>[]],
-  ): string;
-  encodeFunctionData(functionFragment: 'beacon', values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: 'createFeeder',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>],
-  ): string;
-  encodeFunctionData(functionFragment: 'feederToBaseIndex', values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: 'getAllFeeders', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'getAllFeedersLength', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'getAllIndexes', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'getDecimals', values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: 'getPrice', values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: 'getRoleAdmin', values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(
-    functionFragment: 'grantRole',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
-  ): string;
-  encodeFunctionData(functionFragment: 'guardian', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'hasRole', values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]): string;
-  encodeFunctionData(
-    functionFragment: 'initialize',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>[]],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'renounceRole',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'revokeRole',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'setRawPrice',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>],
-  ): string;
-  encodeFunctionData(functionFragment: 'supportsInterface', values: [PromiseOrValue<BytesLike>]): string;
+    encodeFunctionData(functionFragment: 'DEFAULT_ADMIN_ROLE', values?: undefined): string;
+    encodeFunctionData(functionFragment: 'OPERATOR_ROLE', values?: undefined): string;
+    encodeFunctionData(functionFragment: 'allFeeders', values: [PromiseOrValue<BigNumberish>]): string;
+    encodeFunctionData(functionFragment: 'baseIndexToFeeder', values: [PromiseOrValue<BytesLike>]): string;
+    encodeFunctionData(
+        functionFragment: 'batchCreateFeeder',
+        values: [PromiseOrValue<BytesLike>[], PromiseOrValue<BytesLike>[]],
+    ): string;
+    encodeFunctionData(functionFragment: 'batchGetPrice', values: [PromiseOrValue<BytesLike>[]]): string;
+    encodeFunctionData(
+        functionFragment: 'batchSetRawPrice',
+        values: [PromiseOrValue<BytesLike>[], PromiseOrValue<BytesLike>[]],
+    ): string;
+    encodeFunctionData(functionFragment: 'beacon', values?: undefined): string;
+    encodeFunctionData(
+        functionFragment: 'createFeeder',
+        values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>],
+    ): string;
+    encodeFunctionData(functionFragment: 'feederToBaseIndex', values: [PromiseOrValue<string>]): string;
+    encodeFunctionData(functionFragment: 'getAllFeeders', values?: undefined): string;
+    encodeFunctionData(functionFragment: 'getAllFeedersLength', values?: undefined): string;
+    encodeFunctionData(functionFragment: 'getAllIndexes', values?: undefined): string;
+    encodeFunctionData(functionFragment: 'getDecimals', values: [PromiseOrValue<BytesLike>]): string;
+    encodeFunctionData(functionFragment: 'getPrice', values: [PromiseOrValue<BytesLike>]): string;
+    encodeFunctionData(functionFragment: 'getRoleAdmin', values: [PromiseOrValue<BytesLike>]): string;
+    encodeFunctionData(
+        functionFragment: 'grantRole',
+        values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
+    ): string;
+    encodeFunctionData(functionFragment: 'guardian', values?: undefined): string;
+    encodeFunctionData(
+        functionFragment: 'hasRole',
+        values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
+    ): string;
+    encodeFunctionData(
+        functionFragment: 'initialize',
+        values: [PromiseOrValue<string>, PromiseOrValue<string>[]],
+    ): string;
+    encodeFunctionData(
+        functionFragment: 'renounceRole',
+        values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
+    ): string;
+    encodeFunctionData(
+        functionFragment: 'revokeRole',
+        values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
+    ): string;
+    encodeFunctionData(
+        functionFragment: 'setRawPrice',
+        values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>],
+    ): string;
+    encodeFunctionData(functionFragment: 'supportsInterface', values: [PromiseOrValue<BytesLike>]): string;
 
-  decodeFunctionResult(functionFragment: 'DEFAULT_ADMIN_ROLE', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'OPERATOR_ROLE', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'allFeeders', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'baseIndexToFeeder', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'batchCreateFeeder', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'batchGetPrice', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'batchSetRawPrice', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'beacon', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'createFeeder', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'feederToBaseIndex', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getAllFeeders', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getAllFeedersLength', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getAllIndexes', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getDecimals', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getPrice', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getRoleAdmin', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'guardian', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'renounceRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setRawPrice', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'supportsInterface', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'DEFAULT_ADMIN_ROLE', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'OPERATOR_ROLE', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'allFeeders', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'baseIndexToFeeder', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'batchCreateFeeder', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'batchGetPrice', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'batchSetRawPrice', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'beacon', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'createFeeder', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'feederToBaseIndex', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'getAllFeeders', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'getAllFeedersLength', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'getAllIndexes', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'getDecimals', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'getPrice', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'getRoleAdmin', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'guardian', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'renounceRole', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'setRawPrice', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'supportsInterface', data: BytesLike): Result;
 
-  events: {
-    'FeederCreated(address,bytes32)': EventFragment;
-    'Initialized(uint8)': EventFragment;
-    'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment;
-    'RoleGranted(bytes32,address,address)': EventFragment;
-    'RoleRevoked(bytes32,address,address)': EventFragment;
-  };
+    events: {
+        'FeederCreated(address,bytes32)': EventFragment;
+        'Initialized(uint8)': EventFragment;
+        'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment;
+        'RoleGranted(bytes32,address,address)': EventFragment;
+        'RoleRevoked(bytes32,address,address)': EventFragment;
+    };
 
-  getEvent(nameOrSignatureOrTopic: 'FeederCreated'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
+    getEvent(nameOrSignatureOrTopic: 'FeederCreated'): EventFragment;
+    getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
+    getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
+    getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
+    getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
 }
 
 export interface FeederCreatedEventObject {
-  feeder: string;
-  baseIndex: string;
+    feeder: string;
+    baseIndex: string;
 }
 export type FeederCreatedEvent = TypedEvent<[string, string], FeederCreatedEventObject>;
 
 export type FeederCreatedEventFilter = TypedEventFilter<FeederCreatedEvent>;
 
 export interface InitializedEventObject {
-  version: number;
+    version: number;
 }
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface RoleAdminChangedEventObject {
-  role: string;
-  previousAdminRole: string;
-  newAdminRole: string;
+    role: string;
+    previousAdminRole: string;
+    newAdminRole: string;
 }
 export type RoleAdminChangedEvent = TypedEvent<[string, string, string], RoleAdminChangedEventObject>;
 
 export type RoleAdminChangedEventFilter = TypedEventFilter<RoleAdminChangedEvent>;
 
 export interface RoleGrantedEventObject {
-  role: string;
-  account: string;
-  sender: string;
+    role: string;
+    account: string;
+    sender: string;
 }
 export type RoleGrantedEvent = TypedEvent<[string, string, string], RoleGrantedEventObject>;
 
 export type RoleGrantedEventFilter = TypedEventFilter<RoleGrantedEvent>;
 
 export interface RoleRevokedEventObject {
-  role: string;
-  account: string;
-  sender: string;
+    role: string;
+    account: string;
+    sender: string;
 }
 export type RoleRevokedEvent = TypedEvent<[string, string, string], RoleRevokedEventObject>;
 
 export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
 
 export interface EmergingFeederFactory extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+    connect(signerOrProvider: Signer | Provider | string): this;
+    attach(addressOrName: string): this;
+    deployed(): Promise<this>;
 
-  interface: EmergingFeederFactoryInterface;
+    interface: EmergingFeederFactoryInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
-    fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>;
+    queryFilter<TEvent extends TypedEvent>(
+        event: TypedEventFilter<TEvent>,
+        fromBlockOrBlockhash?: string | number | undefined,
+        toBlock?: string | number | undefined,
+    ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+    listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+    listeners(eventName?: string): Array<Listener>;
+    removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+    removeAllListeners(eventName?: string): this;
+    off: OnEvent<this>;
+    on: OnEvent<this>;
+    once: OnEvent<this>;
+    removeListener: OnEvent<this>;
 
-  functions: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    functions: {
+        DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    OPERATOR_ROLE(overrides?: CallOverrides): Promise<[string]>;
+        OPERATOR_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[string]>;
+        allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[string]>;
 
-    baseIndexToFeeder(
-      baseIndex: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<[string] & { feeder: string }>;
+        baseIndexToFeeder(
+            baseIndex: PromiseOrValue<BytesLike>,
+            overrides?: CallOverrides,
+        ): Promise<[string] & { feeder: string }>;
 
-    batchCreateFeeder(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        batchCreateFeeder(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    batchGetPrice(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber[], number[]] & { prices: BigNumber[]; timestamps: number[] }>;
+        batchGetPrice(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            overrides?: CallOverrides,
+        ): Promise<[BigNumber[], number[]] & { prices: BigNumber[]; timestamps: number[] }>;
 
-    batchSetRawPrice(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        batchSetRawPrice(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    beacon(overrides?: CallOverrides): Promise<[string]>;
+        beacon(overrides?: CallOverrides): Promise<[string]>;
 
-    createFeeder(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        createFeeder(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    feederToBaseIndex(
-      feeder: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[string] & { baseIndex: string }>;
+        feederToBaseIndex(
+            feeder: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<[string] & { baseIndex: string }>;
 
-    getAllFeeders(overrides?: CallOverrides): Promise<[string[]]>;
+        getAllFeeders(overrides?: CallOverrides): Promise<[string[]]>;
 
-    getAllFeedersLength(overrides?: CallOverrides): Promise<[BigNumber]>;
+        getAllFeedersLength(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getAllIndexes(overrides?: CallOverrides): Promise<[string[]]>;
+        getAllIndexes(overrides?: CallOverrides): Promise<[string[]]>;
 
-    getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[number]>;
+        getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[number]>;
 
-    getPrice(
-      baseIndex: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber, number] & { price: BigNumber; timestamp: number }>;
+        getPrice(
+            baseIndex: PromiseOrValue<BytesLike>,
+            overrides?: CallOverrides,
+        ): Promise<[BigNumber, number] & { price: BigNumber; timestamp: number }>;
 
-    getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string]>;
+        getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string]>;
 
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        grantRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    guardian(overrides?: CallOverrides): Promise<[string]>;
+        guardian(overrides?: CallOverrides): Promise<[string]>;
 
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>;
+        hasRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<[boolean]>;
 
-    initialize(
-      admin: PromiseOrValue<string>,
-      operators: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        initialize(
+            admin: PromiseOrValue<string>,
+            operators: PromiseOrValue<string>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        renounceRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        revokeRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    setRawPrice(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+        setRawPrice(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<ContractTransaction>;
 
-    supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
-  };
+        supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
+    };
 
-  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  OPERATOR_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
-
-  baseIndexToFeeder(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
-
-  batchCreateFeeder(
-    baseIndexes: PromiseOrValue<BytesLike>[],
-    args: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  batchGetPrice(
-    baseIndexes: PromiseOrValue<BytesLike>[],
-    overrides?: CallOverrides,
-  ): Promise<[BigNumber[], number[]] & { prices: BigNumber[]; timestamps: number[] }>;
-
-  batchSetRawPrice(
-    baseIndexes: PromiseOrValue<BytesLike>[],
-    args: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  beacon(overrides?: CallOverrides): Promise<string>;
-
-  createFeeder(
-    baseIndex: PromiseOrValue<BytesLike>,
-    priceE8: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  feederToBaseIndex(feeder: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
-
-  getAllFeeders(overrides?: CallOverrides): Promise<string[]>;
-
-  getAllFeedersLength(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getAllIndexes(overrides?: CallOverrides): Promise<string[]>;
-
-  getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<number>;
-
-  getPrice(
-    baseIndex: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides,
-  ): Promise<[BigNumber, number] & { price: BigNumber; timestamp: number }>;
-
-  getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
-
-  grantRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  guardian(overrides?: CallOverrides): Promise<string>;
-
-  hasRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides,
-  ): Promise<boolean>;
-
-  initialize(
-    admin: PromiseOrValue<string>,
-    operators: PromiseOrValue<string>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  renounceRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  revokeRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  setRawPrice(
-    baseIndex: PromiseOrValue<BytesLike>,
-    priceE8: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>;
-
-  supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
-
-  callStatic: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     OPERATOR_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -424,29 +336,29 @@ export interface EmergingFeederFactory extends BaseContract {
     baseIndexToFeeder(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
 
     batchCreateFeeder(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides,
-    ): Promise<string[]>;
+        baseIndexes: PromiseOrValue<BytesLike>[],
+        args: PromiseOrValue<BytesLike>[],
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     batchGetPrice(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides,
+        baseIndexes: PromiseOrValue<BytesLike>[],
+        overrides?: CallOverrides,
     ): Promise<[BigNumber[], number[]] & { prices: BigNumber[]; timestamps: number[] }>;
 
     batchSetRawPrice(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides,
-    ): Promise<void>;
+        baseIndexes: PromiseOrValue<BytesLike>[],
+        args: PromiseOrValue<BytesLike>[],
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     beacon(overrides?: CallOverrides): Promise<string>;
 
     createFeeder(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<string>;
+        baseIndex: PromiseOrValue<BytesLike>,
+        priceE8: PromiseOrValue<BigNumberish>,
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     feederToBaseIndex(feeder: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
 
@@ -459,266 +371,366 @@ export interface EmergingFeederFactory extends BaseContract {
     getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<number>;
 
     getPrice(
-      baseIndex: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
+        baseIndex: PromiseOrValue<BytesLike>,
+        overrides?: CallOverrides,
     ): Promise<[BigNumber, number] & { price: BigNumber; timestamp: number }>;
 
     getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
 
     grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>;
+        role: PromiseOrValue<BytesLike>,
+        account: PromiseOrValue<string>,
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     guardian(overrides?: CallOverrides): Promise<string>;
 
     hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides,
+        role: PromiseOrValue<BytesLike>,
+        account: PromiseOrValue<string>,
+        overrides?: CallOverrides,
     ): Promise<boolean>;
 
     initialize(
-      admin: PromiseOrValue<string>,
-      operators: PromiseOrValue<string>[],
-      overrides?: CallOverrides,
-    ): Promise<void>;
+        admin: PromiseOrValue<string>,
+        operators: PromiseOrValue<string>[],
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>;
+        role: PromiseOrValue<BytesLike>,
+        account: PromiseOrValue<string>,
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>;
+        role: PromiseOrValue<BytesLike>,
+        account: PromiseOrValue<string>,
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     setRawPrice(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>;
+        baseIndex: PromiseOrValue<BytesLike>,
+        priceE8: PromiseOrValue<BigNumberish>,
+        overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
     supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
-  };
 
-  filters: {
-    'FeederCreated(address,bytes32)'(
-      feeder?: PromiseOrValue<string> | null,
-      baseIndex?: null,
-    ): FeederCreatedEventFilter;
-    FeederCreated(feeder?: PromiseOrValue<string> | null, baseIndex?: null): FeederCreatedEventFilter;
+    callStatic: {
+        DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    'Initialized(uint8)'(version?: null): InitializedEventFilter;
-    Initialized(version?: null): InitializedEventFilter;
+        OPERATOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    'RoleAdminChanged(bytes32,bytes32,bytes32)'(
-      role?: PromiseOrValue<BytesLike> | null,
-      previousAdminRole?: PromiseOrValue<BytesLike> | null,
-      newAdminRole?: PromiseOrValue<BytesLike> | null,
-    ): RoleAdminChangedEventFilter;
-    RoleAdminChanged(
-      role?: PromiseOrValue<BytesLike> | null,
-      previousAdminRole?: PromiseOrValue<BytesLike> | null,
-      newAdminRole?: PromiseOrValue<BytesLike> | null,
-    ): RoleAdminChangedEventFilter;
+        allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
 
-    'RoleGranted(bytes32,address,address)'(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-    ): RoleGrantedEventFilter;
-    RoleGranted(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-    ): RoleGrantedEventFilter;
+        baseIndexToFeeder(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
 
-    'RoleRevoked(bytes32,address,address)'(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-    ): RoleRevokedEventFilter;
-    RoleRevoked(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-    ): RoleRevokedEventFilter;
-  };
+        batchCreateFeeder(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: CallOverrides,
+        ): Promise<string[]>;
 
-  estimateGas: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+        batchGetPrice(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            overrides?: CallOverrides,
+        ): Promise<[BigNumber[], number[]] & { prices: BigNumber[]; timestamps: number[] }>;
 
-    OPERATOR_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+        batchSetRawPrice(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: CallOverrides,
+        ): Promise<void>;
 
-    allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+        beacon(overrides?: CallOverrides): Promise<string>;
 
-    baseIndexToFeeder(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+        createFeeder(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: CallOverrides,
+        ): Promise<string>;
 
-    batchCreateFeeder(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+        feederToBaseIndex(feeder: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
 
-    batchGetPrice(baseIndexes: PromiseOrValue<BytesLike>[], overrides?: CallOverrides): Promise<BigNumber>;
+        getAllFeeders(overrides?: CallOverrides): Promise<string[]>;
 
-    batchSetRawPrice(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+        getAllFeedersLength(overrides?: CallOverrides): Promise<BigNumber>;
 
-    beacon(overrides?: CallOverrides): Promise<BigNumber>;
+        getAllIndexes(overrides?: CallOverrides): Promise<string[]>;
 
-    createFeeder(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+        getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<number>;
 
-    feederToBaseIndex(feeder: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+        getPrice(
+            baseIndex: PromiseOrValue<BytesLike>,
+            overrides?: CallOverrides,
+        ): Promise<[BigNumber, number] & { price: BigNumber; timestamp: number }>;
 
-    getAllFeeders(overrides?: CallOverrides): Promise<BigNumber>;
+        getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
 
-    getAllFeedersLength(overrides?: CallOverrides): Promise<BigNumber>;
+        grantRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<void>;
 
-    getAllIndexes(overrides?: CallOverrides): Promise<BigNumber>;
+        guardian(overrides?: CallOverrides): Promise<string>;
 
-    getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+        hasRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<boolean>;
 
-    getPrice(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+        initialize(
+            admin: PromiseOrValue<string>,
+            operators: PromiseOrValue<string>[],
+            overrides?: CallOverrides,
+        ): Promise<void>;
 
-    getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+        renounceRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<void>;
 
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+        revokeRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<void>;
 
-    guardian(overrides?: CallOverrides): Promise<BigNumber>;
+        setRawPrice(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: CallOverrides,
+        ): Promise<void>;
 
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
+        supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+    };
 
-    initialize(
-      admin: PromiseOrValue<string>,
-      operators: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+    filters: {
+        'FeederCreated(address,bytes32)'(
+            feeder?: PromiseOrValue<string> | null,
+            baseIndex?: null,
+        ): FeederCreatedEventFilter;
+        FeederCreated(feeder?: PromiseOrValue<string> | null, baseIndex?: null): FeederCreatedEventFilter;
 
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+        'Initialized(uint8)'(version?: null): InitializedEventFilter;
+        Initialized(version?: null): InitializedEventFilter;
 
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+        'RoleAdminChanged(bytes32,bytes32,bytes32)'(
+            role?: PromiseOrValue<BytesLike> | null,
+            previousAdminRole?: PromiseOrValue<BytesLike> | null,
+            newAdminRole?: PromiseOrValue<BytesLike> | null,
+        ): RoleAdminChangedEventFilter;
+        RoleAdminChanged(
+            role?: PromiseOrValue<BytesLike> | null,
+            previousAdminRole?: PromiseOrValue<BytesLike> | null,
+            newAdminRole?: PromiseOrValue<BytesLike> | null,
+        ): RoleAdminChangedEventFilter;
 
-    setRawPrice(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>;
+        'RoleGranted(bytes32,address,address)'(
+            role?: PromiseOrValue<BytesLike> | null,
+            account?: PromiseOrValue<string> | null,
+            sender?: PromiseOrValue<string> | null,
+        ): RoleGrantedEventFilter;
+        RoleGranted(
+            role?: PromiseOrValue<BytesLike> | null,
+            account?: PromiseOrValue<string> | null,
+            sender?: PromiseOrValue<string> | null,
+        ): RoleGrantedEventFilter;
 
-    supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
-  };
+        'RoleRevoked(bytes32,address,address)'(
+            role?: PromiseOrValue<BytesLike> | null,
+            account?: PromiseOrValue<string> | null,
+            sender?: PromiseOrValue<string> | null,
+        ): RoleRevokedEventFilter;
+        RoleRevoked(
+            role?: PromiseOrValue<BytesLike> | null,
+            account?: PromiseOrValue<string> | null,
+            sender?: PromiseOrValue<string> | null,
+        ): RoleRevokedEventFilter;
+    };
 
-  populateTransaction: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    estimateGas: {
+        DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    OPERATOR_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        OPERATOR_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    baseIndexToFeeder(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        baseIndexToFeeder(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    batchCreateFeeder(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        batchCreateFeeder(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    batchGetPrice(baseIndexes: PromiseOrValue<BytesLike>[], overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        batchGetPrice(baseIndexes: PromiseOrValue<BytesLike>[], overrides?: CallOverrides): Promise<BigNumber>;
 
-    batchSetRawPrice(
-      baseIndexes: PromiseOrValue<BytesLike>[],
-      args: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        batchSetRawPrice(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    beacon(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        beacon(overrides?: CallOverrides): Promise<BigNumber>;
 
-    createFeeder(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        createFeeder(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    feederToBaseIndex(feeder: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        feederToBaseIndex(feeder: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllFeeders(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getAllFeeders(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllFeedersLength(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getAllFeedersLength(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllIndexes(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getAllIndexes(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getPrice(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getPrice(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        grantRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    guardian(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        guardian(overrides?: CallOverrides): Promise<BigNumber>;
 
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
+        hasRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<BigNumber>;
 
-    initialize(
-      admin: PromiseOrValue<string>,
-      operators: PromiseOrValue<string>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        initialize(
+            admin: PromiseOrValue<string>,
+            operators: PromiseOrValue<string>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        renounceRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        revokeRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    setRawPrice(
-      baseIndex: PromiseOrValue<BytesLike>,
-      priceE8: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>;
+        setRawPrice(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<BigNumber>;
 
-    supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-  };
+        supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+    };
+
+    populateTransaction: {
+        DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        OPERATOR_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        allFeeders(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        baseIndexToFeeder(
+            baseIndex: PromiseOrValue<BytesLike>,
+            overrides?: CallOverrides,
+        ): Promise<PopulatedTransaction>;
+
+        batchCreateFeeder(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        batchGetPrice(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            overrides?: CallOverrides,
+        ): Promise<PopulatedTransaction>;
+
+        batchSetRawPrice(
+            baseIndexes: PromiseOrValue<BytesLike>[],
+            args: PromiseOrValue<BytesLike>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        beacon(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        createFeeder(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        feederToBaseIndex(feeder: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        getAllFeeders(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        getAllFeedersLength(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        getAllIndexes(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        getDecimals(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        getPrice(baseIndex: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        grantRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        guardian(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+        hasRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: CallOverrides,
+        ): Promise<PopulatedTransaction>;
+
+        initialize(
+            admin: PromiseOrValue<string>,
+            operators: PromiseOrValue<string>[],
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        renounceRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        revokeRole(
+            role: PromiseOrValue<BytesLike>,
+            account: PromiseOrValue<string>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        setRawPrice(
+            baseIndex: PromiseOrValue<BytesLike>,
+            priceE8: PromiseOrValue<BigNumberish>,
+            overrides?: Overrides & { from?: PromiseOrValue<string> },
+        ): Promise<PopulatedTransaction>;
+
+        supportsInterface(
+            interfaceId: PromiseOrValue<BytesLike>,
+            overrides?: CallOverrides,
+        ): Promise<PopulatedTransaction>;
+    };
 }

@@ -1,25 +1,25 @@
 {
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "strictNullChecks": false,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "preserveSymlinks": true,
-    "preserveWatchOutput": true,
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "strictBindCallApply": false,
-    "removeComments": true,
-    "allowSyntheticDefaultImports": true
-  }
+    "compilerOptions": {
+        "target": "es2020",
+        "module": "commonjs",
+        "declaration": true,
+        "declarationMap": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmitOnError": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": false,
+        "noImplicitThis": true,
+        "strictNullChecks": false,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "preserveSymlinks": true,
+        "preserveWatchOutput": true,
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "strictBindCallApply": false,
+        "removeComments": true,
+        "allowSyntheticDefaultImports": true
+    }
 }
