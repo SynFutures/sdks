@@ -98,6 +98,3 @@ dist
 .pnp.*
 .idea
 .nx
-
-# pnpm
-.npmrc
