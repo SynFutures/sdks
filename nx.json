@@ -1,32 +1,30 @@
 {
-	"$schema": "./node_modules/nx/schemas/nx-schema.json",
-	"parallel": 8,
-	"targetDefaults": {
-		"build": {
-			"dependsOn": ["^build"],
-			"cache": true,
-			"outputs": [
-				"{projectRoot}/dist"
-			]
-		}
-	},
-	"defaultBase": "main",
-	"plugins": [
-		{
-			"plugin": "@nx/eslint/plugin",
-			"options": {
-				"targetName": "eslint:lint"
-			}
-		},
-		{
-			"plugin": "@nx/jest/plugin",
-			"options": {
-				"targetName": "test"
-			}
-		}
-	],
-	"workspaceLayout": {
-		"appsDir": "apps",
-		"libsDir": "packages"
-	}
+    "$schema": "./node_modules/nx/schemas/nx-schema.json",
+    "parallel": 8,
+    "targetDefaults": {
+        "build": {
+            "dependsOn": ["^build"],
+            "cache": true,
+            "outputs": ["{projectRoot}/dist"]
+        }
+    },
+    "defaultBase": "main",
+    "plugins": [
+        {
+            "plugin": "@nx/eslint/plugin",
+            "options": {
+                "targetName": "eslint:lint"
+            }
+        },
+        {
+            "plugin": "@nx/jest/plugin",
+            "options": {
+                "targetName": "test"
+            }
+        }
+    ],
+    "workspaceLayout": {
+        "appsDir": "apps",
+        "libsDir": "packages"
+    }
 }
