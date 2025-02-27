@@ -1,32 +1,32 @@
 {
   "chainId": 42161,
-  "chainName":"Arbitrum",
-  "nativeToken":"ETH",
-  "blockExplorerUrl":"https://arbiscan.io/",
-  "blockTime":4000,
-  "wrappedNativeAddress":"0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
-  "subgraph":"https://api.thegraph.com/subgraphs/name/fan3cn/synfuturesv3-arbitrum",
-  "subgraphProxy":"https://api.synfutures.com/thegraph/v3-arbitrum",
-  "commit":"875234fe40689cfdf58fd8720d0018da03b4bf9c",
-  "contractAddress":{
+  "chainName": "Arbitrum",
+  "nativeToken": "ETH",
+  "blockExplorerUrl": "https://arbiscan.io/",
+  "blockTime": 4000,
+  "wrappedNativeAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+  "subgraph": "https://api.thegraph.com/subgraphs/name/fan3cn/synfuturesv3-arbitrum",
+  "subgraphProxy": "https://api.synfutures.com/thegraph/v3-arbitrum",
+  "commit": "875234fe40689cfdf58fd8720d0018da03b4bf9c",
+  "contractAddress": {
     "config": "0x1B8267B7EE0F1c08c6CfE6c6f967C746e2A5879f",
     "gate": "0x6A372dBc1968f4a07cf2ce352f410962A972c257",
     "observer": "0xe551db7424419c6f5fC4938cFaF8eB2497A4aa6D",
     "guardian": "0x2D22195756a0a8A39fe09D6857Df7d67dF62E5F3",
-    "market":{
-      "LINK":{
+    "market": {
+      "LINK": {
         "beacon": "0xdBe8Ad06Fa6060d2c818589f73886e234f66e89d",
         "market": "0x55E76d76C7C50d83D63A414379E437550Eff9410"
       },
-      "DEXV2":{
+      "DEXV2": {
         "beacon": "0xdBe8Ad06Fa6060d2c818589f73886e234f66e89d",
         "market": "0xf7E3C2C66b54a75Af3014F4FAD818ed5Ff52722E"
       },
-      "EMG":{
+      "EMG": {
         "beacon": "0xdBe8Ad06Fa6060d2c818589f73886e234f66e89d",
         "market": "0x409204744A267Df16Ed2a96F7686EDe029e6fba7"
       },
-      "PYTH":{
+      "PYTH": {
         "beacon": "0xdBe8Ad06Fa6060d2c818589f73886e234f66e89d",
         "market": "0x19BAC642e72A15ac87920d4ABf972c120aaaf33a"
       }
@@ -42,9 +42,9 @@
       }
     }
   },
-  "marketConfig":{
-    "LINK":{
-      "dailyInterestRate":3,
+  "marketConfig": {
+    "LINK": {
+      "dailyInterestRate": 3,
       "feederSource": [
         {
           "baseSymbol": "BTC",
@@ -57,8 +57,8 @@
         }
       ]
     },
-    "DEXV2":{
-      "dailyInterestRate":3,
+    "DEXV2": {
+      "dailyInterestRate": 3,
       "feederSource": [
         {
           "factory": "0xc35DADB65012eC5796536bD9864eD8773aBc74C4",
@@ -66,19 +66,17 @@
         }
       ]
     },
-    "EMG":{
-      "dailyInterestRate":3,
-      "feederSource": [
-       ]
+    "EMG": {
+      "dailyInterestRate": 3,
+      "feederSource": []
     },
-    "PYTH":{
-      "dailyInterestRate":3,
-      "feederSource": [
-      ]
+    "PYTH": {
+      "dailyInterestRate": 3,
+      "feederSource": []
     }
   },
-  "quotesParam":{
-    "USDC":{
+  "quotesParam": {
+    "USDC": {
       "tradingFeeRatio": 4,
       "protocolFeeRatio": 3,
       "stabilityFeeRatioParam": "1370113808827263642",
@@ -86,7 +84,7 @@
       "minMarginAmount": "15000000000000000000",
       "tip": "200000000000000000"
     },
-    "WETH":{
+    "WETH": {
       "tradingFeeRatio": 4,
       "protocolFeeRatio": 3,
       "stabilityFeeRatioParam": "1370113808827263642",

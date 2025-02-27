@@ -1,36 +1,36 @@
 import {
-    CalcInterface,
-    ConfigInterface,
-    ConfigurationInterface,
-    GateInterface,
-    InstrumentInterface,
-    ObserverInterface,
-    SimulateInterface,
+  CalcInterface,
+  ConfigInterface,
+  ConfigurationInterface,
+  GateInterface,
+  InstrumentInterface,
+  ObserverInterface,
+  SimulateInterface,
 } from './modules';
 import { SynFuturesV3Contracts, TokenInfo } from './types';
 
 export interface PerpInterface {
-    contracts: SynFuturesV3Contracts;
+  contracts: SynFuturesV3Contracts;
 
-    calc: CalcInterface;
+  calc: CalcInterface;
 
-    config: ConfigInterface;
+  config: ConfigInterface;
 
-    gate: GateInterface;
+  gate: GateInterface;
 
-    instrument: InstrumentInterface;
+  instrument: InstrumentInterface;
 
-    observer: ObserverInterface;
+  observer: ObserverInterface;
 
-    simulate: SimulateInterface;
+  simulate: SimulateInterface;
 
-    configuration: ConfigurationInterface;
+  configuration: ConfigurationInterface;
 
-    _observer: ObserverInterface;
+  _observer: ObserverInterface;
 
-    /**
-     * Register new quote info
-     * @param tokenInfo {@link TokenInfo}
-     */
-    registerQuoteInfo(tokenInfo: TokenInfo): void;
+  /**
+   * Register new quote info
+   * @param tokenInfo {@link TokenInfo}
+   */
+  registerQuoteInfo(tokenInfo: TokenInfo): void;
 }

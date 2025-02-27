@@ -1,24 +1,24 @@
 {
   "chainId": 534352,
-  "chainName":"Scroll Mainnet",
-  "nativeToken":"ETH",
-  "blockExplorerUrl":"https://scrollscan.com/",
-  "blockTime":4000,
-  "wrappedNativeAddress":"0x5300000000000000000000000000000000000004",
-  "subgraph":"",
-  "subgraphProxy":"",
-  "commit":"f23730a28ec760a8ae50a70a264ee599374c9881",
-  "contractAddress":{
+  "chainName": "Scroll Mainnet",
+  "nativeToken": "ETH",
+  "blockExplorerUrl": "https://scrollscan.com/",
+  "blockTime": 4000,
+  "wrappedNativeAddress": "0x5300000000000000000000000000000000000004",
+  "subgraph": "",
+  "subgraphProxy": "",
+  "commit": "f23730a28ec760a8ae50a70a264ee599374c9881",
+  "contractAddress": {
     "config": "0xa9B82dc1eed251e6fa94963B5C5007AfD45c1200",
     "gate": "0xB85738DC2f898737d7D9d0346D59BB0ae82af981",
     "observer": "0xE12A0fC792af5F42C05eE20b24bdb31973960964",
     "guardian": "0x5b075C5054dBFd8Ce23F082793204d7aBE30B206",
-    "market":{
-      "LINK":{
+    "market": {
+      "LINK": {
         "beacon": "0xdbFc12c3fbfC73e1af8b172BC3D592f987472811",
         "market": "0x95965AD050ff45284a99933a1bd0570fe4f1fa2A"
       },
-      "DEXV2":{
+      "DEXV2": {
         "beacon": "0xdbFc12c3fbfC73e1af8b172BC3D592f987472811",
         "market": "0xAfcb96BcaE0a4c7C2267e8319136Debba92D65Ab"
       }
@@ -34,9 +34,9 @@
       }
     }
   },
-  "marketConfig":{
-    "LINK":{
-      "dailyInterestRate":3,
+  "marketConfig": {
+    "LINK": {
+      "dailyInterestRate": 3,
       "feederSource": [
         {
           "baseSymbol": "BTC",
@@ -49,14 +49,13 @@
         }
       ]
     },
-    "DEXV2":{
-      "dailyInterestRate":3,
-      "feederSource": [
-      ]
+    "DEXV2": {
+      "dailyInterestRate": 3,
+      "feederSource": []
     }
   },
-  "quotesParam":{
-    "MUSDC":{
+  "quotesParam": {
+    "MUSDC": {
       "tradingFeeRatio": 30,
       "protocolFeeRatio": 10,
       "stabilityFeeRatioParam": "1370113808827263642",
@@ -64,7 +63,7 @@
       "minMarginAmount": "1000000000000000000",
       "tip": "100000000000000000"
     },
-    "METH":{
+    "METH": {
       "tradingFeeRatio": 30,
       "protocolFeeRatio": 10,
       "stabilityFeeRatioParam": "1370113808827263642",

@@ -8,20 +8,20 @@ import { ConfigurationModuleBase } from './configuration.base.module';
 const suppotedChainId = new Set<CHAIN_ID>([CHAIN_ID.BASE, CHAIN_ID.BLAST]);
 
 export class S3ConfigurationModule extends ConfigurationModuleBase {
-    basePath: string;
+  basePath: string;
 
-    constructor(context: Context, basePath?: string) {
-        super(context);
-        this.basePath = basePath ?? 'https://api.synfutures.com/s3/config/sdkConfig';
+  constructor(context: Context, basePath?: string) {
+    super(context);
+    this.basePath = basePath ?? 'https://api.synfutures.com/s3/config/sdkConfig';
+  }
+
+  protected async getConfig(): Promise<SynFuturesConfig | null> {
+    if (!suppotedChainId.has(this.context.chainId)) {
+      return null;
     }
 
-    protected async getConfig(): Promise<SynFuturesConfig | null> {
-        if (!suppotedChainId.has(this.context.chainId)) {
-            return null;
-        }
-
-        const url = this.basePath + '/' + this.context.chainId + '.json';
-        const res = await axios.get(url);
-        return loadConfig(res.data);
-    }
+    const url = this.basePath + '/' + this.context.chainId + '.json';
+    const res = await axios.get(url);
+    return loadConfig(res.data);
+  }
 }

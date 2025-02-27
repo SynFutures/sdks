@@ -1,11 +1,11 @@
 import { InstrumentIdentifier, SynFuturesConfig } from '../../types';
 
 export interface ConfigurationInterface {
-    config: SynFuturesConfig;
+  config: SynFuturesConfig;
 
-    update(): Promise<void>;
+  update(): Promise<void>;
 
-    isInverse(instrument: string): Promise<boolean>;
+  isInverse(instrument: string): Promise<boolean>;
 
-    isInverseByIdentifier(instrument: InstrumentIdentifier): Promise<boolean>;
+  isInverseByIdentifier(instrument: InstrumentIdentifier): Promise<boolean>;
 }

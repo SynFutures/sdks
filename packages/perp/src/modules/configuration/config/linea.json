@@ -1,24 +1,24 @@
 {
   "chainId": 59144,
-  "chainName":"Linea Network Mainnet",
-  "nativeToken":"ETH",
-  "blockExplorerUrl":"https://lineascan.build/",
-  "blockTime":4000,
-  "wrappedNativeAddress":"0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f",
-  "subgraph":"https://graph-query.linea.build/subgraphs/name/synfutures/v3-linea-prod",
-  "subgraphProxy":"https://api.synfutures.com/thegraph/v3-linea-prod",
-  "commit":"f6a4e6391e3541de2304f6af0dc0c68c2ca44958",
-  "contractAddress":{
+  "chainName": "Linea Network Mainnet",
+  "nativeToken": "ETH",
+  "blockExplorerUrl": "https://lineascan.build/",
+  "blockTime": 4000,
+  "wrappedNativeAddress": "0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f",
+  "subgraph": "https://graph-query.linea.build/subgraphs/name/synfutures/v3-linea-prod",
+  "subgraphProxy": "https://api.synfutures.com/thegraph/v3-linea-prod",
+  "commit": "f6a4e6391e3541de2304f6af0dc0c68c2ca44958",
+  "contractAddress": {
     "config": "0xe48CE1c2572cCF0051A777228d5B68842f151861",
     "gate": "0xddEb8BAf1CA8199B127B446fB85E6E93F66A3372",
     "observer": "0x69B9417332677D026B85E049e1972062279a9258",
     "guardian": "0xEA5fD587b33C50e196c028598cF2d339e54242Cf",
-    "market":{
-      "LINK":{
+    "market": {
+      "LINK": {
         "beacon": "0xC6e432333E6c7ECD191522Dd608137A943C7c187",
         "market": "0xF9c9607D3FF6fa1b2DEa2B1d9c363dA509CC5cc5"
       },
-      "DEXV2":{
+      "DEXV2": {
         "beacon": "0xC6e432333E6c7ECD191522Dd608137A943C7c187",
         "market": "0x9AB66721e2dC5fd93732dCFBaBFd379f1973dbE4"
       }
@@ -34,9 +34,9 @@
       }
     }
   },
-  "marketConfig":{
-    "LINK":{
-      "dailyInterestRate":3,
+  "marketConfig": {
+    "LINK": {
+      "dailyInterestRate": 3,
       "feederSource": [
         {
           "baseSymbol": "ETH",
@@ -103,19 +103,18 @@
         }
       ]
     },
-    "DEXV2":{
-      "dailyInterestRate":3,
-      "feederSource": [
-      ]
+    "DEXV2": {
+      "dailyInterestRate": 3,
+      "feederSource": []
     },
-    "PYTH":{
-      "dailyInterestRate":3,
-      "pythCore":"0xA2aa501b19aff244D90cc15a4Cf739D2725B5729",
+    "PYTH": {
+      "dailyInterestRate": 3,
+      "pythCore": "0xA2aa501b19aff244D90cc15a4Cf739D2725B5729",
       "feederSource": []
     }
   },
-  "quotesParam":{
-    "USDM":{
+  "quotesParam": {
+    "USDM": {
       "tradingFeeRatio": 10,
       "protocolFeeRatio": 2,
       "stabilityFeeRatioParam": "1370113808827263642",
@@ -123,7 +122,7 @@
       "minMarginAmount": "100000000000000000000",
       "tip": "1000000000000000000"
     },
-    "METH":{
+    "METH": {
       "tradingFeeRatio": 10,
       "protocolFeeRatio": 2,
       "stabilityFeeRatioParam": "1370113808827263642",

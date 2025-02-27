@@ -6,455 +6,455 @@ import type { Provider } from '@ethersproject/providers';
 import type { OysterAggregator, OysterAggregatorInterface } from '../OysterAggregator';
 
 const _abi = [
-    {
-        type: 'constructor',
-        inputs: [
-            {
-                name: 'weth',
-                type: 'address',
-                internalType: 'address payable',
-            },
-            {
-                name: 'feeReceiver',
-                type: 'address',
-                internalType: 'address',
-            },
-            {
-                name: 'initialOwner',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        stateMutability: 'nonpayable',
-    },
-    {
-        type: 'fallback',
-        stateMutability: 'payable',
-    },
-    {
-        type: 'receive',
-        stateMutability: 'payable',
-    },
-    {
-        type: 'function',
-        name: '_WETH_',
-        inputs: [],
-        outputs: [
-            {
-                name: '',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        stateMutability: 'view',
-    },
-    {
-        type: 'function',
-        name: 'acceptOwnership',
-        inputs: [],
-        outputs: [],
-        stateMutability: 'nonpayable',
-    },
-    {
-        type: 'function',
-        name: 'changeRouteFeeRate',
-        inputs: [
-            {
-                name: 'newFeeRate',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        outputs: [],
-        stateMutability: 'nonpayable',
-    },
-    {
-        type: 'function',
-        name: 'changeRouteFeeReceiver',
-        inputs: [
-            {
-                name: 'newFeeReceiver',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        outputs: [],
-        stateMutability: 'nonpayable',
-    },
-    {
-        type: 'function',
-        name: 'mixSwap',
-        inputs: [
-            {
-                name: 'fromToken',
-                type: 'address',
-                internalType: 'address',
-            },
-            {
-                name: 'toToken',
-                type: 'address',
-                internalType: 'address',
-            },
-            {
-                name: 'fromTokenAmount',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-            {
-                name: 'minReturnAmount',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-            {
-                name: 'mixAdapters',
-                type: 'address[]',
-                internalType: 'address[]',
-            },
-            {
-                name: 'mixPairs',
-                type: 'address[]',
-                internalType: 'address[]',
-            },
-            {
-                name: 'assetTo',
-                type: 'address[]',
-                internalType: 'address[]',
-            },
-            {
-                name: 'directions',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-            {
-                name: 'moreInfos',
-                type: 'bytes[]',
-                internalType: 'bytes[]',
-            },
-            {
-                name: 'feeData',
-                type: 'bytes',
-                internalType: 'bytes',
-            },
-            {
-                name: 'deadLine',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        outputs: [
-            {
-                name: 'receiveAmount',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        stateMutability: 'payable',
-    },
-    {
-        type: 'function',
-        name: 'multiSwap',
-        inputs: [
-            {
-                name: 'fromTokenAmount',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-            {
-                name: 'minReturnAmount',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-            {
-                name: 'splitNumber',
-                type: 'uint256[]',
-                internalType: 'uint256[]',
-            },
-            {
-                name: 'midToken',
-                type: 'address[]',
-                internalType: 'address[]',
-            },
-            {
-                name: 'assetFrom',
-                type: 'address[]',
-                internalType: 'address[]',
-            },
-            {
-                name: 'sequence',
-                type: 'bytes[]',
-                internalType: 'bytes[]',
-            },
-            {
-                name: 'feeData',
-                type: 'bytes',
-                internalType: 'bytes',
-            },
-            {
-                name: 'deadLine',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        outputs: [
-            {
-                name: 'receiveAmount',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        stateMutability: 'payable',
-    },
-    {
-        type: 'function',
-        name: 'owner',
-        inputs: [],
-        outputs: [
-            {
-                name: '',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        stateMutability: 'view',
-    },
-    {
-        type: 'function',
-        name: 'pendingOwner',
-        inputs: [],
-        outputs: [
-            {
-                name: '',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        stateMutability: 'view',
-    },
-    {
-        type: 'function',
-        name: 'renounceOwnership',
-        inputs: [],
-        outputs: [],
-        stateMutability: 'nonpayable',
-    },
-    {
-        type: 'function',
-        name: 'routeFeeRate',
-        inputs: [],
-        outputs: [
-            {
-                name: '',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-    },
-    {
-        type: 'function',
-        name: 'routeFeeReceiver',
-        inputs: [],
-        outputs: [
-            {
-                name: '',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        stateMutability: 'view',
-    },
-    {
-        type: 'function',
-        name: 'superWithdraw',
-        inputs: [
-            {
-                name: 'token',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        outputs: [],
-        stateMutability: 'nonpayable',
-    },
-    {
-        type: 'function',
-        name: 'totalWeight',
-        inputs: [],
-        outputs: [
-            {
-                name: '',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-    },
-    {
-        type: 'function',
-        name: 'transferOwnership',
-        inputs: [
-            {
-                name: 'newOwner',
-                type: 'address',
-                internalType: 'address',
-            },
-        ],
-        outputs: [],
-        stateMutability: 'nonpayable',
-    },
-    {
-        type: 'event',
-        name: 'OrderHistory',
-        inputs: [
-            {
-                name: 'fromToken',
-                type: 'address',
-                indexed: false,
-                internalType: 'address',
-            },
-            {
-                name: 'toToken',
-                type: 'address',
-                indexed: false,
-                internalType: 'address',
-            },
-            {
-                name: 'sender',
-                type: 'address',
-                indexed: false,
-                internalType: 'address',
-            },
-            {
-                name: 'fromAmount',
-                type: 'uint256',
-                indexed: false,
-                internalType: 'uint256',
-            },
-            {
-                name: 'returnAmount',
-                type: 'uint256',
-                indexed: false,
-                internalType: 'uint256',
-            },
-        ],
-        anonymous: false,
-    },
-    {
-        type: 'event',
-        name: 'OwnershipTransferStarted',
-        inputs: [
-            {
-                name: 'previousOwner',
-                type: 'address',
-                indexed: true,
-                internalType: 'address',
-            },
-            {
-                name: 'newOwner',
-                type: 'address',
-                indexed: true,
-                internalType: 'address',
-            },
-        ],
-        anonymous: false,
-    },
-    {
-        type: 'event',
-        name: 'OwnershipTransferred',
-        inputs: [
-            {
-                name: 'previousOwner',
-                type: 'address',
-                indexed: true,
-                internalType: 'address',
-            },
-            {
-                name: 'newOwner',
-                type: 'address',
-                indexed: true,
-                internalType: 'address',
-            },
-        ],
-        anonymous: false,
-    },
-    {
-        type: 'error',
-        name: 'BrokerFeeRateOverflowed',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'EthValueWrong',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'Expired',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'FeeReceiverInvalid',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'MinReturnAmountZero',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'NewFeeRateOverflowed',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'OwnerInvalid',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'PairAdapterNotMatch',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'PairAssetToNotMatch',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'PairsEmpty',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'ReturnAmountNotEnough',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'ReturnAmountZero',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'SplitAssetFromNotMatch',
-        inputs: [],
-    },
-    {
-        type: 'error',
-        name: 'WethAddressInvalid',
-        inputs: [],
-    },
+  {
+    type: 'constructor',
+    inputs: [
+      {
+        name: 'weth',
+        type: 'address',
+        internalType: 'address payable',
+      },
+      {
+        name: 'feeReceiver',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'initialOwner',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'fallback',
+    stateMutability: 'payable',
+  },
+  {
+    type: 'receive',
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: '_WETH_',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'acceptOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'changeRouteFeeRate',
+    inputs: [
+      {
+        name: 'newFeeRate',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'changeRouteFeeReceiver',
+    inputs: [
+      {
+        name: 'newFeeReceiver',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'mixSwap',
+    inputs: [
+      {
+        name: 'fromToken',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'toToken',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'fromTokenAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'minReturnAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'mixAdapters',
+        type: 'address[]',
+        internalType: 'address[]',
+      },
+      {
+        name: 'mixPairs',
+        type: 'address[]',
+        internalType: 'address[]',
+      },
+      {
+        name: 'assetTo',
+        type: 'address[]',
+        internalType: 'address[]',
+      },
+      {
+        name: 'directions',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'moreInfos',
+        type: 'bytes[]',
+        internalType: 'bytes[]',
+      },
+      {
+        name: 'feeData',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+      {
+        name: 'deadLine',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'receiveAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'multiSwap',
+    inputs: [
+      {
+        name: 'fromTokenAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'minReturnAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'splitNumber',
+        type: 'uint256[]',
+        internalType: 'uint256[]',
+      },
+      {
+        name: 'midToken',
+        type: 'address[]',
+        internalType: 'address[]',
+      },
+      {
+        name: 'assetFrom',
+        type: 'address[]',
+        internalType: 'address[]',
+      },
+      {
+        name: 'sequence',
+        type: 'bytes[]',
+        internalType: 'bytes[]',
+      },
+      {
+        name: 'feeData',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+      {
+        name: 'deadLine',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'receiveAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'owner',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pendingOwner',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'renounceOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'routeFeeRate',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'routeFeeReceiver',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'superWithdraw',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'totalWeight',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'transferOwnership',
+    inputs: [
+      {
+        name: 'newOwner',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'OrderHistory',
+    inputs: [
+      {
+        name: 'fromToken',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'toToken',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'sender',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'fromAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'returnAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferStarted',
+    inputs: [
+      {
+        name: 'previousOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
+      {
+        name: 'previousOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'error',
+    name: 'BrokerFeeRateOverflowed',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'EthValueWrong',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'Expired',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'FeeReceiverInvalid',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'MinReturnAmountZero',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'NewFeeRateOverflowed',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'OwnerInvalid',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'PairAdapterNotMatch',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'PairAssetToNotMatch',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'PairsEmpty',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'ReturnAmountNotEnough',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'ReturnAmountZero',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'SplitAssetFromNotMatch',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'WethAddressInvalid',
+    inputs: [],
+  },
 ] as const;
 
 export class OysterAggregator__factory {
-    static readonly abi = _abi;
-    static createInterface(): OysterAggregatorInterface {
-        return new utils.Interface(_abi) as OysterAggregatorInterface;
-    }
-    static connect(address: string, signerOrProvider: Signer | Provider): OysterAggregator {
-        return new Contract(address, _abi, signerOrProvider) as OysterAggregator;
-    }
+  static readonly abi = _abi;
+  static createInterface(): OysterAggregatorInterface {
+    return new utils.Interface(_abi) as OysterAggregatorInterface;
+  }
+  static connect(address: string, signerOrProvider: Signer | Provider): OysterAggregator {
+    return new Contract(address, _abi, signerOrProvider) as OysterAggregator;
+  }
 }

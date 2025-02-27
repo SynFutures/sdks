@@ -35,7 +35,7 @@ export const INITIAL_MARGIN_RATIO = 1000; // default initial margin ratio
 export const MAINTENANCE_MARGIN_RATIO = 500; // default maintenance margin ratio
 
 export const COMPACT_EMA_PARAM = BigNumber.from(
-    '1060108913112522979002928172012890034027465765885994002407459484512227426307',
+  '1060108913112522979002928172012890034027465765885994002407459484512227426307',
 );
 export const NATIVE_TOKEN_ADDRESS = '0x1d6B1d2AD091bec4aAe6A131C92008701531FdaF';
 
@@ -50,24 +50,24 @@ export const MIN_BATCH_ORDER_COUNT = 2;
 export const MAX_CANCEL_ORDER_COUNT = 8;
 
 export const EMPTY_AMM: RawAmm = {
-    expiry: 0,
-    timestamp: 0,
-    status: 0,
-    tick: 0,
-    sqrtPX96: BigNumber.from(0),
-    liquidity: BigNumber.from(0),
-    totalLiquidity: BigNumber.from(0),
-    involvedFund: BigNumber.from(0),
-    openInterests: BigNumber.from(0),
-    feeIndex: BigNumber.from(0),
-    protocolFee: BigNumber.from(0),
-    totalLong: BigNumber.from(0),
-    totalShort: BigNumber.from(0),
-    longSocialLossIndex: BigNumber.from(0),
-    shortSocialLossIndex: BigNumber.from(0),
-    longFundingIndex: BigNumber.from(0),
-    shortFundingIndex: BigNumber.from(0),
-    insuranceFund: BigNumber.from(0),
-    settlementPrice: BigNumber.from(0),
-    markPrice: BigNumber.from(0),
+  expiry: 0,
+  timestamp: 0,
+  status: 0,
+  tick: 0,
+  sqrtPX96: BigNumber.from(0),
+  liquidity: BigNumber.from(0),
+  totalLiquidity: BigNumber.from(0),
+  involvedFund: BigNumber.from(0),
+  openInterests: BigNumber.from(0),
+  feeIndex: BigNumber.from(0),
+  protocolFee: BigNumber.from(0),
+  totalLong: BigNumber.from(0),
+  totalShort: BigNumber.from(0),
+  longSocialLossIndex: BigNumber.from(0),
+  shortSocialLossIndex: BigNumber.from(0),
+  longFundingIndex: BigNumber.from(0),
+  shortFundingIndex: BigNumber.from(0),
+  insuranceFund: BigNumber.from(0),
+  settlementPrice: BigNumber.from(0),
+  markPrice: BigNumber.from(0),
 };

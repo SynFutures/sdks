@@ -20,6 +20,6 @@
     "resolveJsonModule": true,
     "strictBindCallApply": false,
     "removeComments": true,
-    "allowSyntheticDefaultImports": true,
-  },
+    "allowSyntheticDefaultImports": true
+  }
 }

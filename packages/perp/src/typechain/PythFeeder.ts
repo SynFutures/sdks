@@ -2,125 +2,153 @@
 /* tslint:disable */
 
 import type {
-    BaseContract,
-    BigNumber,
-    BytesLike,
-    CallOverrides,
-    ContractTransaction,
-    Overrides,
-    PopulatedTransaction,
-    Signer,
-    utils,
+  BaseContract,
+  BigNumber,
+  BytesLike,
+  CallOverrides,
+  ContractTransaction,
+  Overrides,
+  PopulatedTransaction,
+  Signer,
+  utils,
 } from 'ethers';
 import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi';
 import type { Listener, Provider } from '@ethersproject/providers';
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common';
 
 export interface PythFeederInterface extends utils.Interface {
-    functions: {
-        'decimals()': FunctionFragment;
-        'factory()': FunctionFragment;
-        'id()': FunctionFragment;
-        'initialize(bytes32,address)': FunctionFragment;
-        'latestRoundData()': FunctionFragment;
-        'setPythFeederId(bytes32)': FunctionFragment;
-    };
+  functions: {
+    'decimals()': FunctionFragment;
+    'factory()': FunctionFragment;
+    'id()': FunctionFragment;
+    'initialize(bytes32,address)': FunctionFragment;
+    'latestRoundData()': FunctionFragment;
+    'setPythFeederId(bytes32)': FunctionFragment;
+  };
 
-    getFunction(
-        nameOrSignatureOrTopic: 'decimals' | 'factory' | 'id' | 'initialize' | 'latestRoundData' | 'setPythFeederId',
-    ): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: 'decimals' | 'factory' | 'id' | 'initialize' | 'latestRoundData' | 'setPythFeederId',
+  ): FunctionFragment;
 
-    encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'factory', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'id', values?: undefined): string;
-    encodeFunctionData(
-        functionFragment: 'initialize',
-        values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
-    ): string;
-    encodeFunctionData(functionFragment: 'latestRoundData', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'setPythFeederId', values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'factory', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'id', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'initialize',
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
+  ): string;
+  encodeFunctionData(functionFragment: 'latestRoundData', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'setPythFeederId', values: [PromiseOrValue<BytesLike>]): string;
 
-    decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'factory', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'id', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'latestRoundData', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'setPythFeederId', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'factory', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'id', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'latestRoundData', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPythFeederId', data: BytesLike): Result;
 
-    events: {
-        'Initialized(uint8)': EventFragment;
-        'SetPythFeederId(bytes32)': EventFragment;
-    };
+  events: {
+    'Initialized(uint8)': EventFragment;
+    'SetPythFeederId(bytes32)': EventFragment;
+  };
 
-    getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
-    getEvent(nameOrSignatureOrTopic: 'SetPythFeederId'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SetPythFeederId'): EventFragment;
 }
 
 export interface InitializedEventObject {
-    version: number;
+  version: number;
 }
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface SetPythFeederIdEventObject {
-    id: string;
+  id: string;
 }
 export type SetPythFeederIdEvent = TypedEvent<[string], SetPythFeederIdEventObject>;
 
 export type SetPythFeederIdEventFilter = TypedEventFilter<SetPythFeederIdEvent>;
 
 export interface PythFeeder extends BaseContract {
-    connect(signerOrProvider: Signer | Provider | string): this;
-    attach(addressOrName: string): this;
-    deployed(): Promise<this>;
+  connect(signerOrProvider: Signer | Provider | string): this;
+  attach(addressOrName: string): this;
+  deployed(): Promise<this>;
 
-    interface: PythFeederInterface;
+  interface: PythFeederInterface;
 
-    queryFilter<TEvent extends TypedEvent>(
-        event: TypedEventFilter<TEvent>,
-        fromBlockOrBlockhash?: string | number | undefined,
-        toBlock?: string | number | undefined,
-    ): Promise<Array<TEvent>>;
+  queryFilter<TEvent extends TypedEvent>(
+    event: TypedEventFilter<TEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TEvent>>;
 
-    listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
-    listeners(eventName?: string): Array<Listener>;
-    removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
-    removeAllListeners(eventName?: string): this;
-    off: OnEvent<this>;
-    on: OnEvent<this>;
-    once: OnEvent<this>;
-    removeListener: OnEvent<this>;
+  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners(eventName?: string): Array<Listener>;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners(eventName?: string): this;
+  off: OnEvent<this>;
+  on: OnEvent<this>;
+  once: OnEvent<this>;
+  removeListener: OnEvent<this>;
 
-    functions: {
-        decimals(overrides?: CallOverrides): Promise<[number]>;
+  functions: {
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
-        factory(overrides?: CallOverrides): Promise<[string]>;
+    factory(overrides?: CallOverrides): Promise<[string]>;
 
-        id(overrides?: CallOverrides): Promise<[string]>;
+    id(overrides?: CallOverrides): Promise<[string]>;
 
-        initialize(
-            _id: PromiseOrValue<BytesLike>,
-            guardian: PromiseOrValue<string>,
-            overrides?: Overrides & { from?: PromiseOrValue<string> },
-        ): Promise<ContractTransaction>;
+    initialize(
+      _id: PromiseOrValue<BytesLike>,
+      guardian: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
 
-        latestRoundData(overrides?: CallOverrides): Promise<
-            [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-                roundId: BigNumber;
-                answer: BigNumber;
-                startedAt: BigNumber;
-                updatedAt: BigNumber;
-                answeredInRound: BigNumber;
-            }
-        >;
+    latestRoundData(overrides?: CallOverrides): Promise<
+      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        roundId: BigNumber;
+        answer: BigNumber;
+        startedAt: BigNumber;
+        updatedAt: BigNumber;
+        answeredInRound: BigNumber;
+      }
+    >;
 
-        setPythFeederId(
-            _id: PromiseOrValue<BytesLike>,
-            overrides?: Overrides & { from?: PromiseOrValue<string> },
-        ): Promise<ContractTransaction>;
-    };
+    setPythFeederId(
+      _id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>;
+  };
 
+  decimals(overrides?: CallOverrides): Promise<number>;
+
+  factory(overrides?: CallOverrides): Promise<string>;
+
+  id(overrides?: CallOverrides): Promise<string>;
+
+  initialize(
+    _id: PromiseOrValue<BytesLike>,
+    guardian: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
+
+  latestRoundData(overrides?: CallOverrides): Promise<
+    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      roundId: BigNumber;
+      answer: BigNumber;
+      startedAt: BigNumber;
+      updatedAt: BigNumber;
+      answeredInRound: BigNumber;
+    }
+  >;
+
+  setPythFeederId(
+    _id: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>;
+
+  callStatic: {
     decimals(overrides?: CallOverrides): Promise<number>;
 
     factory(overrides?: CallOverrides): Promise<string>;
@@ -128,99 +156,71 @@ export interface PythFeeder extends BaseContract {
     id(overrides?: CallOverrides): Promise<string>;
 
     initialize(
-        _id: PromiseOrValue<BytesLike>,
-        guardian: PromiseOrValue<string>,
-        overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+      _id: PromiseOrValue<BytesLike>,
+      guardian: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<void>;
 
     latestRoundData(overrides?: CallOverrides): Promise<
-        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            roundId: BigNumber;
-            answer: BigNumber;
-            startedAt: BigNumber;
-            updatedAt: BigNumber;
-            answeredInRound: BigNumber;
-        }
+      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        roundId: BigNumber;
+        answer: BigNumber;
+        startedAt: BigNumber;
+        updatedAt: BigNumber;
+        answeredInRound: BigNumber;
+      }
     >;
 
+    setPythFeederId(_id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
+  };
+
+  filters: {
+    'Initialized(uint8)'(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
+    'SetPythFeederId(bytes32)'(id?: null): SetPythFeederIdEventFilter;
+    SetPythFeederId(id?: null): SetPythFeederIdEventFilter;
+  };
+
+  estimateGas: {
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+    factory(overrides?: CallOverrides): Promise<BigNumber>;
+
+    id(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _id: PromiseOrValue<BytesLike>,
+      guardian: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+
+    latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
+
     setPythFeederId(
-        _id: PromiseOrValue<BytesLike>,
-        overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>;
+      _id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>;
+  };
 
-    callStatic: {
-        decimals(overrides?: CallOverrides): Promise<number>;
+  populateTransaction: {
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        factory(overrides?: CallOverrides): Promise<string>;
+    factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        id(overrides?: CallOverrides): Promise<string>;
+    id(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        initialize(
-            _id: PromiseOrValue<BytesLike>,
-            guardian: PromiseOrValue<string>,
-            overrides?: CallOverrides,
-        ): Promise<void>;
+    initialize(
+      _id: PromiseOrValue<BytesLike>,
+      guardian: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>;
 
-        latestRoundData(overrides?: CallOverrides): Promise<
-            [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-                roundId: BigNumber;
-                answer: BigNumber;
-                startedAt: BigNumber;
-                updatedAt: BigNumber;
-                answeredInRound: BigNumber;
-            }
-        >;
+    latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        setPythFeederId(_id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
-    };
-
-    filters: {
-        'Initialized(uint8)'(version?: null): InitializedEventFilter;
-        Initialized(version?: null): InitializedEventFilter;
-
-        'SetPythFeederId(bytes32)'(id?: null): SetPythFeederIdEventFilter;
-        SetPythFeederId(id?: null): SetPythFeederIdEventFilter;
-    };
-
-    estimateGas: {
-        decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-        factory(overrides?: CallOverrides): Promise<BigNumber>;
-
-        id(overrides?: CallOverrides): Promise<BigNumber>;
-
-        initialize(
-            _id: PromiseOrValue<BytesLike>,
-            guardian: PromiseOrValue<string>,
-            overrides?: Overrides & { from?: PromiseOrValue<string> },
-        ): Promise<BigNumber>;
-
-        latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
-
-        setPythFeederId(
-            _id: PromiseOrValue<BytesLike>,
-            overrides?: Overrides & { from?: PromiseOrValue<string> },
-        ): Promise<BigNumber>;
-    };
-
-    populateTransaction: {
-        decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        id(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        initialize(
-            _id: PromiseOrValue<BytesLike>,
-            guardian: PromiseOrValue<string>,
-            overrides?: Overrides & { from?: PromiseOrValue<string> },
-        ): Promise<PopulatedTransaction>;
-
-        latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        setPythFeederId(
-            _id: PromiseOrValue<BytesLike>,
-            overrides?: Overrides & { from?: PromiseOrValue<string> },
-        ): Promise<PopulatedTransaction>;
-    };
+    setPythFeederId(
+      _id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>;
+  };
 }

@@ -1,32 +1,32 @@
 {
   "chainId": 5,
-  "chainName":"Ethereum Testnet Goerli",
-  "nativeToken":"ETH",
-  "blockExplorerUrl":"https://goerli.etherscan.io",
-  "blockTime":4000,
-  "wrappedNativeAddress":"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  "subgraph":"https://api.thegraph.com/subgraphs/name/fan3cn/synfuturesv3-goerli-20240105",
-  "subgraphProxy":"https://api.synfutures.com/thegraph/v3-goerli-dev",
-  "commit":"875234fe40689cfdf58fd8720d0018da03b4bf9c",
-  "contractAddress":{
+  "chainName": "Ethereum Testnet Goerli",
+  "nativeToken": "ETH",
+  "blockExplorerUrl": "https://goerli.etherscan.io",
+  "blockTime": 4000,
+  "wrappedNativeAddress": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "subgraph": "https://api.thegraph.com/subgraphs/name/fan3cn/synfuturesv3-goerli-20240105",
+  "subgraphProxy": "https://api.synfutures.com/thegraph/v3-goerli-dev",
+  "commit": "875234fe40689cfdf58fd8720d0018da03b4bf9c",
+  "contractAddress": {
     "config": "0x2f35A7cc1e1BAeE06B78B60277C7A4dD2678cCC4",
     "gate": "0x506a943cA72acDE20fB9CEf3f6369bca5eB04455",
     "observer": "0xE3eB9DbE184Ffa1537afA4360b9C51B9EbCe0d2e",
     "guardian": "0x09c2ea7E1EF91b8e978929870E23045287aA682A",
-    "market":{
-      "LINK":{
+    "market": {
+      "LINK": {
         "beacon": "0x94649BAc0eA5404A81eaa62D4EcD7df83E7C21d1",
         "market": "0x4A5b84c90FE2cE12f40b4006790c2d3cF30Bc815"
       },
-      "DEXV2":{
+      "DEXV2": {
         "beacon": "0x94649BAc0eA5404A81eaa62D4EcD7df83E7C21d1",
         "market": "0x8E01b0c785dA870D39C5ED2a47D4D6458c7a3a72"
       },
-      "EMG":{
+      "EMG": {
         "beacon": "0x94649BAc0eA5404A81eaa62D4EcD7df83E7C21d1",
         "market": "0xFEE5eD10f097b180Ba31a6488F9e206213cfC01F"
       },
-      "PYTH":{
+      "PYTH": {
         "beacon": "0x94649BAc0eA5404A81eaa62D4EcD7df83E7C21d1",
         "market": "0x38Fd0662958B1b1f113dd469D95356A3F94764AC"
       }
@@ -42,9 +42,9 @@
       }
     }
   },
-  "marketConfig":{
-    "LINK":{
-      "dailyInterestRate":3,
+  "marketConfig": {
+    "LINK": {
+      "dailyInterestRate": 3,
       "feederSource": [
         {
           "baseSymbol": "BTC",
@@ -396,7 +396,6 @@
           "heartBeat0": 604800,
           "aggregator1": "0xAb5c49580294Aff77670F839ea425f5b78ab3Ae7",
           "heartBeat1": 604800
-
         },
         {
           "baseSymbol": "MNT",
@@ -508,8 +507,8 @@
         }
       ]
     },
-    "DEXV2":{
-      "dailyInterestRate":3,
+    "DEXV2": {
+      "dailyInterestRate": 3,
       "feederSource": [
         {
           "factory": "0xDB45aeED5d75581ce137f074721804D8b43E9Ce9",
@@ -525,14 +524,14 @@
         }
       ]
     },
-    "PYTH":{
-      "dailyInterestRate":3,
-      "pythCore":"0x0000000000000000000000000000000000000000",
+    "PYTH": {
+      "dailyInterestRate": 3,
+      "pythCore": "0x0000000000000000000000000000000000000000",
       "feederSource": []
     }
   },
-  "quotesParam":{
-    "USDM":{
+  "quotesParam": {
+    "USDM": {
       "tradingFeeRatio": 30,
       "protocolFeeRatio": 10,
       "stabilityFeeRatioParam": "1370113808827263642",
@@ -540,7 +539,7 @@
       "minMarginAmount": "1000000000000000000",
       "tip": "100000000000000000"
     },
-    "WETH":{
+    "WETH": {
       "tradingFeeRatio": 30,
       "protocolFeeRatio": 10,
       "stabilityFeeRatioParam": "1370113808827263642",

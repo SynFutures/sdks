@@ -2,476 +2,473 @@
 /* tslint:disable */
 
 import type {
-    BaseContract,
-    BigNumber,
-    BigNumberish,
-    BytesLike,
-    CallOverrides,
-    ContractTransaction,
-    Overrides,
-    PayableOverrides,
-    PopulatedTransaction,
-    Signer,
-    utils,
+  BaseContract,
+  BigNumber,
+  BigNumberish,
+  BytesLike,
+  CallOverrides,
+  ContractTransaction,
+  Overrides,
+  PayableOverrides,
+  PopulatedTransaction,
+  Signer,
+  utils,
 } from 'ethers';
 import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi';
 import type { Listener, Provider } from '@ethersproject/providers';
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from './common';
 
 export interface OysterAggregatorInterface extends utils.Interface {
-    functions: {
-        '_WETH_()': FunctionFragment;
-        'acceptOwnership()': FunctionFragment;
-        'changeRouteFeeRate(uint256)': FunctionFragment;
-        'changeRouteFeeReceiver(address)': FunctionFragment;
-        'mixSwap(address,address,uint256,uint256,address[],address[],address[],uint256,bytes[],bytes,uint256)': FunctionFragment;
-        'multiSwap(uint256,uint256,uint256[],address[],address[],bytes[],bytes,uint256)': FunctionFragment;
-        'owner()': FunctionFragment;
-        'pendingOwner()': FunctionFragment;
-        'renounceOwnership()': FunctionFragment;
-        'routeFeeRate()': FunctionFragment;
-        'routeFeeReceiver()': FunctionFragment;
-        'superWithdraw(address)': FunctionFragment;
-        'totalWeight()': FunctionFragment;
-        'transferOwnership(address)': FunctionFragment;
-    };
+  functions: {
+    '_WETH_()': FunctionFragment;
+    'acceptOwnership()': FunctionFragment;
+    'changeRouteFeeRate(uint256)': FunctionFragment;
+    'changeRouteFeeReceiver(address)': FunctionFragment;
+    'mixSwap(address,address,uint256,uint256,address[],address[],address[],uint256,bytes[],bytes,uint256)': FunctionFragment;
+    'multiSwap(uint256,uint256,uint256[],address[],address[],bytes[],bytes,uint256)': FunctionFragment;
+    'owner()': FunctionFragment;
+    'pendingOwner()': FunctionFragment;
+    'renounceOwnership()': FunctionFragment;
+    'routeFeeRate()': FunctionFragment;
+    'routeFeeReceiver()': FunctionFragment;
+    'superWithdraw(address)': FunctionFragment;
+    'totalWeight()': FunctionFragment;
+    'transferOwnership(address)': FunctionFragment;
+  };
 
-    getFunction(
-        nameOrSignatureOrTopic:
-            | '_WETH_'
-            | 'acceptOwnership'
-            | 'changeRouteFeeRate'
-            | 'changeRouteFeeReceiver'
-            | 'mixSwap'
-            | 'multiSwap'
-            | 'owner'
-            | 'pendingOwner'
-            | 'renounceOwnership'
-            | 'routeFeeRate'
-            | 'routeFeeReceiver'
-            | 'superWithdraw'
-            | 'totalWeight'
-            | 'transferOwnership',
-    ): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic:
+      | '_WETH_'
+      | 'acceptOwnership'
+      | 'changeRouteFeeRate'
+      | 'changeRouteFeeReceiver'
+      | 'mixSwap'
+      | 'multiSwap'
+      | 'owner'
+      | 'pendingOwner'
+      | 'renounceOwnership'
+      | 'routeFeeRate'
+      | 'routeFeeReceiver'
+      | 'superWithdraw'
+      | 'totalWeight'
+      | 'transferOwnership',
+  ): FunctionFragment;
 
-    encodeFunctionData(functionFragment: '_WETH_', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'acceptOwnership', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'changeRouteFeeRate', values: [BigNumberish]): string;
-    encodeFunctionData(functionFragment: 'changeRouteFeeReceiver', values: [string]): string;
-    encodeFunctionData(
-        functionFragment: 'mixSwap',
-        values: [
-            string,
-            string,
-            BigNumberish,
-            BigNumberish,
-            string[],
-            string[],
-            string[],
-            BigNumberish,
-            BytesLike[],
-            BytesLike,
-            BigNumberish,
-        ],
-    ): string;
-    encodeFunctionData(
-        functionFragment: 'multiSwap',
-        values: [BigNumberish, BigNumberish, BigNumberish[], string[], string[], BytesLike[], BytesLike, BigNumberish],
-    ): string;
-    encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'pendingOwner', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'routeFeeRate', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'routeFeeReceiver', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'superWithdraw', values: [string]): string;
-    encodeFunctionData(functionFragment: 'totalWeight', values?: undefined): string;
-    encodeFunctionData(functionFragment: 'transferOwnership', values: [string]): string;
+  encodeFunctionData(functionFragment: '_WETH_', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'acceptOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'changeRouteFeeRate', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'changeRouteFeeReceiver', values: [string]): string;
+  encodeFunctionData(
+    functionFragment: 'mixSwap',
+    values: [
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      string[],
+      string[],
+      string[],
+      BigNumberish,
+      BytesLike[],
+      BytesLike,
+      BigNumberish,
+    ],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'multiSwap',
+    values: [BigNumberish, BigNumberish, BigNumberish[], string[], string[], BytesLike[], BytesLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'pendingOwner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'routeFeeRate', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'routeFeeReceiver', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'superWithdraw', values: [string]): string;
+  encodeFunctionData(functionFragment: 'totalWeight', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [string]): string;
 
-    decodeFunctionResult(functionFragment: '_WETH_', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'acceptOwnership', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'changeRouteFeeRate', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'changeRouteFeeReceiver', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'mixSwap', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'multiSwap', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'pendingOwner', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'routeFeeRate', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'routeFeeReceiver', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'superWithdraw', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'totalWeight', data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: '_WETH_', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'acceptOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'changeRouteFeeRate', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'changeRouteFeeReceiver', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mixSwap', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'multiSwap', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pendingOwner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'routeFeeRate', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'routeFeeReceiver', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'superWithdraw', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalWeight', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
 
-    events: {
-        'OrderHistory(address,address,address,uint256,uint256)': EventFragment;
-        'OwnershipTransferStarted(address,address)': EventFragment;
-        'OwnershipTransferred(address,address)': EventFragment;
-    };
+  events: {
+    'OrderHistory(address,address,address,uint256,uint256)': EventFragment;
+    'OwnershipTransferStarted(address,address)': EventFragment;
+    'OwnershipTransferred(address,address)': EventFragment;
+  };
 
-    getEvent(nameOrSignatureOrTopic: 'OrderHistory'): EventFragment;
-    getEvent(nameOrSignatureOrTopic: 'OwnershipTransferStarted'): EventFragment;
-    getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OrderHistory'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferStarted'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment;
 }
 
 export interface OrderHistoryEventObject {
-    fromToken: string;
-    toToken: string;
-    sender: string;
-    fromAmount: BigNumber;
-    returnAmount: BigNumber;
+  fromToken: string;
+  toToken: string;
+  sender: string;
+  fromAmount: BigNumber;
+  returnAmount: BigNumber;
 }
 export type OrderHistoryEvent = TypedEvent<[string, string, string, BigNumber, BigNumber], OrderHistoryEventObject>;
 
 export type OrderHistoryEventFilter = TypedEventFilter<OrderHistoryEvent>;
 
 export interface OwnershipTransferStartedEventObject {
-    previousOwner: string;
-    newOwner: string;
+  previousOwner: string;
+  newOwner: string;
 }
 export type OwnershipTransferStartedEvent = TypedEvent<[string, string], OwnershipTransferStartedEventObject>;
 
 export type OwnershipTransferStartedEventFilter = TypedEventFilter<OwnershipTransferStartedEvent>;
 
 export interface OwnershipTransferredEventObject {
-    previousOwner: string;
-    newOwner: string;
+  previousOwner: string;
+  newOwner: string;
 }
 export type OwnershipTransferredEvent = TypedEvent<[string, string], OwnershipTransferredEventObject>;
 
 export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface OysterAggregator extends BaseContract {
-    connect(signerOrProvider: Signer | Provider | string): this;
-    attach(addressOrName: string): this;
-    deployed(): Promise<this>;
+  connect(signerOrProvider: Signer | Provider | string): this;
+  attach(addressOrName: string): this;
+  deployed(): Promise<this>;
 
-    interface: OysterAggregatorInterface;
+  interface: OysterAggregatorInterface;
 
-    queryFilter<TEvent extends TypedEvent>(
-        event: TypedEventFilter<TEvent>,
-        fromBlockOrBlockhash?: string | number | undefined,
-        toBlock?: string | number | undefined,
-    ): Promise<Array<TEvent>>;
+  queryFilter<TEvent extends TypedEvent>(
+    event: TypedEventFilter<TEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TEvent>>;
 
-    listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
-    listeners(eventName?: string): Array<Listener>;
-    removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
-    removeAllListeners(eventName?: string): this;
-    off: OnEvent<this>;
-    on: OnEvent<this>;
-    once: OnEvent<this>;
-    removeListener: OnEvent<this>;
+  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners(eventName?: string): Array<Listener>;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners(eventName?: string): this;
+  off: OnEvent<this>;
+  on: OnEvent<this>;
+  once: OnEvent<this>;
+  removeListener: OnEvent<this>;
 
-    functions: {
-        _WETH_(overrides?: CallOverrides): Promise<[string]>;
-
-        acceptOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
-
-        changeRouteFeeRate(
-            newFeeRate: BigNumberish,
-            overrides?: Overrides & { from?: string },
-        ): Promise<ContractTransaction>;
-
-        changeRouteFeeReceiver(
-            newFeeReceiver: string,
-            overrides?: Overrides & { from?: string },
-        ): Promise<ContractTransaction>;
-
-        mixSwap(
-            fromToken: string,
-            toToken: string,
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            mixAdapters: string[],
-            mixPairs: string[],
-            assetTo: string[],
-            directions: BigNumberish,
-            moreInfos: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: PayableOverrides & { from?: string },
-        ): Promise<ContractTransaction>;
-
-        multiSwap(
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            splitNumber: BigNumberish[],
-            midToken: string[],
-            assetFrom: string[],
-            sequence: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: PayableOverrides & { from?: string },
-        ): Promise<ContractTransaction>;
-
-        owner(overrides?: CallOverrides): Promise<[string]>;
-
-        pendingOwner(overrides?: CallOverrides): Promise<[string]>;
-
-        renounceOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
-
-        routeFeeRate(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-        routeFeeReceiver(overrides?: CallOverrides): Promise<[string]>;
-
-        superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
-
-        totalWeight(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-        transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
-    };
-
-    _WETH_(overrides?: CallOverrides): Promise<string>;
+  functions: {
+    _WETH_(overrides?: CallOverrides): Promise<[string]>;
 
     acceptOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     changeRouteFeeRate(
-        newFeeRate: BigNumberish,
-        overrides?: Overrides & { from?: string },
+      newFeeRate: BigNumberish,
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     changeRouteFeeReceiver(
-        newFeeReceiver: string,
-        overrides?: Overrides & { from?: string },
+      newFeeReceiver: string,
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     mixSwap(
-        fromToken: string,
-        toToken: string,
-        fromTokenAmount: BigNumberish,
-        minReturnAmount: BigNumberish,
-        mixAdapters: string[],
-        mixPairs: string[],
-        assetTo: string[],
-        directions: BigNumberish,
-        moreInfos: BytesLike[],
-        feeData: BytesLike,
-        deadLine: BigNumberish,
-        overrides?: PayableOverrides & { from?: string },
+      fromToken: string,
+      toToken: string,
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      mixAdapters: string[],
+      mixPairs: string[],
+      assetTo: string[],
+      directions: BigNumberish,
+      moreInfos: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     multiSwap(
-        fromTokenAmount: BigNumberish,
-        minReturnAmount: BigNumberish,
-        splitNumber: BigNumberish[],
-        midToken: string[],
-        assetFrom: string[],
-        sequence: BytesLike[],
-        feeData: BytesLike,
-        deadLine: BigNumberish,
-        overrides?: PayableOverrides & { from?: string },
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      splitNumber: BigNumberish[],
+      midToken: string[],
+      assetFrom: string[],
+      sequence: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
+
+    renounceOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+
+    routeFeeRate(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    routeFeeReceiver(overrides?: CallOverrides): Promise<[string]>;
+
+    superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+
+    totalWeight(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+  };
+
+  _WETH_(overrides?: CallOverrides): Promise<string>;
+
+  acceptOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+
+  changeRouteFeeRate(newFeeRate: BigNumberish, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+
+  changeRouteFeeReceiver(
+    newFeeReceiver: string,
+    overrides?: Overrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
+  mixSwap(
+    fromToken: string,
+    toToken: string,
+    fromTokenAmount: BigNumberish,
+    minReturnAmount: BigNumberish,
+    mixAdapters: string[],
+    mixPairs: string[],
+    assetTo: string[],
+    directions: BigNumberish,
+    moreInfos: BytesLike[],
+    feeData: BytesLike,
+    deadLine: BigNumberish,
+    overrides?: PayableOverrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
+  multiSwap(
+    fromTokenAmount: BigNumberish,
+    minReturnAmount: BigNumberish,
+    splitNumber: BigNumberish[],
+    midToken: string[],
+    assetFrom: string[],
+    sequence: BytesLike[],
+    feeData: BytesLike,
+    deadLine: BigNumberish,
+    overrides?: PayableOverrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
+
+  renounceOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+
+  routeFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
+
+  routeFeeReceiver(overrides?: CallOverrides): Promise<string>;
+
+  superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+
+  totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
+
+  transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+
+  callStatic: {
+    _WETH_(overrides?: CallOverrides): Promise<string>;
+
+    acceptOwnership(overrides?: CallOverrides): Promise<void>;
+
+    changeRouteFeeRate(newFeeRate: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    changeRouteFeeReceiver(newFeeReceiver: string, overrides?: CallOverrides): Promise<void>;
+
+    mixSwap(
+      fromToken: string,
+      toToken: string,
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      mixAdapters: string[],
+      mixPairs: string[],
+      assetTo: string[],
+      directions: BigNumberish,
+      moreInfos: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    multiSwap(
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      splitNumber: BigNumberish[],
+      midToken: string[],
+      assetFrom: string[],
+      sequence: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     pendingOwner(overrides?: CallOverrides): Promise<string>;
 
-    renounceOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     routeFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
 
     routeFeeReceiver(overrides?: CallOverrides): Promise<string>;
 
-    superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+    superWithdraw(token: string, overrides?: CallOverrides): Promise<void>;
 
     totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
+    transferOwnership(newOwner: string, overrides?: CallOverrides): Promise<void>;
+  };
 
-    callStatic: {
-        _WETH_(overrides?: CallOverrides): Promise<string>;
+  filters: {
+    'OrderHistory(address,address,address,uint256,uint256)'(
+      fromToken?: null,
+      toToken?: null,
+      sender?: null,
+      fromAmount?: null,
+      returnAmount?: null,
+    ): OrderHistoryEventFilter;
+    OrderHistory(
+      fromToken?: null,
+      toToken?: null,
+      sender?: null,
+      fromAmount?: null,
+      returnAmount?: null,
+    ): OrderHistoryEventFilter;
 
-        acceptOwnership(overrides?: CallOverrides): Promise<void>;
+    'OwnershipTransferStarted(address,address)'(
+      previousOwner?: string | null,
+      newOwner?: string | null,
+    ): OwnershipTransferStartedEventFilter;
+    OwnershipTransferStarted(
+      previousOwner?: string | null,
+      newOwner?: string | null,
+    ): OwnershipTransferStartedEventFilter;
 
-        changeRouteFeeRate(newFeeRate: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    'OwnershipTransferred(address,address)'(
+      previousOwner?: string | null,
+      newOwner?: string | null,
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): OwnershipTransferredEventFilter;
+  };
 
-        changeRouteFeeReceiver(newFeeReceiver: string, overrides?: CallOverrides): Promise<void>;
+  estimateGas: {
+    _WETH_(overrides?: CallOverrides): Promise<BigNumber>;
 
-        mixSwap(
-            fromToken: string,
-            toToken: string,
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            mixAdapters: string[],
-            mixPairs: string[],
-            assetTo: string[],
-            directions: BigNumberish,
-            moreInfos: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: CallOverrides,
-        ): Promise<BigNumber>;
+    acceptOwnership(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
-        multiSwap(
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            splitNumber: BigNumberish[],
-            midToken: string[],
-            assetFrom: string[],
-            sequence: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: CallOverrides,
-        ): Promise<BigNumber>;
+    changeRouteFeeRate(newFeeRate: BigNumberish, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
-        owner(overrides?: CallOverrides): Promise<string>;
+    changeRouteFeeReceiver(newFeeReceiver: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
-        pendingOwner(overrides?: CallOverrides): Promise<string>;
+    mixSwap(
+      fromToken: string,
+      toToken: string,
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      mixAdapters: string[],
+      mixPairs: string[],
+      assetTo: string[],
+      directions: BigNumberish,
+      moreInfos: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: PayableOverrides & { from?: string },
+    ): Promise<BigNumber>;
 
-        renounceOwnership(overrides?: CallOverrides): Promise<void>;
+    multiSwap(
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      splitNumber: BigNumberish[],
+      midToken: string[],
+      assetFrom: string[],
+      sequence: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: PayableOverrides & { from?: string },
+    ): Promise<BigNumber>;
 
-        routeFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-        routeFeeReceiver(overrides?: CallOverrides): Promise<string>;
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
-        superWithdraw(token: string, overrides?: CallOverrides): Promise<void>;
+    renounceOwnership(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
-        totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
+    routeFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
 
-        transferOwnership(newOwner: string, overrides?: CallOverrides): Promise<void>;
-    };
+    routeFeeReceiver(overrides?: CallOverrides): Promise<BigNumber>;
 
-    filters: {
-        'OrderHistory(address,address,address,uint256,uint256)'(
-            fromToken?: null,
-            toToken?: null,
-            sender?: null,
-            fromAmount?: null,
-            returnAmount?: null,
-        ): OrderHistoryEventFilter;
-        OrderHistory(
-            fromToken?: null,
-            toToken?: null,
-            sender?: null,
-            fromAmount?: null,
-            returnAmount?: null,
-        ): OrderHistoryEventFilter;
+    superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
-        'OwnershipTransferStarted(address,address)'(
-            previousOwner?: string | null,
-            newOwner?: string | null,
-        ): OwnershipTransferStartedEventFilter;
-        OwnershipTransferStarted(
-            previousOwner?: string | null,
-            newOwner?: string | null,
-        ): OwnershipTransferStartedEventFilter;
+    totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
 
-        'OwnershipTransferred(address,address)'(
-            previousOwner?: string | null,
-            newOwner?: string | null,
-        ): OwnershipTransferredEventFilter;
-        OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): OwnershipTransferredEventFilter;
-    };
+    transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
+  };
 
-    estimateGas: {
-        _WETH_(overrides?: CallOverrides): Promise<BigNumber>;
+  populateTransaction: {
+    _WETH_(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        acceptOwnership(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
+    acceptOwnership(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
-        changeRouteFeeRate(newFeeRate: BigNumberish, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
+    changeRouteFeeRate(
+      newFeeRate: BigNumberish,
+      overrides?: Overrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
 
-        changeRouteFeeReceiver(newFeeReceiver: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
+    changeRouteFeeReceiver(
+      newFeeReceiver: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
 
-        mixSwap(
-            fromToken: string,
-            toToken: string,
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            mixAdapters: string[],
-            mixPairs: string[],
-            assetTo: string[],
-            directions: BigNumberish,
-            moreInfos: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: PayableOverrides & { from?: string },
-        ): Promise<BigNumber>;
+    mixSwap(
+      fromToken: string,
+      toToken: string,
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      mixAdapters: string[],
+      mixPairs: string[],
+      assetTo: string[],
+      directions: BigNumberish,
+      moreInfos: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: PayableOverrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
 
-        multiSwap(
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            splitNumber: BigNumberish[],
-            midToken: string[],
-            assetFrom: string[],
-            sequence: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: PayableOverrides & { from?: string },
-        ): Promise<BigNumber>;
+    multiSwap(
+      fromTokenAmount: BigNumberish,
+      minReturnAmount: BigNumberish,
+      splitNumber: BigNumberish[],
+      midToken: string[],
+      assetFrom: string[],
+      sequence: BytesLike[],
+      feeData: BytesLike,
+      deadLine: BigNumberish,
+      overrides?: PayableOverrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
 
-        owner(overrides?: CallOverrides): Promise<BigNumber>;
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        renounceOwnership(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
-        routeFeeRate(overrides?: CallOverrides): Promise<BigNumber>;
+    routeFeeRate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        routeFeeReceiver(overrides?: CallOverrides): Promise<BigNumber>;
+    routeFeeReceiver(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
+    superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
-        totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
+    totalWeight(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-        transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
-    };
-
-    populateTransaction: {
-        _WETH_(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        acceptOwnership(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
-
-        changeRouteFeeRate(
-            newFeeRate: BigNumberish,
-            overrides?: Overrides & { from?: string },
-        ): Promise<PopulatedTransaction>;
-
-        changeRouteFeeReceiver(
-            newFeeReceiver: string,
-            overrides?: Overrides & { from?: string },
-        ): Promise<PopulatedTransaction>;
-
-        mixSwap(
-            fromToken: string,
-            toToken: string,
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            mixAdapters: string[],
-            mixPairs: string[],
-            assetTo: string[],
-            directions: BigNumberish,
-            moreInfos: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: PayableOverrides & { from?: string },
-        ): Promise<PopulatedTransaction>;
-
-        multiSwap(
-            fromTokenAmount: BigNumberish,
-            minReturnAmount: BigNumberish,
-            splitNumber: BigNumberish[],
-            midToken: string[],
-            assetFrom: string[],
-            sequence: BytesLike[],
-            feeData: BytesLike,
-            deadLine: BigNumberish,
-            overrides?: PayableOverrides & { from?: string },
-        ): Promise<PopulatedTransaction>;
-
-        owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        renounceOwnership(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
-
-        routeFeeRate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        routeFeeReceiver(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        superWithdraw(token: string, overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
-
-        totalWeight(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-        transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
-    };
+    transferOwnership(newOwner: string, overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
+  };
 }

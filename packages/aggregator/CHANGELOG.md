@@ -6,4 +6,4 @@
 
 - Bump version
 - Updated dependencies
-    - @synfutures/sdks-perp@0.0.6
+  - @synfutures/sdks-perp@0.0.6
