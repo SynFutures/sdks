@@ -10,6 +10,7 @@ import * as arbitrumConfig from './config/arbitrum.json';
 import * as blastsepoliaConfig from './config/blastsepolia.json';
 import * as blastConfig from './config/blast.json';
 import * as baseConfig from './config/base.json';
+import * as monadTestnetConfig from './config/monadTestnet.json';
 import { ConfigurationModuleBase } from './configuration.base.module';
 
 export class LocalConfigurationModule extends ConfigurationModuleBase {
@@ -41,6 +42,9 @@ export class LocalConfigurationModule extends ConfigurationModuleBase {
             }
             case CHAIN_ID.BASE: {
                 return loadConfig(baseConfig);
+            }
+            case CHAIN_ID.MONADTESTNET: {
+                return loadConfig(monadTestnetConfig);
             }
             default: {
                 return null;
