@@ -5,7 +5,7 @@ import { loadConfig } from '../../utils';
 import { ConfigurationModuleBase } from './configuration.base.module';
 
 // TODO: improve @samlior
-const suppotedChainId = new Set<CHAIN_ID>([CHAIN_ID.BASE, CHAIN_ID.BLAST]);
+const suppotedChainId = new Set<CHAIN_ID>([CHAIN_ID.BASE, CHAIN_ID.BLAST, CHAIN_ID.MONADTESTNET]);
 
 export class S3ConfigurationModule extends ConfigurationModuleBase {
     basePath: string;

@@ -24,11 +24,12 @@ import { PerpInterface } from './perp.interface';
 import { SynFuturesV3Contracts } from './types';
 
 export interface PerpModuleOptions {
+    basePath?: string;
     inverse?: boolean;
     configuration?: 'local' | 's3';
 }
 
-const defaultOptions: Required<PerpModuleOptions> = {
+const defaultOptions: PerpModuleOptions = {
     inverse: false,
     configuration: 's3',
 };
@@ -56,7 +57,7 @@ export class PerpModule implements PerpInterface {
         public context: Context,
         options?: PerpModuleOptions,
     ) {
-        const { inverse, configuration } = {
+        const { inverse, configuration, basePath } = {
             ...defaultOptions,
             ...options,
         };
@@ -71,7 +72,9 @@ export class PerpModule implements PerpInterface {
         this.simulate = inverse ? new InverseSimulateModule(context) : new SimulateModule(context);
 
         this.configuration =
-            configuration === 'local' ? new LocalConfigurationModule(context) : new S3ConfigurationModule(context);
+            configuration === 'local'
+                ? new LocalConfigurationModule(context)
+                : new S3ConfigurationModule(context, basePath);
     }
 
     registerQuoteInfo(tokenInfo: TokenInfo): void {
