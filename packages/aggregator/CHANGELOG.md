@@ -1,10 +1,18 @@
 # @synfutures/sdks-aggregator
 
+## 0.0.10
+
+### Patch Changes
+
+- perp: Support monad testnet and basePath
+- Updated dependencies
+    - @synfutures/sdks-perp@0.0.10
+
 ## 0.0.9
 
 ### Patch Changes
 
-- Support monad testnet
+- perp: Support monad testnet
 - Updated dependencies
     - @synfutures/sdks-perp@0.0.9
 
