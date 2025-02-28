@@ -1,5 +1,13 @@
 # @synfutures/sdks-aggregator
 
+## 0.0.9
+
+### Patch Changes
+
+- Support monad testnet
+- Updated dependencies
+    - @synfutures/sdks-perp@0.0.9
+
 ## 0.0.8
 
 ### Patch Changes

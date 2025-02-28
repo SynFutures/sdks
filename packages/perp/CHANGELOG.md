@@ -1,5 +1,11 @@
 # @synfutures/sdks-perp
 
+## 0.0.9
+
+### Patch Changes
+
+- Support monad testnet
+
 ## 0.0.8
 
 ### Patch Changes
