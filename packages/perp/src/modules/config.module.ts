@@ -13,7 +13,12 @@ export class ConfigModule implements ConfigInterface {
         let calls = [];
         let results: boolean[] = [];
         let configInterface: ethers.utils.Interface = this.context.perp.contracts.config.interface;
-        if ((this.context.chainId === CHAIN_ID.BASE || this.context.chainId === CHAIN_ID.LOCAL) && quoteAddr) {
+        if (
+            (this.context.chainId === CHAIN_ID.BASE ||
+                this.context.chainId === CHAIN_ID.MONADTESTNET ||
+                this.context.chainId === CHAIN_ID.LOCAL) &&
+            quoteAddr
+        ) {
             for (const trader of traders) {
                 calls.push({
                     target: this.context.perp.contracts.config.address,
@@ -52,7 +57,12 @@ export class ConfigModule implements ConfigInterface {
     }
 
     async openLp(quoteAddr?: string, overrides?: CallOverrides): Promise<boolean> {
-        if ((this.context.chainId === CHAIN_ID.BASE || this.context.chainId === CHAIN_ID.LOCAL) && quoteAddr) {
+        if (
+            (this.context.chainId === CHAIN_ID.BASE ||
+                this.context.chainId === CHAIN_ID.MONADTESTNET ||
+                this.context.chainId === CHAIN_ID.LOCAL) &&
+            quoteAddr
+        ) {
             try {
                 const restricted = await this.context.perp.contracts.config.restrictLp(quoteAddr, overrides ?? {});
                 return !restricted;
