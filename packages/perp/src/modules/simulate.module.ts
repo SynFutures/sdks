@@ -36,6 +36,8 @@ import {
     ByBase,
     ByQuote,
     RawRange,
+    SimulateImpermenantLossParams,
+    SimulateImpermenantLossResult,
 } from '../types';
 import {
     wdiv,
@@ -100,6 +102,7 @@ import {
     MIN_BATCH_ORDER_COUNT,
     MIN_RANGE_MULTIPLIER,
     ONE_RATIO,
+    ORDER_SPACING,
     PEARL_SPACING,
     PERP_EXPIRY,
     RATIO_BASE,
@@ -109,6 +112,7 @@ import { SimulateInterface } from './simulate.interface';
 import { SynfError } from '../errors/synfError';
 import { SimulationError } from '../errors/simulationError';
 import { Context } from '@derivation-tech/context';
+import { formatEther, parseEther } from 'ethers/lib/utils';
 
 export class SimulateModule implements SimulateInterface {
     context: Context;
@@ -1223,5 +1227,132 @@ export class SimulateModule implements SimulateInterface {
             limitTicks: TickMath.encodeLimitTicks(sqrtStrikeLowerPX96, sqrtStrikeUpperPX96),
             removedPositionEntryPrice: sqrt(sqrtX96ToWad(amm.sqrtPX96).mul(sqrtX96ToWad(range.sqrtEntryPX96))),
         };
+    }
+
+    async simulateImpermanentLoss(
+        params: SimulateImpermenantLossParams,
+        overrides?: CallOverrides,
+    ): Promise<SimulateImpermenantLossResult[]> {
+        const instrumentAddress = (
+            isInstrument(params.instrument)
+                ? params.instrument.instrumentAddr
+                : await this.context.perp.instrument.computeInstrumentAddress(params.instrument)
+        ).toLowerCase();
+        const instrumentIdentifier = isInstrument(params.instrument)
+            ? {
+                  marketType: params.instrument.marketType,
+                  baseSymbol: params.instrument.base,
+                  quoteSymbol: params.instrument.quote,
+              }
+            : params.instrument;
+
+        const instruments = (await this.context.perp.contracts.gate.getAllInstruments(overrides ?? {})).map((addr) =>
+            addr.toLowerCase(),
+        );
+        const info = instruments.includes(instrumentAddress)
+            ? isInstrument(params.instrument)
+                ? {
+                      instrument: params.instrument,
+                      amm: params.instrument.amms.get(params.expiry),
+                  }
+                : await this.getInstrumentAndAmm(
+                      { expiry: params.expiry, instrumentAddr: instrumentAddress },
+                      undefined,
+                      overrides ?? {},
+                  )
+            : undefined;
+
+        let quoteInfo: TokenInfo;
+        let setting: InstrumentSetting;
+        let amm: Amm;
+
+        // see if this instrument is created
+        const instrument = info?.instrument;
+        if (!instrument || !info?.amm) {
+            const benchmarkPrice = await this.simulateBenchmarkPrice(
+                instrumentIdentifier,
+                params.expiry,
+                overrides ?? {},
+            );
+            const { quoteTokenInfo } = await getTokenInfo(instrumentIdentifier, this.context);
+            quoteInfo = quoteTokenInfo;
+            if (instrument) {
+                setting = instrument.setting;
+            } else {
+                const quoteParam = await this.context.perp.contracts.config.getQuoteParam(
+                    quoteInfo.address,
+                    overrides ?? {},
+                );
+                setting = {
+                    initialMarginRatio: INITIAL_MARGIN_RATIO,
+                    maintenanceMarginRatio: MAINTENANCE_MARGIN_RATIO,
+                    quoteParam: { ...quoteParam },
+                };
+            }
+            amm = factory.createAmm({
+                instrumentAddr: instrumentAddress,
+                expiry: 0,
+                timestamp: 0,
+                status: Status.TRADING,
+                tick: TickMath.getTickAtPWad(benchmarkPrice),
+                sqrtPX96: wadToSqrtX96(benchmarkPrice),
+                liquidity: ZERO,
+                totalLiquidity: ZERO,
+                involvedFund: ZERO,
+                openInterests: ZERO,
+                feeIndex: ZERO,
+                protocolFee: ZERO,
+                totalLong: ZERO,
+                totalShort: ZERO,
+                longSocialLossIndex: ZERO,
+                shortSocialLossIndex: ZERO,
+                longFundingIndex: ZERO,
+                shortFundingIndex: ZERO,
+                insuranceFund: ZERO,
+                settlementPrice: ZERO,
+                markPrice: ZERO,
+            });
+        } else {
+            amm = info.amm;
+            quoteInfo = instrument.quote;
+            setting = instrument.setting;
+        }
+
+        const tickDeltaLower = alphaWadToTickDelta(params.alphaWadLower);
+        const tickDeltaUpper = alphaWadToTickDelta(params.alphaWadUpper);
+
+        const upperTick = alignRangeTick(amm.tick + tickDeltaUpper, false);
+        const lowerTick = alignRangeTick(amm.tick - tickDeltaLower, true);
+
+        const margin = parseEther('1');
+        const { liquidity: liquidity } = entryDelta(
+            amm.sqrtPX96,
+            lowerTick,
+            upperTick,
+            margin,
+            setting.initialMarginRatio,
+        );
+        const { tickLower, tickUpper } = parseTicks(rangeKey(lowerTick, upperTick));
+        const simulationRange: RawRange = {
+            liquidity,
+            balance: margin,
+            sqrtEntryPX96: amm.sqrtPX96,
+            entryFeeIndex: amm.feeIndex,
+            tickLower,
+            tickUpper,
+        };
+
+        const result: SimulateImpermenantLossResult[] = [];
+        for (let i = tickLower; i < tickUpper; i += ORDER_SPACING) {
+            amm.tick = i;
+            amm.sqrtPX96 = TickMath.getSqrtRatioAtTick(i);
+            const removedBalance = rangeToPosition(simulationRange, amm).balance;
+            result.push({
+                tick: i,
+                impermanentLoss: Number(formatEther(removedBalance)) / Number(formatEther(margin)) - 1,
+            });
+        }
+
+        return result;
     }
 }

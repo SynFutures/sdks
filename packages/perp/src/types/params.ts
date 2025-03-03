@@ -426,3 +426,15 @@ export interface SimulateScaledLimitOrderResult {
     totalMinSize: BigNumber;
     size: ByBase & ByQuote;
 }
+
+export interface SimulateImpermenantLossParams {
+    expiry: number;
+    instrument: Instrument | InstrumentIdentifier;
+    alphaWadLower: BigNumber;
+    alphaWadUpper: BigNumber;
+}
+
+export interface SimulateImpermenantLossResult {
+    tick: number;
+    impermanentLoss: number;
+}

@@ -3,8 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { deserialize, serialize } from './utils';
 import { Context } from '@derivation-tech/context';
-import { perpPlugin } from '../src';
+import { MarketType, PERP_EXPIRY, perpPlugin } from '../src';
 import * as dotenv from 'dotenv';
+import { parseEther } from 'ethers/lib/utils';
 
 dotenv.config();
 
@@ -34,5 +35,22 @@ describe('Simulate plugin', () => {
 
     beforeAll(async () => {
         await context.init();
+    });
+
+    it('Test simulateImpermanentLoss', async () => {
+        const result = await context.perp.simulate.simulateImpermanentLoss({
+            instrument: {
+                marketType: MarketType.LINK,
+                baseSymbol: 'BTC',
+                quoteSymbol: 'USDC',
+            },
+            expiry: PERP_EXPIRY,
+            alphaWadLower: parseEther('2'),
+            alphaWadUpper: parseEther('3'),
+        });
+
+        for (const r of result) {
+            expect(r.impermanentLoss).toBeLessThanOrEqual(0);
+        }
     });
 });
