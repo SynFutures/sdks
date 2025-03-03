@@ -179,13 +179,13 @@ const signer = new ethers.Wallet(process.env['YOUR_PRIVATE_KEY'], ctx.provider);
 // 1. withdraw USDB
 // get USDB token info
 const usdc = await ctx.getTokenInfo('USDC');
-await ctx.perp.gate.withdrawWad(usdc.address, ethers.utils.parseUnits('1', usdc.decimals), {
+await ctx.perp.gate.withdraw(usdc.address, ethers.utils.parseUnits('1', usdc.decimals), {
     signer,
 });
 console.log('Withdraw 1 USDC from the gate');
 
 // 2. withdraw WETH
-await ctx.perp.gate.withdrawWad(
+await ctx.perp.gate.withdraw(
     ctx.wrappedNative.address,
     ethers.utils.parseUnits('0.01', await ctx.wrappedNative.decimals()),
     {
@@ -194,7 +194,7 @@ await ctx.perp.gate.withdrawWad(
 );
 
 // 3. withdraw all WETH to ETH
-await ctx.perp.gate.withdrawWad(
+await ctx.perp.gate.withdraw(
     NATIVE_TOKEN_ADDRESS,
     await ctx.contracts.gate.reserveOf(ctx.wrappedNative.address, signer.address),
     {
