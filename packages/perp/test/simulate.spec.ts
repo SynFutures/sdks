@@ -39,10 +39,15 @@ describe('Simulate plugin', () => {
     it('Test simulateImpermanentLoss 1', async () => {
         const result = await context.perp.simulate.simulateImpermanentLoss({
             instrument: {
-                marketType: MarketType.LINK,
-                baseSymbol: 'BTC',
+                marketType: MarketType.DEXV2,
+                baseSymbol: {
+                    symbol: 'MAG7.ssi',
+                    address: '0x9e6a46f294bb67c20f1d1e7afb0bbef614403b55',
+                    decimals: 8,
+                },
                 quoteSymbol: 'USDC',
             },
+            isInverse: false,
             expiry: PERP_EXPIRY,
             alphaWadLower: parseEther('2'),
             alphaWadUpper: parseEther('3'),
@@ -60,6 +65,7 @@ describe('Simulate plugin', () => {
                 baseSymbol: 'ETH',
                 quoteSymbol: 'DEGEN',
             },
+            isInverse: true,
             expiry: PERP_EXPIRY,
             alphaWadLower: parseEther('2'),
             alphaWadUpper: parseEther('2'),
@@ -68,7 +74,6 @@ describe('Simulate plugin', () => {
         for (const r of result) {
             expect(r.impermanentLoss).toBeLessThanOrEqual(0);
         }
-
 
         result.sort((a, b) => a.tick - b.tick);
 

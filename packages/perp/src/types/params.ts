@@ -430,6 +430,7 @@ export interface SimulateScaledLimitOrderResult {
 export interface SimulateImpermenantLossParams {
     expiry: number;
     instrument: Instrument | InstrumentIdentifier;
+    isInverse: boolean;
     alphaWadLower: BigNumber;
     alphaWadUpper: BigNumber;
 }
