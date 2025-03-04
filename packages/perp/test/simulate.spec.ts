@@ -6,7 +6,6 @@ import { Context } from '@derivation-tech/context';
 import { MarketType, PERP_EXPIRY, perpPlugin } from '../src';
 import * as dotenv from 'dotenv';
 import { parseEther } from 'ethers/lib/utils';
-
 dotenv.config();
 
 describe('Simulate plugin', () => {
@@ -37,7 +36,7 @@ describe('Simulate plugin', () => {
         await context.init();
     });
 
-    it('Test simulateImpermanentLoss', async () => {
+    it('Test simulateImpermanentLoss 1', async () => {
         const result = await context.perp.simulate.simulateImpermanentLoss({
             instrument: {
                 marketType: MarketType.LINK,
@@ -52,5 +51,27 @@ describe('Simulate plugin', () => {
         for (const r of result) {
             expect(r.impermanentLoss).toBeLessThanOrEqual(0);
         }
+    });
+
+    it('Test simulateImpermanentLoss 2', async () => {
+        const result = await context.perp.simulate.simulateImpermanentLoss({
+            instrument: {
+                marketType: MarketType.LINK,
+                baseSymbol: 'ETH',
+                quoteSymbol: 'DEGEN',
+            },
+            expiry: PERP_EXPIRY,
+            alphaWadLower: parseEther('2'),
+            alphaWadUpper: parseEther('2'),
+        });
+
+        for (const r of result) {
+            expect(r.impermanentLoss).toBeLessThanOrEqual(0);
+        }
+
+
+        result.sort((a, b) => a.tick - b.tick);
+
+        expect(result[0].impermanentLoss).toBeLessThan(result[result.length - 1].impermanentLoss);
     });
 });

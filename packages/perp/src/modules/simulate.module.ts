@@ -1342,13 +1342,14 @@ export class SimulateModule implements SimulateInterface {
             tickUpper,
         };
 
+        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddress);
         const result: SimulateImpermenantLossResult[] = [];
         for (let i = tickLower; i < tickUpper; i += ORDER_SPACING) {
             amm.tick = i;
             amm.sqrtPX96 = TickMath.getSqrtRatioAtTick(i);
             const removedBalance = rangeToPosition(simulationRange, amm).balance;
             result.push({
-                tick: i,
+                tick: isInverse ? -i : i,
                 impermanentLoss: Number(formatEther(removedBalance)) / Number(formatEther(margin)) - 1,
             });
         }
