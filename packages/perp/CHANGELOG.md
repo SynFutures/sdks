@@ -1,5 +1,11 @@
 # @synfutures/sdks-perp
 
+## 0.0.13
+
+### Patch Changes
+
+- Fix simulateImpermanentLoss inverse instrument
+
 ## 0.0.12
 
 ### Patch Changes

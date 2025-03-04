@@ -1,5 +1,13 @@
 # @synfutures/sdks-aggregator
 
+## 0.0.13
+
+### Patch Changes
+
+- Fix simulateImpermanentLoss inverse instrument
+- Updated dependencies
+    - @synfutures/sdks-perp@0.0.13
+
 ## 0.0.12
 
 ### Patch Changes
