@@ -1,5 +1,16 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.0
+
+### Major Changes
+
+- perp&aggregator: Bump context version
+
+### Patch Changes
+
+- Updated dependencies
+    - @synfutures/sdks-perp@1.0.0
+
 ## 0.0.14
 
 ### Patch Changes

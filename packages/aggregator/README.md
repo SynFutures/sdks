@@ -30,11 +30,11 @@ npm i @derivation-tech/context @derivation-tech/tx-plugin @synfutures/sdks-aggre
 // initialize the SDK
 import { Context } from '@derivation-tech/context';
 import { txPlugin } from '@derivation-tech/tx-plugin';
-import { aggregatorPlugin } from '@synfutures/sdks-aggregator';
+import { aggregatorPlugin, DefaultEthGasEstimator } from '@synfutures/sdks-aggregator';
 
 ctx = new Context('base', { url: 'your rpc url' });
 ctx.use(aggregatorPlugin());
-ctx.use(txPlugin());
+ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
 
 await ctx.init();
 ```

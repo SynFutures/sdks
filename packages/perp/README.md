@@ -59,13 +59,14 @@ npm i @synfutures/sdks-perp
 ```ts
 import { Context } from '@derivation-tech/context';
 import { perpPlugin, utils } from '@synfutures/sdks-perp';
-import { txPlugin } from '@derivation-tech/tx-plugin';
+import { txPlugin, DefaultEthGasEstimator } from '@derivation-tech/tx-plugin';
 
 const ctx = new Context('base', {
     url: process.env['BASE_RPC'],
 })
     .use(perpPlugin())
-    .use(txPlugin());
+    .use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
+
 await ctx.init();
 ```
 
@@ -163,7 +164,7 @@ const erc20 = ERC20__factory.connect(usdc.address, signer);
 await erc20.approve(ctx.perp.contracts.gate.address, ethers.constants.MaxUint256);
 
 // deposit
-await ctx.gate.deposit(usdc.address, ethers.utils.parseUnits('10', usdc.decimals), {
+await ctx.perp.gate.deposit(usdc.address, ethers.utils.parseUnits('10', usdc.decimals), {
     signer,
 });
 
@@ -179,13 +180,13 @@ const signer = new ethers.Wallet(process.env['YOUR_PRIVATE_KEY'], ctx.provider);
 // 1. withdraw USDB
 // get USDB token info
 const usdc = await ctx.getTokenInfo('USDC');
-await ctx.gate.withdrawWad(usdc.address, ethers.utils.parseUnits('1', usdc.decimals), {
+await ctx.perp.gate.withdraw(usdc.address, ethers.utils.parseUnits('1', usdc.decimals), {
     signer,
 });
 console.log('Withdraw 1 USDC from the gate');
 
 // 2. withdraw WETH
-await ctx.gate.withdrawWad(
+await ctx.perp.gate.withdraw(
     ctx.wrappedNative.address,
     ethers.utils.parseUnits('0.01', await ctx.wrappedNative.decimals()),
     {
@@ -194,7 +195,7 @@ await ctx.gate.withdrawWad(
 );
 
 // 3. withdraw all WETH to ETH
-await ctx.gate.withdrawWad(
+await ctx.perp.gate.withdraw(
     NATIVE_TOKEN_ADDRESS,
     await ctx.contracts.gate.reserveOf(ctx.wrappedNative.address, signer.address),
     {

@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@derivation-tech/context':
-      specifier: ^0.1.2
-      version: 0.1.2
+      specifier: ^1.0.0
+      version: 1.0.0
     '@derivation-tech/tx-plugin':
-      specifier: ^0.1.2
-      version: 0.1.2
+      specifier: ^1.0.0
+      version: 1.0.0
     ethers:
       specifier: ^5.7.2
       version: 5.7.2
@@ -103,10 +103,10 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-        version: 0.1.2
+        version: 1.0.0
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
-        version: 0.1.2
+        version: 1.0.0
       '@synfutures/sdks-perp':
         specifier: workspace:^
         version: link:../perp
@@ -118,10 +118,10 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-        version: 0.1.2
+        version: 1.0.0
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
-        version: 0.1.2
+        version: 1.0.0
       ethers:
         specifier: 'catalog:'
         version: 5.7.2
@@ -797,14 +797,14 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@derivation-tech/context@0.1.2':
-    resolution: {integrity: sha512-OLeVkFmg1xI/gM59kZGsWSllvrVO24MSFajaexPSfHVcB7+0pIlD6O8KdRTeOz9pJeYRxdOlJW2DAF5kXUpDBw==}
+  '@derivation-tech/context@1.0.0':
+    resolution: {integrity: sha512-R3slHLUTSOR4b2rpHpI6u2tGpGXvEXKVfKndneLfXPr9pFdF1mfYpLT36wpZrHwDQ5Fhia/RZfEgMeSCrWqXZQ==}
 
-  '@derivation-tech/contracts@0.1.2':
-    resolution: {integrity: sha512-eqnfgHlNonE2dU1U5ekUpqT+0N8dSUsri86hQ0QR4dQyMe/IHR0Np7Vw/uCdUDneIkagfeJTB1ESMhCNc4/qhg==}
+  '@derivation-tech/contracts@1.0.0':
+    resolution: {integrity: sha512-jgN2BkV9GpW21OFUO4maw6iFZTbLEeB4ovav3yUPKUXXI0I5P4b0EPVCrInZv5Cpv+Vld8cM6q4ZRwTxkzmuLQ==}
 
-  '@derivation-tech/tx-plugin@0.1.2':
-    resolution: {integrity: sha512-sAtSbKcYRKxx3rMEUMsExDq3TcVxVDMstyMgJ11YnQXN1Th1yhXWnXFF7j0nILU5CnNF1ZTCmLAN4nYSrs+M+A==}
+  '@derivation-tech/tx-plugin@1.0.0':
+    resolution: {integrity: sha512-etE/pTKnAVBwGMq7TXjLSDZOlVTj4/Aog1mD/xsZYiS/7W1VpCk9DnFeXnBdX1EkpjTWFlm8f2u4hEk8S+UucQ==}
 
   '@emnapi/core@1.3.1':
     resolution: {integrity: sha512-pVGjBIt1Y6gg3EJN8jTcfpP/+uuRksIo055oE/OBkDNcjZqVbfkWCksG1Jp4yZnj3iKWyWX8fdG/j6UDYPbFog==}
@@ -1525,9 +1525,6 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  axios@0.21.4:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
-
   axios@1.7.9:
     resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
 
@@ -1725,10 +1722,6 @@ packages:
 
   clone@1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
-    engines: {node: '>=0.8'}
-
-  clone@2.1.2:
-    resolution: {integrity: sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==}
     engines: {node: '>=0.8'}
 
   co@4.6.0:
@@ -2188,9 +2181,6 @@ packages:
 
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
-
-  gas-price-oracle@0.5.1:
-    resolution: {integrity: sha512-Jb1w127I0wSRKQNqNUE61bQInbJzbyaapAlFjRgtYOTVHOJ+3VZuKPt0dyz5Mo40Ax5I7Z+rB6vQmTIQHLnt9Q==}
 
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -2791,10 +2781,6 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
-
-  node-cache@5.1.2:
-    resolution: {integrity: sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==}
-    engines: {node: '>= 8.0.0'}
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -4505,9 +4491,9 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@derivation-tech/context@0.1.2':
+  '@derivation-tech/context@1.0.0':
     dependencies:
-      '@derivation-tech/contracts': 0.1.2
+      '@derivation-tech/contracts': 1.0.0
       '@eth-optimism/sdk': 3.3.3(ethers@5.7.2)
       async-retry: 1.3.3
       axios: 1.7.9
@@ -4520,7 +4506,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@derivation-tech/contracts@0.1.2':
+  '@derivation-tech/contracts@1.0.0':
     dependencies:
       chalk: 4.1.2
       ethers: 5.7.2
@@ -4528,14 +4514,13 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@derivation-tech/tx-plugin@0.1.2':
+  '@derivation-tech/tx-plugin@1.0.0':
     dependencies:
-      '@derivation-tech/context': 0.1.2
-      '@derivation-tech/contracts': 0.1.2
+      '@derivation-tech/context': 1.0.0
+      '@derivation-tech/contracts': 1.0.0
       async-retry: 1.3.3
       chalk: 4.1.2
       ethers: 5.7.2
-      gas-price-oracle: 0.5.1
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -5751,12 +5736,6 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  axios@0.21.4:
-    dependencies:
-      follow-redirects: 1.15.9
-    transitivePeerDependencies:
-      - debug
-
   axios@1.7.9:
     dependencies:
       follow-redirects: 1.15.9
@@ -5999,8 +5978,6 @@ snapshots:
       wrap-ansi: 7.0.0
 
   clone@1.0.4: {}
-
-  clone@2.1.2: {}
 
   co@4.6.0: {}
 
@@ -6498,14 +6475,6 @@ snapshots:
     optional: true
 
   function-bind@1.1.2: {}
-
-  gas-price-oracle@0.5.1:
-    dependencies:
-      axios: 0.21.4
-      bignumber.js: 9.1.2
-      node-cache: 5.1.2
-    transitivePeerDependencies:
-      - debug
 
   gensync@1.0.0-beta.2: {}
 
@@ -7230,10 +7199,6 @@ snapshots:
   natural-compare@1.4.0: {}
 
   neo-async@2.6.2: {}
-
-  node-cache@5.1.2:
-    dependencies:
-      clone: 2.1.2
 
   node-fetch@2.7.0:
     dependencies:
