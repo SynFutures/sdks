@@ -59,13 +59,14 @@ npm i @synfutures/sdks-perp
 ```ts
 import { Context } from '@derivation-tech/context';
 import { perpPlugin, utils } from '@synfutures/sdks-perp';
-import { txPlugin } from '@derivation-tech/tx-plugin';
+import { txPlugin, DefaultEthGasEstimator } from '@derivation-tech/tx-plugin';
 
 const ctx = new Context('base', {
     url: process.env['BASE_RPC'],
 })
     .use(perpPlugin())
-    .use(txPlugin());
+    .use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
+
 await ctx.init();
 ```
 
