@@ -1,5 +1,11 @@
 # @synfutures/sdks-perp
 
+## 1.0.1
+
+### Patch Changes
+
+- Add simulateImpermanentLoss method
+
 ## 1.0.0
 
 ### Major Changes

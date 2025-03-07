@@ -1,5 +1,13 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.1
+
+### Patch Changes
+
+- Add simulateImpermanentLoss method
+- Updated dependencies
+    - @synfutures/sdks-perp@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
