@@ -21,6 +21,8 @@ import {
     SimulateScaledLimitOrderResult,
     SimulateScaledLimitOrderParams,
     InstrumentIdentifier,
+    SimulateImpermenantLossResult,
+    SimulateImpermenantLossParams,
 } from '../types';
 
 export interface SimulateInterface {
@@ -150,4 +152,15 @@ export interface SimulateInterface {
         expiry: number,
         overrides?: CallOverrides,
     ): Promise<BigNumber>;
+
+    /**
+     * Simulate impermanent loss
+     * @param params {@link SimulateImpermenantLossParams}
+     * @param overrides {@link CallOverrides}
+     * @returns result {@link SimulateImpermenantLossResult}
+     */
+    simulateImpermanentLoss(
+        params: SimulateImpermenantLossParams,
+        overrides?: CallOverrides,
+    ): Promise<SimulateImpermenantLossResult[]>;
 }

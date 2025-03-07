@@ -11,6 +11,30 @@
 - Updated dependencies
     - @synfutures/sdks-perp@1.0.0
 
+## 0.0.14
+
+### Patch Changes
+
+- Fix
+- Updated dependencies
+    - @synfutures/sdks-perp@0.0.14
+
+## 0.0.13
+
+### Patch Changes
+
+- Fix simulateImpermanentLoss inverse instrument
+- Updated dependencies
+    - @synfutures/sdks-perp@0.0.13
+
+## 0.0.12
+
+### Patch Changes
+
+- Add simulateImpermanentLoss method
+- Updated dependencies
+    - @synfutures/sdks-perp@0.0.12
+
 ## 0.0.11
 
 ### Patch Changes

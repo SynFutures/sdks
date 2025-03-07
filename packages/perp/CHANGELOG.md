@@ -6,6 +6,24 @@
 
 - perp&aggregator: Bump context version
 
+## 0.0.14
+
+### Patch Changes
+
+- Fix
+
+## 0.0.13
+
+### Patch Changes
+
+- Fix simulateImpermanentLoss inverse instrument
+
+## 0.0.12
+
+### Patch Changes
+
+- Add simulateImpermanentLoss method
+
 ## 0.0.11
 
 ### Patch Changes
