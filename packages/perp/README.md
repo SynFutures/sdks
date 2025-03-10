@@ -453,7 +453,7 @@ const resultByMargin = await ctx.perp.simulate.simulateMarketOrderByMargin({
 
 // postPosition is the simulated position after the order is placed
 // will merge with the current position if you already have a position
-//e.g.
+// e.g.
 // "Price Impact": "0.7580007203653651%",
 // "Est. Trade Value": "20.000000000000000001",
 // "Trading Fee": "0.008000000000000001",
@@ -685,28 +685,28 @@ const tradeInfo = {
     expiry,
     traderAddr: signer.address,
 };
-//priceInfo, we excpet the targettick
+// priceInfo, we excpet the target tick
 const priceInfo = targetTick;
 // size, could be byBase or byQuote
-// the quote number must greater than instrument.minOrderValue
-// the base number must greater than wdiv(instrument.minOrderValue,TickMath.getWadAtTick(targetTick))
+// the base amount must greater than instrument.minOrderValue
+// the quote amount must greater than getMinOrderMargin(TickMath.getWadAtTick(targetTick), amm.markPrice, baseSize, instrument.setting.initialMarginRatio)
 const byQuoteSize = {
     quote: ethers.utils.parseUnits('50'),
 };
 // side
 const side = Side.SHORT;
-// leverage
-const leverageInput = ethers.utils.parseUnits('10');
+// the leverage must be less than getMaxLeverage(instrument.setting.initialMarginRatio)
+const leverageInput = 4;
 
 const result = await ctx.perp.simulate.simulateLimitOrder({
     tradeInfo,
     side,
     priceInfo,
     size: byQuoteSize,
-    leverage: leverageInput,
+    leverage: ethers.utils.parseUnits(leverageInput),
 });
 
-//e.g
+// e.g
 // "Margin": "5.096426238599840458",
 // "Est. Trade Value": "50.964262385998404573",
 // "Fee Rebate": "0.015289278715799521",

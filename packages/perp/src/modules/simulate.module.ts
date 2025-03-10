@@ -52,13 +52,13 @@ import {
     Q96,
     wdivUp,
     wmulUp,
-    max,
     sqrt,
     getMaxLeverage,
     alignPriceToTick,
     calcBoost,
     ADDRESS_ZERO,
     calcAsymmetricBoost,
+    getMinOrderMargin,
 } from '../math';
 import {
     signOfSide,
@@ -101,7 +101,6 @@ import {
     MAX_BATCH_ORDER_COUNT,
     MIN_BATCH_ORDER_COUNT,
     MIN_RANGE_MULTIPLIER,
-    ONE_RATIO,
     ORDER_SPACING,
     PEARL_SPACING,
     PERP_EXPIRY,
@@ -578,20 +577,7 @@ export class SimulateModule implements SimulateInterface {
 
         const bnMax = (a: BigNumber, b: BigNumber): BigNumber => (a.gt(b) ? a : b);
         let margin = wdivUp(wmulUp(bnMax(targetPrice, markPrice), baseSize), leverage);
-
-        const minMargin = wmulUp(
-            r2w(instrument.setting.initialMarginRatio),
-            wmulUp(
-                max(
-                    markPrice
-                        .mul(ONE_RATIO + 50) // add 0.5% slippage
-                        .div(ONE_RATIO),
-                    targetPrice,
-                ),
-                baseSize,
-            ),
-        );
-
+        const minMargin = getMinOrderMargin(targetPrice, markPrice, baseSize, instrument.setting.initialMarginRatio);
         if (margin.lt(minMargin)) {
             margin = minMargin;
         }
