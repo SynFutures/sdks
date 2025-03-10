@@ -688,8 +688,8 @@ const tradeInfo = {
 // priceInfo, we excpet the target tick
 const priceInfo = targetTick;
 // size, could be byBase or byQuote
-// the base amount must greater than instrument.minOrderValue
-// the quote amount must greater than getMinOrderMargin(TickMath.getWadAtTick(targetTick), amm.markPrice, baseSize, instrument.setting.initialMarginRatio)
+// the quote amount must greater than instrument.minOrderValue
+// the base amount must greater than instrument.minOrderValue.wdiv(limitPriceWad)
 const byQuoteSize = {
     quote: ethers.utils.parseUnits('50'),
 };
