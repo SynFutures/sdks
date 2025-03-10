@@ -688,33 +688,15 @@ const tradeInfo = {
 // priceInfo, we excpet the target tick
 const priceInfo = targetTick;
 // size, could be byBase or byQuote
-// the quote number must greater than instrument.minOrderValue
-// the base number must greater than wdiv(instrument.minOrderValue, TickMath.getWadAtTick(targetTick))
+// the base amount must greater than instrument.minOrderValue
+// the quote amount must greater than getMinOrderMargin(TickMath.getWadAtTick(targetTick), amm.markPrice, baseSize, instrument.setting.initialMarginRatio)
 const byQuoteSize = {
     quote: ethers.utils.parseUnits('50'),
 };
 // side
 const side = Side.SHORT;
-// leverage
-const leverageInput = 10;
-
-// calculate max leverage
-const maxLeverage = getMaxLeverage(instrument.setting.initialMarginRatio);
-
-// check max leverage
-if (leverageInput > maxLeverage) {
-    throw new Error('exceeding the maximum leverage');
-}
-
-// check order value
-if (byQuoteSize.quote.lt(instrument.minOrderValue)) {
-    throw new Error('less than the minimum order amount');
-}
-
-// check order tick
-if (targetTick % PEARL_SPACING !== 0) {
-    throw new Error('unaligned order tick');
-}
+// the leverage must be less than getMaxLeverage(instrument.setting.initialMarginRatio)
+const leverageInput = 4;
 
 const result = await ctx.perp.simulate.simulateLimitOrder({
     tradeInfo,
