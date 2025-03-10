@@ -715,6 +715,7 @@ const result = await ctx.perp.simulate.simulateLimitOrder({
 console.log(`simulate result: ${utils.formatSimulateLimitOrderResult(result)}`);
 
 // place limit order
+// the margin must greater than getMinOrderMargin(TickMath.getWadAtTick(targetTick), amm.markPrice, result.size,base, instrument.setting.initialMarginRatio)
 await ctx.perp.instrument.placeLimitOrder(
     {
         instrumentAddr: instrument.instrumentAddr,
