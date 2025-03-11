@@ -1,11 +1,19 @@
 import { BigNumber } from 'ethers';
 import { fromWad } from '@derivation-tech/context';
-import { PERP_EXPIRY, ONE_RATIO, ORDER_SPACING, EMPTY_AMM } from '../constants';
+import { PERP_EXPIRY, ONE_RATIO, ORDER_SPACING, EMPTY_AMM, PEARL_SPACING } from '../constants';
 import { ONE, ZERO, Q96, r2w, sqrtX96ToWad, TickMath, SqrtPriceMath, WAD, wdiv, wmul, wmulDown, wmulUp } from '../math';
 import { RawOrder, RawPosition, RawRange, RawAmm, Instrument, Position, Amm, Range, Order } from '../types';
-import { FeederType } from '../enum';
+import { FeederType, Side } from '../enum';
 import { RANGE_SPACING } from '../constants';
-import { reverseAmm, reverseInstrument, reverseOrder, reversePosition, reversePrice, reverseRange } from './reverse';
+import {
+    reverseAmm,
+    reverseInstrument,
+    reverseOrder,
+    reversePosition,
+    reversePrice,
+    reverseRange,
+    reverseSide,
+} from './reverse';
 import { createPosition } from './factory';
 import { alphaWadToTickDelta } from './utils';
 import {
@@ -472,6 +480,124 @@ export function ammPlaceOrderLimit(
               upperTick,
               lowerTick,
           };
+}
+
+export function ammPlaceOrderLimitBySide(amm: RawAmm | Amm, initialMarginRatio: number, side: Side) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _amm: any = amm;
+
+    if (_amm.isInverse) {
+        side = reverseSide(side);
+    }
+
+    let currentTick = Math.floor(amm.tick / PEARL_SPACING) * PEARL_SPACING;
+
+    if (side === Side.LONG) {
+        if (currentTick === amm.tick) {
+            currentTick = currentTick - PEARL_SPACING;
+        }
+    } else {
+        currentTick = currentTick + PEARL_SPACING;
+    }
+
+    const { upperTick, lowerTick } = ammPlaceOrderLimit(amm, initialMarginRatio);
+
+    if (_amm.isInverse) {
+        if (side === Side.SHORT) {
+            return {
+                upperTick: lowerTick,
+                lowerTick: currentTick,
+            };
+        } else {
+            return {
+                upperTick: currentTick,
+                lowerTick: upperTick,
+            };
+        }
+    } else {
+        if (side === Side.LONG) {
+            return {
+                upperTick: currentTick,
+                lowerTick: lowerTick,
+            };
+        } else {
+            return {
+                upperTick: upperTick,
+                lowerTick: currentTick,
+            };
+        }
+    }
+}
+
+export function ammPlaceCrossMarketOrderLimit(
+    amm: RawAmm | Amm,
+    maintenanceMarginRatio: number,
+): {
+    upperTick: number;
+    lowerTick: number;
+} {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _amm: any = amm;
+
+    amm = toRawAmm(amm);
+
+    const priceLower = amm.markPrice.sub(wmul(amm.markPrice, r2w(maintenanceMarginRatio)));
+    const priceUpper = amm.markPrice.add(wmul(amm.markPrice, r2w(maintenanceMarginRatio)));
+    const upperTick = ORDER_SPACING * Math.floor(TickMath.getTickAtPWad(priceUpper) / ORDER_SPACING);
+    const lowerTick = ORDER_SPACING * Math.ceil(TickMath.getTickAtPWad(priceLower) / ORDER_SPACING);
+
+    return _amm.isInverse
+        ? {
+              upperTick: lowerTick,
+              lowerTick: upperTick,
+          }
+        : {
+              upperTick,
+              lowerTick,
+          };
+}
+
+export function ammPlaceCrossMarketOrderLimitBySide(
+    amm: RawAmm | Amm,
+    initialMarginRatio: number,
+    maintenanceMarginRatio: number,
+    side: Side,
+) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _amm: any = amm;
+
+    if (_amm.isInverse) {
+        side = reverseSide(side);
+    }
+
+    const { upperTick, lowerTick } = ammPlaceOrderLimit(amm, initialMarginRatio);
+    const { upperTick: _upperTick, lowerTick: _lowerTick } = ammPlaceCrossMarketOrderLimit(amm, maintenanceMarginRatio);
+
+    if (_amm.isInverse) {
+        if (side === Side.SHORT) {
+            return {
+                upperTick: lowerTick,
+                lowerTick: _upperTick,
+            };
+        } else {
+            return {
+                upperTick: _lowerTick,
+                lowerTick: upperTick,
+            };
+        }
+    } else {
+        if (side === Side.LONG) {
+            return {
+                upperTick: _upperTick,
+                lowerTick,
+            };
+        } else {
+            return {
+                upperTick,
+                lowerTick: _lowerTick,
+            };
+        }
+    }
 }
 
 export function ammWithinDeviationLimit(amm: RawAmm | Amm, initialMarginRatio: number): boolean {
