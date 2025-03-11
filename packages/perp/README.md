@@ -796,7 +796,6 @@ const leverage = ethers.utils.parseUnits('5');
 const result = await ctx.perp.simulate.simulateScaledLimitOrder({
     tradeInfo,
     priceInfo: [orderPrice1, orderPrice2],
-    orderCount,
     sizeDistribution,
     size: sizeByQuote,
     side,
