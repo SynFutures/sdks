@@ -2,7 +2,7 @@
 import { BigNumber, BigNumberish } from 'ethers';
 import { solidityRequire } from '../utils';
 import { TickMath } from './tickMath';
-import { PEARL_SPACING, RATIO_DECIMALS } from '../constants';
+import { ONE_RATIO, PEARL_SPACING, RATIO_DECIMALS } from '../constants';
 import { FundFlow, Pending } from '../types';
 import {
     MAX_UINT_256,
@@ -318,6 +318,29 @@ export function getOrderLeverageByMargin(targetTick: number, baseSize: BigNumber
 
 export function getMaxLeverage(imr: number): number {
     return 1 / (imr / 10 ** RATIO_DECIMALS);
+}
+
+export function getMinOrderMargin(
+    targetPrice: BigNumber,
+    markPrice: BigNumber,
+    baseSize: BigNumber,
+    imr: number,
+    slippage = 50,
+) {
+    const minMargin = wmulUp(
+        r2w(imr),
+        wmulUp(
+            max(
+                markPrice
+                    .mul(ONE_RATIO + slippage) // add slippage
+                    .div(ONE_RATIO),
+                targetPrice,
+            ),
+            baseSize,
+        ),
+    );
+
+    return minMargin;
 }
 
 export function calcMaxWithdrawable(
