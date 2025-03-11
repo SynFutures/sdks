@@ -781,10 +781,8 @@ const tradeInfo = {
 // we need lower and upper tick,
 // NOTICE: tick must be aligned with PEARL_SPACING, i.e. ORDER_SPACING
 // order spacing is 5, so the tick must be divisible by 5
-const lowerPriceInfo = utils.alignTick(amm.tick, PEARL_SPACING);
-const upperPriceInfo = utils.alignTick(amm.tick + 100, PEARL_SPACING);
-// order count for the batch order
-const orderCount = 2;
+const orderPrice1 = utils.alignTick(amm.tick + 10, PEARL_SPACING);
+const orderPrice2 = utils.alignTick(amm.tick + 100, PEARL_SPACING);
 // size distribution type, can be FLAT, UPPER, LOWER or RANDOM
 const sizeDistribution = BatchOrderSizeDistribution.FLAT;
 // size by quote
@@ -797,8 +795,7 @@ const leverage = ethers.utils.parseUnits('5');
 // simulate the scaled limit order
 const result = await ctx.perp.simulate.simulateScaledLimitOrder({
     tradeInfo,
-    lowerPriceInfo,
-    upperPriceInfo,
+    priceInfo: [orderPrice1, orderPrice2],
     orderCount,
     sizeDistribution,
     size: sizeByQuote,
@@ -806,23 +803,23 @@ const result = await ctx.perp.simulate.simulateScaledLimitOrder({
     leverage,
     instrument,
 });
-//e.g
-//   "orders": [
-//     {
-//       "Order Price": "1.919313177850550675",
-//       "tick": 6520,
-//       "margin": "20.778002377882414872",
-//       "leverage": "5.0",
-//       "minFeeRebate": "0.031167003566823622"
-//     },
-//     {
-//       "Order Price": "1.938601626738353818",
-//       "tick": 6620,
-//       "margin": "20.986814280745118982",
-//       "leverage": "5.0",
-//       "minFeeRebate": "0.031480221421117678"
-//     }
-//   ]
+// e.g
+// "orders": [
+//   {
+//     "Order Price": "2.122219293115688719",
+//     "tick": 7525,
+//     "margin": "20.625237546162677487",
+//     "leverage": "5.0",
+//     "minFeeRebate": "0.051225552072308367"
+//   },
+//   {
+//     "Order Price": "2.14140451149794313",
+//     "tick": 7615,
+//     "margin": "20.675455862163656907",
+//     "leverage": "5.0",
+//     "minFeeRebate": "0.051688639655409142"
+//   }
+// ]
 console.log(`Simulated Result: ${utils.formatSimulateBatchPlaceResult(result)}`);
 
 //Please note that the limit orders do not guarantee to execute all successfully.
