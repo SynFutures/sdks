@@ -1,5 +1,13 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.2
+
+### Patch Changes
+
+- perp: Add `calcLimitOrderTickBoundary`
+- Updated dependencies
+    - @synfutures/sdks-perp@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
