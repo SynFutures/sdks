@@ -673,11 +673,27 @@ const expiry = PERP_EXPIRY;
 // Get instrument info, e.g. SUI-USDC-EMG
 const instrument = await ctx.perp.observer.getInstrument('SUI-USDC-EMG');
 const amm = instrument.amms.get(expiry)!;
-// we try to place a short limit order,
-// so the price of the order must be higher than the fair price
+
+// we try to place a short limit order
+const side = Side.SHORT;
+
+// calculate the tick range
+const { lowerTick, upperTick } = utils.calcLimitOrderTickBoundary(amm, instrument.setting.initialMarginRatio, side);
+// calculate the price range
+const { lowerPrice, upperPrice } = await ctx.perp.calc.getWadAtTicks(instrument.instrumentAddr, lowerTick, upperTick);
+
+// e.g
+// available price range from 2.181387195410016141 to 3.053975482357202618
+console.log(
+    'available price range from',
+    ethers.utils.formatUnits(lowerPrice),
+    'to',
+    ethers.utils.formatUnits(upperPrice),
+);
+
 // NOTICE: tick must be aligned with PEARL_SPACING, i.e. ORDER_SPACING
 // order spacing is 5, so the tick must be divisible by 5
-const targetTick = utils.alignTick(amm.tick + 100, PEARL_SPACING);
+const targetTick = utils.alignTick(lowerTick + PEARL_SPACING, PEARL_SPACING);
 
 // tradeInfo
 const tradeInfo = {
@@ -693,8 +709,6 @@ const priceInfo = targetTick;
 const byQuoteSize = {
     quote: ethers.utils.parseUnits('50'),
 };
-// side
-const side = Side.SHORT;
 // the leverage must be less than getMaxLeverage(instrument.setting.initialMarginRatio)
 const leverageInput = 4;
 
@@ -777,20 +791,28 @@ const tradeInfo = {
     traderAddr: signer.address,
 };
 
-// batch Scaled limit order need to specify the price range
-// we need lower and upper tick,
-// NOTICE: tick must be aligned with PEARL_SPACING, i.e. ORDER_SPACING
-// order spacing is 5, so the tick must be divisible by 5
-const orderPrice1 = utils.alignTick(amm.tick + 10, PEARL_SPACING);
-const orderPrice2 = utils.alignTick(amm.tick + 100, PEARL_SPACING);
+const side = Side.LONG;
+
+// calculate the tick range
+const { lowerTick, upperTick } = utils.calcLimitOrderTickBoundary(amm, instrument.setting.initialMarginRatio, side);
+// calculate the price range
+const { lowerPrice, upperPrice } = await ctx.perp.calc.getWadAtTicks(instrument.instrumentAddr, lowerTick, upperTick);
+
+// e.g
+// available price range from 1.316512573902007602 to 2.187940854892959438
+console.log(
+    'available price range from',
+    ethers.utils.formatUnits(lowerPrice),
+    'to',
+    ethers.utils.formatUnits(upperPrice),
+);
+
 // size distribution type, can be FLAT, UPPER, LOWER or RANDOM
 const sizeDistribution = BatchOrderSizeDistribution.FLAT;
 // size by quote
 const sizeByQuote = {
     quote: ethers.utils.parseUnits('200'),
 };
-// side, leverage
-const side = Side.SHORT;
 const leverage = ethers.utils.parseUnits('5');
 // simulate the scaled limit order
 const result = await ctx.perp.simulate.simulateScaledLimitOrder({
@@ -804,20 +826,20 @@ const result = await ctx.perp.simulate.simulateScaledLimitOrder({
 });
 // e.g
 // "orders": [
-//   {
-//     "Order Price": "2.122219293115688719",
-//     "tick": 7525,
-//     "margin": "20.625237546162677487",
-//     "leverage": "5.0",
-//     "minFeeRebate": "0.051225552072308367"
-//   },
-//   {
-//     "Order Price": "2.14140451149794313",
-//     "tick": 7615,
-//     "margin": "20.675455862163656907",
-//     "leverage": "5.0",
-//     "minFeeRebate": "0.051688639655409142"
-//   }
+//     {
+//         "Order Price": "1.31717096185338178",
+//         "tick": 2755,
+//         "margin": "24.481364821370367787",
+//         "leverage": "4.0",
+//         "minFeeRebate": "0.029411155314433566"
+//     },
+//     {
+//         "Order Price": "2.186847212580078576",
+//         "tick": 7825,
+//         "margin": "24.481364821370367787",
+//         "leverage": "4.0",
+//         "minFeeRebate": "0.048830185967376499"
+//     }
 // ]
 console.log(`Simulated Result: ${utils.formatSimulateBatchPlaceResult(result)}`);
 
@@ -887,6 +909,26 @@ const tradeInfo = {
     traderAddr: signer.address,
 };
 const side = Side.SHORT;
+
+// calculate the tick range
+const { lowerTick, upperTick } = utils.calcCrossMarketOrderTickBoundary(
+    amm,
+    instrument.setting.initialMarginRatio,
+    instrument.setting.maintenanceMarginRatio,
+    side,
+);
+// calculate the price range
+const { lowerPrice, upperPrice } = await ctx.perp.calc.getWadAtTicks(instrument.instrumentAddr, lowerTick, upperTick);
+
+// e.g
+// available price range from 2.018722483318220794 to 3.0539754823572026188
+console.log(
+    'available price range from',
+    ethers.utils.formatUnits(lowerPrice),
+    'to',
+    ethers.utils.formatUnits(upperPrice),
+);
+
 const leverage = ethers.utils.parseEther('10');
 //slippage, 100 means 100 / 10000 = 1%
 const slippage = 100;
@@ -897,7 +939,7 @@ const sizeByBase = {
 // so the price of the order must be lower than the fair price
 // NOTICE: tick must be aligned with PEARL_SPACING, i.e. ORDER_SPACING
 // order spacing is 5, so the tick must be divisible by 5
-const targetTick = utils.alignTick(amm.tick - 100, PEARL_SPACING);
+const targetTick = utils.alignTick(lowerTick + PEARL_SPACING, PEARL_SPACING);
 const result = await ctx.perp.simulate.simulateCrossMarketOrder({
     tradeInfo,
     side,
