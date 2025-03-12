@@ -482,53 +482,6 @@ export function ammPlaceOrderLimit(
           };
 }
 
-export function ammPlaceOrderLimitBySide(amm: RawAmm | Amm, initialMarginRatio: number, side: Side) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const _amm: any = amm;
-
-    if (_amm.isInverse) {
-        side = reverseSide(side);
-    }
-
-    let currentTick = Math.floor(amm.tick / PEARL_SPACING) * PEARL_SPACING;
-
-    if (side === Side.LONG) {
-        if (currentTick === amm.tick) {
-            currentTick = currentTick - PEARL_SPACING;
-        }
-    } else {
-        currentTick = currentTick + PEARL_SPACING;
-    }
-
-    const { upperTick, lowerTick } = ammPlaceOrderLimit(amm, initialMarginRatio);
-
-    if (_amm.isInverse) {
-        if (side === Side.SHORT) {
-            return {
-                upperTick: lowerTick,
-                lowerTick: currentTick,
-            };
-        } else {
-            return {
-                upperTick: currentTick,
-                lowerTick: upperTick,
-            };
-        }
-    } else {
-        if (side === Side.LONG) {
-            return {
-                upperTick: currentTick,
-                lowerTick: lowerTick,
-            };
-        } else {
-            return {
-                upperTick: upperTick,
-                lowerTick: currentTick,
-            };
-        }
-    }
-}
-
 export function ammPlaceCrossMarketOrderLimit(
     amm: RawAmm | Amm,
     maintenanceMarginRatio: number,
@@ -555,49 +508,6 @@ export function ammPlaceCrossMarketOrderLimit(
               upperTick,
               lowerTick,
           };
-}
-
-export function ammPlaceCrossMarketOrderLimitBySide(
-    amm: RawAmm | Amm,
-    initialMarginRatio: number,
-    maintenanceMarginRatio: number,
-    side: Side,
-) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const _amm: any = amm;
-
-    if (_amm.isInverse) {
-        side = reverseSide(side);
-    }
-
-    const { upperTick, lowerTick } = ammPlaceOrderLimit(amm, initialMarginRatio);
-    const { upperTick: _upperTick, lowerTick: _lowerTick } = ammPlaceCrossMarketOrderLimit(amm, maintenanceMarginRatio);
-
-    if (_amm.isInverse) {
-        if (side === Side.SHORT) {
-            return {
-                upperTick: lowerTick,
-                lowerTick: _upperTick,
-            };
-        } else {
-            return {
-                upperTick: _lowerTick,
-                lowerTick: upperTick,
-            };
-        }
-    } else {
-        if (side === Side.LONG) {
-            return {
-                upperTick: _upperTick,
-                lowerTick,
-            };
-        } else {
-            return {
-                upperTick,
-                lowerTick: _lowerTick,
-            };
-        }
-    }
 }
 
 export function ammWithinDeviationLimit(amm: RawAmm | Amm, initialMarginRatio: number): boolean {
@@ -743,4 +653,94 @@ export function inquireTransferAmountFromTargetLeverage(
     const targetEquity = wdiv(value, targetLeverage);
     const currentEquity = positionEquity(position, amm);
     return targetEquity.sub(currentEquity);
+}
+
+export function calcLimitOrderTickBoundary(amm: RawAmm | Amm, initialMarginRatio: number, side: Side) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _amm: any = amm;
+
+    if (_amm.isInverse) {
+        side = reverseSide(side);
+    }
+
+    let currentTick = Math.floor(amm.tick / PEARL_SPACING) * PEARL_SPACING;
+
+    if (side === Side.LONG) {
+        if (currentTick === amm.tick) {
+            currentTick = currentTick - PEARL_SPACING;
+        }
+    } else {
+        currentTick = currentTick + PEARL_SPACING;
+    }
+
+    const { upperTick, lowerTick } = ammPlaceOrderLimit(amm, initialMarginRatio);
+
+    if (_amm.isInverse) {
+        if (side === Side.SHORT) {
+            return {
+                upperTick: lowerTick,
+                lowerTick: currentTick,
+            };
+        } else {
+            return {
+                upperTick: currentTick,
+                lowerTick: upperTick,
+            };
+        }
+    } else {
+        if (side === Side.LONG) {
+            return {
+                upperTick: currentTick,
+                lowerTick: lowerTick,
+            };
+        } else {
+            return {
+                upperTick: upperTick,
+                lowerTick: currentTick,
+            };
+        }
+    }
+}
+
+export function calcCrossMarketOrderTickBoundary(
+    amm: RawAmm | Amm,
+    initialMarginRatio: number,
+    maintenanceMarginRatio: number,
+    side: Side,
+) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const _amm: any = amm;
+
+    if (_amm.isInverse) {
+        side = reverseSide(side);
+    }
+
+    const { upperTick, lowerTick } = ammPlaceOrderLimit(amm, initialMarginRatio);
+    const { upperTick: _upperTick, lowerTick: _lowerTick } = ammPlaceCrossMarketOrderLimit(amm, maintenanceMarginRatio);
+
+    if (_amm.isInverse) {
+        if (side === Side.SHORT) {
+            return {
+                upperTick: lowerTick,
+                lowerTick: _upperTick,
+            };
+        } else {
+            return {
+                upperTick: _lowerTick,
+                lowerTick: upperTick,
+            };
+        }
+    } else {
+        if (side === Side.LONG) {
+            return {
+                upperTick: _upperTick,
+                lowerTick,
+            };
+        } else {
+            return {
+                upperTick,
+                lowerTick: _lowerTick,
+            };
+        }
+    }
 }

@@ -678,7 +678,7 @@ const amm = instrument.amms.get(expiry)!;
 const side = Side.SHORT;
 
 // calculate the tick range
-const { lowerTick, upperTick } = utils.ammPlaceOrderLimitBySide(amm, instrument.setting.initialMarginRatio, side);
+const { lowerTick, upperTick } = utils.calcLimitOrderTickBoundary(amm, instrument.setting.initialMarginRatio, side);
 // calculate the price range
 const { lowerPrice, upperPrice } = await ctx.perp.calc.getWadAtTicks(instrument.instrumentAddr, lowerTick, upperTick);
 
@@ -794,7 +794,7 @@ const tradeInfo = {
 const side = Side.LONG;
 
 // calculate the tick range
-const { lowerTick, upperTick } = utils.ammPlaceOrderLimitBySide(amm, instrument.setting.initialMarginRatio, side);
+const { lowerTick, upperTick } = utils.calcLimitOrderTickBoundary(amm, instrument.setting.initialMarginRatio, side);
 // calculate the price range
 const { lowerPrice, upperPrice } = await ctx.perp.calc.getWadAtTicks(instrument.instrumentAddr, lowerTick, upperTick);
 
@@ -911,7 +911,7 @@ const tradeInfo = {
 const side = Side.SHORT;
 
 // calculate the tick range
-const { lowerTick, upperTick } = utils.ammPlaceCrossMarketOrderLimitBySide(
+const { lowerTick, upperTick } = utils.calcCrossMarketOrderTickBoundary(
     amm,
     instrument.setting.initialMarginRatio,
     instrument.setting.maintenanceMarginRatio,
