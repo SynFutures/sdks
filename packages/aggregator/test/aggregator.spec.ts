@@ -1,7 +1,7 @@
 import { perpPlugin } from '@synfutures/sdks-perp';
 import { parseUnits } from 'ethers/lib/utils';
 import { ZERO, WAD, Context } from '@derivation-tech/context';
-import { txPlugin } from '@derivation-tech/tx-plugin';
+import { DefaultEthGasEstimator, txPlugin } from '@derivation-tech/tx-plugin';
 import { PopulatedTransaction, BigNumber, ethers } from 'ethers';
 import { aggregatorPlugin, PoolType, SwapType, getDexFlag } from '../src';
 import * as dotenv from 'dotenv';
@@ -14,7 +14,7 @@ describe('Aggregator', function () {
         ctx = new Context('base', { url: process.env.BASE_RPC! });
         ctx.use(perpPlugin());
         ctx.use(aggregatorPlugin());
-        ctx.use(txPlugin());
+        ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
         await ctx.init();
     });
 

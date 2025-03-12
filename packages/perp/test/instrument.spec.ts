@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { PERP_EXPIRY, Side } from '../src';
 import { addDeadline, estimateTx } from './utils';
 import { Context } from '@derivation-tech/context';
-import { txPlugin } from '@derivation-tech/tx-plugin';
+import { DefaultEthGasEstimator, txPlugin } from '@derivation-tech/tx-plugin';
 import { perpPlugin } from '../src';
 import * as dotenv from 'dotenv';
 
@@ -14,7 +14,9 @@ describe('Instrument plugin', () => {
         console.log('Please provide a base RPC URL, skip testing');
         return;
     }
-    const context = new Context('base', { url }).use(perpPlugin()).use(txPlugin());
+    const context = new Context('base', { url })
+        .use(perpPlugin())
+        .use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
 
     beforeAll(async () => {
         await context.init();
