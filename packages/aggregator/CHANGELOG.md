@@ -1,5 +1,21 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.4
+
+### Patch Changes
+
+- Fix build
+- Updated dependencies
+    - @synfutures/sdks-perp@1.0.4
+
+## 1.0.3
+
+### Patch Changes
+
+- Bump dependencies
+- Updated dependencies
+    - @synfutures/sdks-perp@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes
