@@ -1,8 +1,10 @@
 import '@derivation-tech/tx-plugin';
 
+export * from './abis';
 export * from './math';
 export * from './modules';
 export * from './types';
+export * as typechain from './typechain';
 export * as utils from './utils';
 export * from './constants';
 export * from './enum';
