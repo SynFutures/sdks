@@ -1,5 +1,13 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.5
+
+### Patch Changes
+
+- perp: Export typechain
+- Updated dependencies
+    - @synfutures/sdks-perp@1.0.5
+
 ## 1.0.4
 
 ### Patch Changes
