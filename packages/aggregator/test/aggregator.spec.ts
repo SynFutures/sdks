@@ -11,7 +11,7 @@ describe('Aggregator', function () {
     let ctx: Context;
 
     beforeEach(async function () {
-        ctx = new Context('base', { providerOps: { url: process.env.BASE_RPC! }});
+        ctx = new Context('base', { providerOps: { url: process.env.BASE_RPC! } });
         ctx.use(perpPlugin({ configuration: 'local' }));
         ctx.use(aggregatorPlugin());
         ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
