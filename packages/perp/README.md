@@ -64,7 +64,7 @@ import { txPlugin, DefaultEthGasEstimator } from '@derivation-tech/tx-plugin';
 const ctx = new Context('base', {
     url: process.env['BASE_RPC'],
 })
-    .use(perpPlugin())
+    .use(perpPlugin({ configuration: 'local' }))
     .use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
 
 await ctx.init();
