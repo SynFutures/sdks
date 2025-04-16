@@ -16,7 +16,7 @@ describe('Inverse plugin Test', () => {
         return;
     }
 
-    const context = new Context('base', { url }).use(perpPlugin({ inverse: true }));
+    const context = new Context('base', { providerOps: { url } }).use(perpPlugin({ inverse: true }));
 
     beforeAll(async () => {
         await context.init();
