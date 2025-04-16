@@ -7,6 +7,7 @@
 - Bump dependencies
 - Updated dependencies
     - @synfutures/sdks-perp@1.0.6
+- Add monad aggregator
 
 ## 1.0.5
 

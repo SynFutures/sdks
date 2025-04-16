@@ -22,7 +22,6 @@
         "@synfutures/sdks-perp": "workspace:^",
         "ethers": "catalog:"
     },
-    "devDependencies": {},
     "jest": {
         "verbose": true,
         "collectCoverageFrom": [
