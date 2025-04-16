@@ -24,11 +24,7 @@ describe('Aggregator', function () {
 
 
     beforeEach(async function () {
-<<<<<<< HEAD
         ctx = new Context('monad-testnet', { providerOps: { url: process.env.MONAD_RPC! }});
-=======
-        ctx = new Context('monad-testnet', { url: process.env.MONAD_RPC! });
->>>>>>> d18ad5b (add monad aggregator)
         ctx.use(perpPlugin({ configuration: 'local' }));
         ctx.use(aggregatorPlugin());
         ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
