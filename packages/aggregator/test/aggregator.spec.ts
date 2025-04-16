@@ -12,7 +12,7 @@ describe('Aggregator', function () {
 
     beforeEach(async function () {
         ctx = new Context('base', { url: process.env.BASE_RPC! });
-        ctx.use(perpPlugin());
+        ctx.use(perpPlugin({ configuration: 'local' }));
         ctx.use(aggregatorPlugin());
         ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
         await ctx.init();

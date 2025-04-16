@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     '@derivation-tech/context':
-      specifier: ^1.0.3
-      version: 1.0.3
+      specifier: ^1.0.4
+      version: 1.0.4
     '@derivation-tech/tx-plugin':
       specifier: ^1.0.3
       version: 1.0.3
@@ -103,7 +103,7 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-        version: 1.0.3
+        version: 1.0.4
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
         version: 1.0.3
@@ -118,7 +118,7 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-        version: 1.0.3
+        version: 1.0.4
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
         version: 1.0.3
@@ -797,8 +797,8 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@derivation-tech/context@1.0.3':
-    resolution: {integrity: sha512-yD8mu3Qikg1X+Y4Vp9YipBbq4gL43UuicblEPgVPb0p8igSpvSGftWIpdSrbFGWM97UCwYsIkPfB4S8XdCKAUg==}
+  '@derivation-tech/context@1.0.4':
+    resolution: {integrity: sha512-4b4eue6Qt043ea/w1s0pRh2NXVAzfqNUDK/jkkHN3+NadqqJkG4xAoI6gk4HaTOtjJA+2aKi1TfZMIdGDlyD5w==}
 
   '@derivation-tech/contracts@1.0.3':
     resolution: {integrity: sha512-1+Mt/wyVMt+hV4//kNX/J534VXfrNLNIeZYSz/HNqWulUjMwploC8hyKsMNDbQO+h0OOm56wIj+LyS2IKkID3Q==}
@@ -4487,7 +4487,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@derivation-tech/context@1.0.3':
+  '@derivation-tech/context@1.0.4':
     dependencies:
       '@derivation-tech/contracts': 1.0.3
       '@eth-optimism/sdk': 3.3.3(ethers@5.7.2)
@@ -4512,7 +4512,7 @@ snapshots:
 
   '@derivation-tech/tx-plugin@1.0.3':
     dependencies:
-      '@derivation-tech/context': 1.0.3
+      '@derivation-tech/context': 1.0.4
       '@derivation-tech/contracts': 1.0.3
       async-retry: 1.3.3
       chalk: 4.1.2

@@ -15,7 +15,7 @@ describe('Observer plugin', () => {
         return;
     }
 
-    const context = new Context('base', { url }).use(perpPlugin());
+    const context = new Context('base', { providerOps: { url } }).use(perpPlugin({ configuration: 'local' }));
 
     const predefinedData = JSON.parse(
         fs.readFileSync(path.join(__dirname, './fixtures/', 'observer.fixtures.json'), 'utf8'),
