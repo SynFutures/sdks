@@ -1,12 +1,14 @@
 # @synfutures/sdks-aggregator
 
-## 1.0.6
+## 1.0.7
 
 ### Patch Changes
 
-- Bump dependencies
 - Updated dependencies
-    - @synfutures/sdks-perp@1.0.6
+
+## 1.0.6
+
+### Patch Changes
 - Add monad aggregator
 
 ## 1.0.5
