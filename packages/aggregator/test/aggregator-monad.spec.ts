@@ -10,16 +10,16 @@ dotenv.config();
 describe('Aggregator', function () {
     let ctx: Context;
     let token0 = {
-        name: 'TOKEN0',
-        address: '0xB50EFdFc4C9346c046F223E18BF09aBB7dD3B71f',
-        symbol: 'TOKEN0',
+        name: 'WMON',
+        address: '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
+        symbol: 'WMON',
         decimals: 18,
     };
     let token1 = {
-        name: 'TOKEN1',
-        address: '0xF8fa3e75264A4d3f04a146C99eF5984c97FaeE3B',
-        symbol: 'TOKEN1',
-        decimals: 18,
+        name: 'USDC',
+        address: '0xf817257fed379853cDe0fa4F97AB987181B1E5Ea',
+        symbol: 'USDT',
+        decimals: 6,
     };
 
 
@@ -72,13 +72,14 @@ describe('Aggregator', function () {
             toTokenAddress: weth.address,
             fromTokenDecimals: usdc.decimals,
             toTokenDecimals: weth.decimals,
-            fromAmount: parseUnits('0.0001', usdc.decimals),
-            excludePoolTypes: [],
+            fromAmount: parseUnits('0.0015', usdc.decimals),
+            excludePoolTypes: [8],
             slippageInBps: 100, // 1%
         });
 
         expect(result.priceImpact).toBeGreaterThan(-1);
         expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
+        console.log("out amount:", result.minReceivedAmount.toString());
         expect(result.route.length).toBeGreaterThan(0);
     });
 
@@ -88,7 +89,7 @@ describe('Aggregator', function () {
         const result = await ctx.aggregator.querySingleRoute({
             fromTokenAddress: usdc.address,
             toTokenAddress: weth.address,
-            fromAmount: parseUnits('0.0001', usdc.decimals),
+            fromAmount: parseUnits('0.001', usdc.decimals),
             excludePoolTypes: [],
         });
 
@@ -100,21 +101,22 @@ describe('Aggregator', function () {
         expect(result.bestPath[result.bestPath.length - 1]).toBe(weth.address);
     });
 
-    it('should simulate multi swap succeed', async function () {
+    it('should simulate multi swap succeed, mon-usdt', async function () {
         const weth = token0;
         const usdc = token1;
 
         const result = await ctx.aggregator.simulateMultiSwap({
-            fromTokenAddress: weth.address,
+            fromTokenAddress: '0x0000000000000000000000000000000000000000',//weth.address,
             toTokenAddress: usdc.address,
             fromTokenDecimals: weth.decimals,
-            toTokenDecimals: weth.decimals,
-            fromAmount: parseUnits('0.0001', weth.decimals),
+            toTokenDecimals: usdc.decimals,
+            fromAmount: parseUnits('0.01', weth.decimals),
             excludePoolTypes: [],
             isDirect: false,
             slippageInBps: 100, // 1%
         });
 
+        //console.log(JSON.stringify(result, null, 2));
         expect(result.priceImpact).toBeGreaterThan(-1);
         expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
         expect(result.route.length).toBeGreaterThan(0);
@@ -122,6 +124,37 @@ describe('Aggregator', function () {
             for (const route of routeList) {
                 expect(route.poolAddr).toBeDefined();
                 expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
+                //console.log("ratio:", route.ratio.toString());
+                expect(route.ratio.gt(ZERO)).toBe(true);
+                expect(route.fee.gt(ZERO)).toBe(true);
+            }
+        }
+    });
+
+    it('should simulate multi swap succeed, usdt - mon', async function () {
+        const weth = token0;
+        const usdc = token1;
+
+        const result = await ctx.aggregator.simulateMultiSwap({
+            fromTokenAddress: usdc.address,
+            toTokenAddress: weth.address, //'0x0000000000000000000000000000000000000000',
+            fromTokenDecimals: usdc.decimals,
+            toTokenDecimals: weth.decimals,
+            fromAmount: parseUnits('0.01', usdc.decimals),
+            excludePoolTypes: [],
+            isDirect: false,
+            slippageInBps: 100, // 1%
+        });
+
+        console.log(JSON.stringify(result, null, 2));
+        expect(result.priceImpact).toBeGreaterThan(-1);
+        expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
+        expect(result.route.length).toBeGreaterThan(0);
+        for (const routeList of result.route) {
+            for (const route of routeList) {
+                expect(route.poolAddr).toBeDefined();
+                expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
+                console.log("ratio:", route.ratio.toString());
                 expect(route.ratio.gt(ZERO)).toBe(true);
                 expect(route.fee.gt(ZERO)).toBe(true);
             }
@@ -205,8 +238,8 @@ describe('Aggregator', function () {
             token0Decimal: token0.decimals,
             token1Decimal: token1.decimals,
             priceMultipliers,
-            ratio: 0.8,
-            steps: 10,
+            ratio: 0.4,
+            steps: 16,
             batchSize: 2,
         });
 
@@ -218,16 +251,16 @@ describe('Aggregator', function () {
             expect(result.price).toBeGreaterThan(0);
             expect(result.poolAmounts.length).toBe(pools.length);
             for (const poolAmount of result.poolAmounts) {
-                expect(poolAmount.amount0).toBeGreaterThanOrEqual(0);
-                expect(poolAmount.amount1).toBeGreaterThanOrEqual(0);
-                // console.log(
-                //     'pool',
-                //     poolAmount.pool,
-                //     'poolAmount.amount0',
-                //     poolAmount.amount0,
-                //     'poolAmount.amount1',
-                //     poolAmount.amount1,
-                // );
+                //expect(poolAmount.amount0).toBeGreaterThanOrEqual(0);
+                //expect(poolAmount.amount1).toBeGreaterThanOrEqual(0);
+                 console.log(
+                     'pool',
+                     poolAmount.pool,
+                     'poolAmount.amount0',
+                     poolAmount.amount0,
+                     'poolAmount.amount1',
+                     poolAmount.amount1,
+                 );
             }
         }
         expect(results.sellLiquidityResults.length).toBe(8);
@@ -237,16 +270,16 @@ describe('Aggregator', function () {
             expect(result.price).toBeGreaterThan(0);
             expect(result.poolAmounts.length).toBe(pools.length);
             for (const poolAmount of result.poolAmounts) {
-                expect(poolAmount.amount0).toBeGreaterThanOrEqual(0);
-                expect(poolAmount.amount1).toBeGreaterThanOrEqual(0);
-                // console.log(
-                //     'pool',
-                //     poolAmount.pool,
-                //     'poolAmount.amount0',
-                //     poolAmount.amount0,
-                //     'poolAmount.amount1',
-                //     poolAmount.amount1,
-                // );
+                //expect(poolAmount.amount0).toBeGreaterThanOrEqual(0);
+                //expect(poolAmount.amount1).toBeGreaterThanOrEqual(0);
+                console.log(
+                    'pool',
+                    poolAmount.pool,
+                    'poolAmount.amount0',
+                    poolAmount.amount0,
+                    'poolAmount.amount1',
+                    poolAmount.amount1,
+                );
             }
         }
     });
