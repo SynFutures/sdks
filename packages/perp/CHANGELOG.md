@@ -1,5 +1,11 @@
 # @synfutures/sdks-perp
 
+## 1.0.6
+
+### Patch Changes
+
+- Bump dependencies
+
 ## 1.0.5
 
 ### Patch Changes
