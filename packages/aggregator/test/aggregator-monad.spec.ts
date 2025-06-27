@@ -1,6 +1,6 @@
 import { perpPlugin } from '@synfutures/sdks-perp';
 import { parseUnits } from 'ethers/lib/utils';
-import { ZERO, Context } from '@derivation-tech/context';
+import { ZERO, Context, ONE } from '@derivation-tech/context';
 import { DefaultEthGasEstimator, txPlugin } from '@derivation-tech/tx-plugin';
 import { PopulatedTransaction, BigNumber, ethers } from 'ethers';
 import { aggregatorPlugin, PoolType, SwapType, getDexFlag } from '../src';
@@ -65,8 +65,8 @@ describe('Aggregator', function () {
     });
 
     it('should simulate mix swap succeed', async function () {
-        const weth = token0;
-        const usdc = token1;
+        const weth = token1;
+        const usdc = token0;
         const result = await ctx.aggregator.simulateMixSwap({
             fromTokenAddress: usdc.address,
             toTokenAddress: weth.address,
@@ -80,6 +80,7 @@ describe('Aggregator', function () {
         expect(result.priceImpact).toBeGreaterThan(-1);
         expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
         console.log("out amount:", result.minReceivedAmount.toString());
+        console.log("path:", result.route);
         expect(result.route.length).toBeGreaterThan(0);
     });
 
@@ -332,5 +333,370 @@ describe('Aggregator', function () {
         expect(rawTx.to).toBeDefined();
         expect(rawTx.data).toBeDefined();
         expect(rawTx.value).toBeDefined();
+    });
+
+    it('should simulate MT single pool succeed', async function () {
+        const weth = token0;
+        const usdc = token1;
+        
+        // Get pool list to find a valid pool address
+        const pools = await ctx.aggregator.getPoolList(weth.address, usdc.address);
+        expect(pools.length).toBeGreaterThan(0);
+        
+        // Use the first pool for testing
+        const testPool = pools[0];
+        console.log("Testing with pool:", testPool.poolAddr);
+        console.log("Pool type:", testPool.poolType);
+        
+        const result = await ctx.aggregator.simulateMTSinglePool({
+            fromTokenAddress: usdc.address,
+            toTokenAddress: weth.address,
+            fromTokenDecimals: usdc.decimals,
+            toTokenDecimals: weth.decimals,
+            fromAmount: parseUnits('0.0015', usdc.decimals),
+            poolAddress: testPool.poolAddr,
+            slippageInBps: 100, // 1%
+        });
+
+        // Verify basic result structure
+        expect(result.priceImpact).toBeGreaterThan(-1);
+        expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
+        expect(result.route.length).toBeGreaterThan(0);
+        expect(result.tokens.length).toBe(2);
+        
+        // Verify tokens are in correct order
+        expect(result.tokens[0]).toBe(usdc.address);
+        expect(result.tokens[1]).toBe(weth.address);
+        
+        // Verify route structure (should be single pool)
+        expect(result.route.length).toBe(1); // Single hop
+        expect(result.route[0].length).toBe(1); // Single pool in the hop
+        
+        const routeInfo = result.route[0][0];
+        expect(routeInfo.poolAddr).toBe(testPool.poolAddr);
+        expect(routeInfo.poolType).toBe(PoolType.OYSTER_NEW);
+        expect(routeInfo.ratio.gt(ZERO)).toBe(true);
+        expect(routeInfo.fee.gte(ZERO)).toBe(true);
+        
+        console.log("Price impact:", result.priceImpact);
+        console.log("Min received amount:", result.minReceivedAmount.toString());
+        console.log("Route:", JSON.stringify(result.route, null, 2));
+        console.log("Tokens:", result.tokens);
+    });
+
+    it('should simulate MT single pool with custom adapter succeed', async function () {
+        const weth = token0;
+        const usdc = token1;
+        
+        // Get pool list to find a valid pool address
+        const pools = await ctx.aggregator.getPoolList(weth.address, usdc.address);
+        expect(pools.length).toBeGreaterThan(0);
+        
+        // Use the first pool for testing
+        const testPool = pools[0];
+        
+        // Get default adapter address for comparison
+        const defaultAdapter = await ctx.aggregator.getPoolAdapter(PoolType.OYSTER_NEW);
+        
+        const result = await ctx.aggregator.simulateMTSinglePool({
+            fromTokenAddress: usdc.address,
+            toTokenAddress: weth.address,
+            fromTokenDecimals: usdc.decimals,
+            toTokenDecimals: weth.decimals,
+            fromAmount: parseUnits('0.0015', usdc.decimals),
+            poolAddress: testPool.poolAddr,
+            adapterAddress: defaultAdapter, // Use custom adapter address
+            slippageInBps: 100, // 1%
+        });
+
+        // Verify result is valid
+        expect(result.priceImpact).toBeGreaterThan(-1);
+        expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
+        expect(result.route.length).toBe(1);
+        expect(result.route[0].length).toBe(1);
+        
+        console.log("Custom adapter test - Price impact:", result.priceImpact);
+        console.log("Custom adapter test - Min received amount:", result.minReceivedAmount.toString());
+    });
+
+    it('should query single pool route succeed', async function () {
+        const weth = token0;
+        const usdc = token1;
+        
+        // Get pool list to find a valid pool address
+        const pools = await ctx.aggregator.getPoolList(weth.address, usdc.address);
+        expect(pools.length).toBeGreaterThan(0);
+        
+        // Use the first pool for testing
+        const testPool = pools[0];
+        
+        const result = await ctx.aggregator.querySinglePoolRoute({
+            fromTokenAddress: usdc.address,
+            toTokenAddress: weth.address,
+            fromAmount: parseUnits('0.0015', usdc.decimals),
+            poolAddress: testPool.poolAddr,
+        });
+
+        // Verify result structure
+        expect(result.bestAmount.gt(ZERO)).toBe(true);
+        expect(result.midPrice.gt(ZERO)).toBe(true);
+        expect(result.bestPathInfo.isValid).toBe(true);
+        expect(result.bestPathInfo.tokens.length).toBe(2);
+        expect(result.bestPathInfo.oneHops.length).toBe(1);
+        expect(result.bestPathInfo.oneHops[0].pools.length).toBe(1);
+        expect(result.bestPathInfo.oneHops[0].weights.length).toBe(1);
+        
+        // Verify tokens are in correct order
+        expect(result.bestPathInfo.tokens[0]).toBe(usdc.address);
+        expect(result.bestPathInfo.tokens[1]).toBe(weth.address);
+        
+        // Verify pool info
+        const poolInfo = result.bestPathInfo.oneHops[0].pools[0];
+        expect(poolInfo.poolAddr).toBe(testPool.poolAddr);
+        expect(poolInfo.poolType).toBe(PoolType.OYSTER_NEW);
+        expect(poolInfo.swapType).toBe(SwapType.ADAPTER);
+        
+        // Verify weight is 100% for single pool
+        expect(result.bestPathInfo.oneHops[0].weights[0].eq(ONE)).toBe(true);
+        
+        console.log("Query single pool route - Best amount:", result.bestAmount.toString());
+        console.log("Query single pool route - Mid price:", result.midPrice.toString());
+        console.log("Query single pool route - Final amount out:", result.bestPathInfo.finalAmountOut.toString());
+    });
+
+    it.skip('should query single pool route and execute multiSwap with WMON as toToken succeed', async function () {
+        const usdc = token1; // USDC
+        const wmon = token0; // WMON
+        const amount = parseUnits('10', usdc.decimals);
+        const userAddress = '0x...'; // actual user address
+
+        // Get pool list to find a valid pool address
+        const pools = await ctx.aggregator.getPoolList(wmon.address, usdc.address);
+        expect(pools.length).toBeGreaterThan(0);
+        
+        // Use the first pool for testing
+        const testPool = pools[2];
+        console.log("Testing USDC -> WMON with pool:", testPool.poolAddr);
+
+        // Step 1: Query single pool route
+        const route = await ctx.aggregator.querySinglePoolRoute({
+            fromTokenAddress: usdc.address,
+            toTokenAddress: wmon.address,
+            fromAmount: amount,
+            poolAddress: testPool.poolAddr,
+        });
+
+        expect(route.bestAmount.gt(ZERO)).toBe(true);
+        expect(route.bestPathInfo.tokens.length).toBe(2);
+        expect(route.bestPathInfo.tokens[0]).toBe(usdc.address);
+        expect(route.bestPathInfo.tokens[1]).toBe(wmon.address);
+        expect(route.bestPathInfo.oneHops.length).toBe(1);
+        expect(route.bestPathInfo.oneHops[0].pools.length).toBe(1);
+
+        // Step 2: Execute multiSwap
+        const rawTx = await ctx.aggregator.multiSwap(
+            {
+                fromTokenAddress: usdc.address,
+                toTokenAddress: wmon.address,
+                fromTokenAmount: amount,
+                bestPathInfo: route.bestPathInfo,
+                bestAmount: route.bestAmount,
+                slippageInBps: 100, // 1%
+                broker: ethers.constants.AddressZero,
+                brokerFeeRate: BigNumber.from(0),
+                deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
+            },
+            {
+                from: userAddress, // user address
+            },
+        );
+
+        expect(rawTx).toBeDefined();
+        expect(rawTx.to).toBeDefined();
+        expect(rawTx.data).toBeDefined();
+        expect(rawTx.value).toBeDefined();
+        
+        console.log("USDC -> WMON transaction:", {
+            to: rawTx.to,
+            value: rawTx.value?.toString(),
+            dataLength: rawTx.data?.length
+        });
+    });
+
+    it.skip('should query single pool route and execute multiSwap with WMON as fromToken succeed', async function () {
+        const wmon = token0; // WMON
+        const usdc = token1; // USDC
+        const amount = parseUnits('0.1', wmon.decimals); // Smaller amount for WMON
+        const userAddress = '0x...'; // actual user address
+
+        // Get pool list to find a valid pool address
+        const pools = await ctx.aggregator.getPoolList(wmon.address, usdc.address);
+        expect(pools.length).toBeGreaterThan(0);
+        
+        // Use the first pool for testing
+        const testPool = pools[1];
+        console.log("Testing WMON -> USDC with pool:", testPool.poolAddr);
+
+        // Step 1: Query single pool route
+        const route = await ctx.aggregator.querySinglePoolRoute({
+            fromTokenAddress: wmon.address,
+            toTokenAddress: usdc.address,
+            fromAmount: amount,
+            poolAddress: testPool.poolAddr,
+        });
+
+        expect(route.bestAmount.gt(ZERO)).toBe(true);
+        expect(route.bestPathInfo.tokens.length).toBe(2);
+        expect(route.bestPathInfo.tokens[0]).toBe(wmon.address);
+        expect(route.bestPathInfo.tokens[1]).toBe(usdc.address);
+        expect(route.bestPathInfo.oneHops.length).toBe(1);
+        expect(route.bestPathInfo.oneHops[0].pools.length).toBe(1);
+
+        // Step 2: Execute multiSwap
+        const rawTx = await ctx.aggregator.multiSwap(
+            {
+                fromTokenAddress: wmon.address,
+                toTokenAddress: usdc.address,
+                fromTokenAmount: amount,
+                bestPathInfo: route.bestPathInfo,
+                bestAmount: route.bestAmount,
+                slippageInBps: 100, // 1%
+                broker: ethers.constants.AddressZero,
+                brokerFeeRate: BigNumber.from(0),
+                deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
+            },
+            {
+                from: userAddress, // user address
+            },
+        );
+
+        expect(rawTx).toBeDefined();
+        expect(rawTx.to).toBeDefined();
+        expect(rawTx.data).toBeDefined();
+        expect(rawTx.value).toBeDefined();
+        
+        console.log("WMON -> USDC transaction:", {
+            to: rawTx.to,
+            value: rawTx.value?.toString(),
+            dataLength: rawTx.data?.length
+        });
+    });
+
+    it.skip('should query single pool route and execute multiSwap with Native MON as fromToken succeed', async function () {
+        const ethAddress = '0x0000000000000000000000000000000000000000';
+        const usdc = token1; // USDC
+        const amount = parseUnits('0.01', 18); // 0.01 ETH
+        const userAddress = '0x...'; // actual user address
+
+        // Get pool list to find a valid pool address (using WETH address for pool lookup)
+        const pools = await ctx.aggregator.getPoolList(token0.address, usdc.address); // token0 is WMON
+        expect(pools.length).toBeGreaterThan(0);
+        
+        // Use the first pool for testing
+        const testPool = pools[0];
+        console.log("Testing ETH -> USDC with pool:", testPool.poolAddr);
+
+        // Step 1: Query single pool route
+        const route = await ctx.aggregator.querySinglePoolRoute({
+            fromTokenAddress: ethAddress,
+            toTokenAddress: usdc.address,
+            fromAmount: amount,
+            poolAddress: testPool.poolAddr,
+        });
+
+        expect(route.bestAmount.gt(ZERO)).toBe(true);
+        expect(route.bestPathInfo.tokens.length).toBe(2);
+        expect(route.bestPathInfo.tokens[0]).toBe(token0.address); // Should be WETH address after conversion
+        expect(route.bestPathInfo.tokens[1]).toBe(usdc.address);
+        expect(route.bestPathInfo.oneHops.length).toBe(1);
+        expect(route.bestPathInfo.oneHops[0].pools.length).toBe(1);
+
+        // Step 2: Execute multiSwap
+        const rawTx = await ctx.aggregator.multiSwap(
+            {
+                fromTokenAddress: ethAddress,
+                toTokenAddress: usdc.address,
+                fromTokenAmount: amount,
+                bestPathInfo: route.bestPathInfo,
+                bestAmount: route.bestAmount,
+                slippageInBps: 100, // 1%
+                broker: ethers.constants.AddressZero,
+                brokerFeeRate: BigNumber.from(0),
+                deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
+            },
+            {
+                from: userAddress, // user address
+            },
+        );
+
+        expect(rawTx).toBeDefined();
+        expect(rawTx.to).toBeDefined();
+        expect(rawTx.data).toBeDefined();
+        expect(rawTx.value).toBe(amount); // Should include ETH value
+        
+        console.log("ETH -> USDC transaction:", {
+            to: rawTx.to,
+            value: rawTx.value?.toString(),
+            dataLength: rawTx.data?.length
+        });
+    });
+
+    it.skip('should query single pool route and execute multiSwap with Native MON as toToken succeed', async function () {
+        const usdc = token1; // USDC
+        const ethAddress = '0x0000000000000000000000000000000000000000';
+        const amount = parseUnits('1000', usdc.decimals);
+        const userAddress = '0x...'; // actual user address
+
+        // Get pool list to find a valid pool address (using WETH address for pool lookup)
+        const pools = await ctx.aggregator.getPoolList(token0.address, usdc.address); // token0 is WMON
+        expect(pools.length).toBeGreaterThan(0);
+        
+        // Use the first pool for testing
+        const testPool = pools[0];
+        console.log("Testing USDC -> ETH with pool:", testPool.poolAddr);
+
+        // Step 1: Query single pool route
+        const route = await ctx.aggregator.querySinglePoolRoute({
+            fromTokenAddress: usdc.address,
+            toTokenAddress: ethAddress,
+            fromAmount: amount,
+            poolAddress: testPool.poolAddr,
+        });
+
+        expect(route.bestAmount.gt(ZERO)).toBe(true);
+        expect(route.bestPathInfo.tokens.length).toBe(2);
+        expect(route.bestPathInfo.tokens[0]).toBe(usdc.address);
+        expect(route.bestPathInfo.tokens[1]).toBe(token0.address); // Should be WETH address after conversion
+        expect(route.bestPathInfo.oneHops.length).toBe(1);
+        expect(route.bestPathInfo.oneHops[0].pools.length).toBe(1);
+
+        // Step 2: Execute multiSwap
+        const rawTx = await ctx.aggregator.multiSwap(
+            {
+                fromTokenAddress: usdc.address,
+                toTokenAddress: ethAddress,
+                fromTokenAmount: amount,
+                bestPathInfo: route.bestPathInfo,
+                bestAmount: route.bestAmount,
+                slippageInBps: 100, // 1%
+                broker: ethers.constants.AddressZero,
+                brokerFeeRate: BigNumber.from(0),
+                deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
+            },
+            {
+                from: userAddress, // user address
+            },
+        );
+
+        expect(rawTx).toBeDefined();
+        expect(rawTx.to).toBeDefined();
+        expect(rawTx.data).toBeDefined();
+        expect(rawTx.value.toString()).toBe('0'); // No ETH value for USDC -> ETH
+        
+        console.log("USDC -> ETH transaction:", {
+            to: rawTx.to,
+            value: rawTx.value?.toString(),
+            dataLength: rawTx.data?.length
+        });
     });
 });
