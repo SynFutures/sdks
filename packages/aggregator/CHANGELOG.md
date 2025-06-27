@@ -4,7 +4,7 @@
 
 ### Major Changes
 
-- Add querySinlgePool and simulateMTSinglePool
+- Add querySinglePool and simulateMTSinglePool
 
 ## 1.0.7
 
