@@ -80,6 +80,7 @@ describe('Aggregator', function () {
         expect(result.priceImpact).toBeGreaterThan(-1);
         expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
         console.log("out amount:", result.minReceivedAmount.toString());
+        console.log("path:", result.route);
         expect(result.route.length).toBeGreaterThan(0);
     });
 
