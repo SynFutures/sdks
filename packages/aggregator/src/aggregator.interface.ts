@@ -22,6 +22,9 @@ import {
     SimulateMixSwapResult,
     SimulateMultiSwapParam,
     SimulateMultiSwapResult,
+    QuerySinglePoolRouteParam,
+    SimulateMTSinglePoolParam,
+    SimulateMTSinglePoolResult,
 } from './params';
 
 export interface AggregatorInterface {
@@ -47,6 +50,10 @@ export interface AggregatorInterface {
     simulateMixSwap(params: SimulateMixSwapParam): Promise<SimulateMixSwapResult>;
 
     simulateMultiSwap(params: SimulateMultiSwapParam): Promise<SimulateMultiSwapResult>;
+
+    querySinglePoolRoute(params: QuerySinglePoolRouteParam): Promise<QuerySplitRouteResult>;
+
+    simulateMTSinglePool(params: SimulateMTSinglePoolParam): Promise<SimulateMTSinglePoolResult>;
 
     getPoolLiquidity(params: GetPoolLiquidityParam): Promise<GetPoolLiquidityResult>;
 
@@ -82,4 +89,5 @@ export interface AggregatorInterface {
         },
         txOptions?: TxOptions,
     ): Promise<TransactionReceipt | PopulatedTransaction>;
+
 }

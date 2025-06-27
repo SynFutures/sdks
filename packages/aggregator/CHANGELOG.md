@@ -1,12 +1,22 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.9
+
+### Major Changes
+
+- Add querySinglePool and simulateMTSinglePool
+
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 1.0.6
 
 ### Patch Changes
 
-- Bump dependencies
-- Updated dependencies
-    - @synfutures/sdks-perp@1.0.6
+- Add monad aggregator
 
 ## 1.0.5
 

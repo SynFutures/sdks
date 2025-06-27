@@ -22,7 +22,7 @@ import {
     QUERY_SINGLE_ROUTE_ADDRESS,
     QUERY_SPLIT_ROUTE_ADDRESS,
 } from './constants';
-import { Pair, PoolType, SwapType } from './types';
+import { OneHop, Pair, PoolType, SplitPathInfo, SwapType } from './types';
 import {
     GetAmountsOutParam,
     GetAmountsOutResult,
@@ -42,6 +42,9 @@ import {
     SimulateMultiSwapParam,
     SimulateMixSwapResult,
     SimulateMultiSwapResult,
+    QuerySinglePoolRouteParam,
+    SimulateMTSinglePoolParam,
+    SimulateMTSinglePoolResult,
 } from './params';
 import {
     analyzePoolLiquidity,
@@ -685,5 +688,120 @@ export class AggregatorModule implements AggregatorInterface {
               });
 
         return await this.context.tx.sendTx(tx, txOptions);
+    }
+
+    async querySinglePoolRoute(params: QuerySinglePoolRouteParam): Promise<QuerySplitRouteResult> {
+        // Convert ETH addresses to WETH
+        params.fromTokenAddress = toWrappedETH(this.context, params.fromTokenAddress);
+        params.toTokenAddress = toWrappedETH(this.context, params.toTokenAddress);
+
+        // Use provided adapter address or get default adapter for OYSTER pool type
+        const adapterAddress = params.adapterAddress || await this.getPoolAdapter(PoolType.OYSTER_NEW);
+        
+        // Create adapter contract interface
+        const adapterInterface = new ethers.utils.Interface([
+            "function querySell(address fromToken, uint256 fromAmount, address pool) external returns (address toToken, uint256 toAmount)",
+            "function getMidPriceAndBalances(address pool, bool isBuy) external view returns (uint256 price, uint256 token0bal, uint256 token1bal)"
+        ]);
+
+        // Determine if this is a buy operation based on token addresses lexicographical order
+        // Since token0 < token1 strictly holds, we can determine isBuy by comparing fromToken and toToken
+        const isBuy = params.fromTokenAddress.toLowerCase() < params.toTokenAddress.toLowerCase();
+
+        // Prepare multicall data
+        const multicallCalls = [
+            {
+                target: adapterAddress,
+                callData: adapterInterface.encodeFunctionData('querySell', [
+                    params.fromTokenAddress,
+                    params.fromAmount,
+                    params.poolAddress
+                ])
+            },
+            {
+                target: adapterAddress,
+                callData: adapterInterface.encodeFunctionData('getMidPriceAndBalances', [
+                    params.poolAddress,
+                    isBuy
+                ])
+            }
+        ];
+
+        // Execute multicall
+        const multicallResults = (await this.context.multiCall3.callStatic.aggregate(multicallCalls)).returnData;
+        
+        // Decode results
+        const [, toAmount] = adapterInterface.decodeFunctionResult('querySell', multicallResults[0]);
+        const [midPrice, , ] = adapterInterface.decodeFunctionResult('getMidPriceAndBalances', multicallResults[1]);
+
+        // Create pool info with token addresses in correct order (token0 < token1)
+        const [token0, token1] = isBuy ? [params.fromTokenAddress, params.toTokenAddress] : [params.toTokenAddress, params.fromTokenAddress];
+        
+        const poolInfo: Pair = {
+            token0,
+            token1,
+            poolAddr: params.poolAddress,
+            poolType: PoolType.OYSTER_NEW,
+            fee: ZERO, // Default fee, can be updated if needed
+            swapType: SwapType.ADAPTER
+        };
+
+        // Create one hop with single pool
+        const oneHop: OneHop = {
+            pools: [poolInfo],
+            weights: [ONE] // Single pool gets 100% weight
+        };
+
+        // Create best path info
+        const bestPathInfo: SplitPathInfo = {
+            tokens: [params.fromTokenAddress, params.toTokenAddress],
+            oneHops: [oneHop],
+            finalAmountOut: toAmount,
+            isValid: true
+        };
+
+        return {
+            bestAmount: toAmount,
+            midPrice: midPrice,
+            bestPathInfo: bestPathInfo
+        };
+    }
+
+    async simulateMTSinglePool(params: SimulateMTSinglePoolParam): Promise<SimulateMTSinglePoolResult> {
+        const querySinglePoolRouteResult = await this.querySinglePoolRoute({
+            fromTokenAddress: params.fromTokenAddress,
+            toTokenAddress: params.toTokenAddress,
+            fromAmount: params.fromAmount,
+            poolAddress: params.poolAddress,
+            adapterAddress: params.adapterAddress,
+        });
+
+        const minReturnAmount = querySinglePoolRouteResult.bestAmount
+            .mul(RATIO_BASE - params.slippageInBps)
+            .div(RATIO_BASE);
+
+        const WAD = BigNumber.from(10).pow(18); // 1e18
+        const fromTokenDecimalCorrect = BigNumber.from(10).pow(params.fromTokenDecimals);
+        const toTokenDecimalCorrect = BigNumber.from(10).pow(params.toTokenDecimals);
+
+        // priceImpact: (bestAmount / (fromAmount * midPrice)) - 1
+        const priceImpactBN = querySinglePoolRouteResult.bestAmount
+            .mul(fromTokenDecimalCorrect)
+            .mul(WAD)
+            .div(params.fromAmount.mul(toTokenDecimalCorrect).mul(querySinglePoolRouteResult.midPrice).div(WAD));
+
+        return {
+            priceImpact: Math.min(Number(formatUnits(priceImpactBN, 18)) - 1, 0),
+            minReceivedAmount: minReturnAmount,
+            route: querySinglePoolRouteResult.bestPathInfo.oneHops.map((hop) =>
+                hop.pools.map((pool) => ({
+                    poolAddr: pool.poolAddr,
+                    poolType: pool.poolType,
+                    ratio: hop.weights[hop.pools.indexOf(pool)],
+                    fee: pool.fee,
+                })),
+            ),
+            tokens: querySinglePoolRouteResult.bestPathInfo.tokens,
+        };
     }
 }

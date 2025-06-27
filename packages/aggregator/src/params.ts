@@ -164,3 +164,29 @@ export interface MultiSwapParam {
     brokerFeeRate: BigNumber;
     deadline: number;
 }
+
+export interface QuerySinglePoolRouteParam {
+    fromTokenAddress: string;
+    toTokenAddress: string;
+    fromAmount: BigNumber;
+    poolAddress: string;
+    adapterAddress?: string;
+}
+
+export interface SimulateMTSinglePoolParam {
+    fromTokenAddress: string;
+    toTokenAddress: string;
+    fromTokenDecimals: number;
+    toTokenDecimals: number;
+    fromAmount: BigNumber;
+    poolAddress: string;
+    adapterAddress?: string;
+    slippageInBps: number;
+}
+
+export interface SimulateMTSinglePoolResult {
+    priceImpact: number;
+    minReceivedAmount: BigNumber;
+    route: Route[][];
+    tokens: string[];
+}

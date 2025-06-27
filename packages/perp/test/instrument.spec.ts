@@ -14,8 +14,8 @@ describe('Instrument plugin', () => {
         console.log('Please provide a base RPC URL, skip testing');
         return;
     }
-    const context = new Context('base', { url })
-        .use(perpPlugin())
+    const context = new Context('base', { providerOps: { url } })
+        .use(perpPlugin({ configuration: 'local' }))
         .use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
 
     beforeAll(async () => {

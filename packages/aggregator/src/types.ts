@@ -45,6 +45,8 @@ export enum PoolType {
     AERODROME_V2 = 5,
     SUSHISWAP_V3 = 6,
     ALB_V3 = 7,
+    OYSTER = 8,
+    OYSTER_NEW = 9,
 }
 
 export interface PoolCurve {

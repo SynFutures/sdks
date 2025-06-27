@@ -1,6 +1,6 @@
 {
     "name": "@synfutures/sdks-aggregator",
-    "version": "1.0.6",
+    "version": "1.0.9",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
@@ -22,7 +22,6 @@
         "@synfutures/sdks-perp": "workspace:^",
         "ethers": "catalog:"
     },
-    "devDependencies": {},
     "jest": {
         "verbose": true,
         "collectCoverageFrom": [
