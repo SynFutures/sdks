@@ -1,5 +1,11 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.11
+
+### Major Changes
+
+- Fix simulateMTSinglePool
+
 ## 1.0.9
 
 ### Major Changes
