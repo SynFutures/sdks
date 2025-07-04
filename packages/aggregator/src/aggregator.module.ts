@@ -785,10 +785,12 @@ export class AggregatorModule implements AggregatorInterface {
         const toTokenDecimalCorrect = BigNumber.from(10).pow(params.toTokenDecimals);
 
         // priceImpact: (bestAmount / (fromAmount * midPrice)) - 1
-        const priceImpactBN = querySinglePoolRouteResult.bestAmount
+        const priceImpactBN = querySinglePoolRouteResult.midPrice.gt(ZERO) ? 
+            querySinglePoolRouteResult.bestAmount
             .mul(fromTokenDecimalCorrect)
             .mul(WAD)
-            .div(params.fromAmount.mul(toTokenDecimalCorrect).mul(querySinglePoolRouteResult.midPrice).div(WAD));
+            .div(params.fromAmount.mul(toTokenDecimalCorrect).mul(querySinglePoolRouteResult.midPrice).div(WAD))
+            : ZERO;
 
         return {
             priceImpact: Math.min(Number(formatUnits(priceImpactBN, 18)) - 1, 0),
