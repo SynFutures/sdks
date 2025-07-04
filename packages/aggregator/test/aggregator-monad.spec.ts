@@ -700,7 +700,7 @@ describe('Aggregator', function () {
         });
     });
 
-    it.only('should query specified pool', async function () {
+    it.skip('should query specified pool', async function () {
         // const test_token1 = {
         //     name: 'YAKI',
         //     address: '0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50',
