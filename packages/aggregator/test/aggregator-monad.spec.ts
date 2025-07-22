@@ -707,13 +707,14 @@ describe('Aggregator', function () {
         //     decimals: 18,
         // };
         const test_token1 = token1;
-        const test_token0 = {
-            name: 'WETH',
-            address: '0xB5a30b0FDc5EA94A52fDc42e3E9760Cb8449Fb37',
-            symbol: 'WETH',
-            decimals: 18,
-        };
-        const amount = parseUnits('0.001', test_token0.decimals);
+        // const test_token0 = {
+        //     name: 'WETH',
+        //     address: '0xB5a30b0FDc5EA94A52fDc42e3E9760Cb8449Fb37',
+        //     symbol: 'WETH',
+        //     decimals: 18,
+        // };
+        const test_token0 = token0;
+        const amount = parseUnits('1', test_token1.decimals);
         const userAddress = '0x...'; // actual user address
 
         // Get pool list to find a valid pool address (using WETH address for pool lookup)
@@ -722,19 +723,19 @@ describe('Aggregator', function () {
 
         // Use the first pool for testing
         const testPool = {
-            token0: test_token0.address,
-            token1: test_token1.address,
-            poolAddr: '0xE2E86E00733bCFC5cd00DA44AdF75e4c445AFb0f',
+            token0: test_token1.address,
+            token1: test_token0.address,
+            poolAddr: '0x7d148143b7033f150830ff9114797b54671dde2e',
             poolType: PoolType.OYSTER_NEW,
-            fee: BigNumber.from(300),
+            fee: BigNumber.from(3000),
             swapType: SwapType.ADAPTER,
         };
-        console.log('Testing WETH -> USDC with pool:', testPool.poolAddr);
+        console.log('Testing USDC -> MON with pool:', testPool.poolAddr);
 
         // Step 1: Query single pool route
         const route = await ctx.aggregator.querySinglePoolRoute({
-            fromTokenAddress: test_token0.address,
-            toTokenAddress: test_token1.address,
+            fromTokenAddress: test_token1.address,
+            toTokenAddress: test_token0.address,
             fromAmount: amount,
             poolAddress: testPool.poolAddr,
         });
@@ -742,16 +743,16 @@ describe('Aggregator', function () {
         console.log('best amount:', route.bestAmount.toString());
         expect(route.bestAmount.gt(ZERO)).toBe(true);
         expect(route.bestPathInfo.tokens.length).toBe(2);
-        expect(route.bestPathInfo.tokens[0]).toBe(test_token0.address);
-        expect(route.bestPathInfo.tokens[1]).toBe(test_token1.address); // Should be WETH address after conversion
+        expect(route.bestPathInfo.tokens[0]).toBe(test_token1.address);
+        expect(route.bestPathInfo.tokens[1]).toBe(test_token0.address); // Should be WETH address after conversion
         expect(route.bestPathInfo.oneHops.length).toBe(1);
         expect(route.bestPathInfo.oneHops[0].pools.length).toBe(1);
 
         const simulate_result = await ctx.aggregator.simulateMTSinglePool({
-            fromTokenAddress: test_token0.address,
-            toTokenAddress: test_token1.address,
-            fromTokenDecimals: test_token0.decimals,
-            toTokenDecimals: test_token1.decimals,
+            fromTokenAddress: test_token1.address,
+            toTokenAddress: test_token0.address,
+            fromTokenDecimals: test_token1.decimals,
+            toTokenDecimals: test_token0.decimals,
             fromAmount: amount,
             poolAddress: testPool.poolAddr,
             slippageInBps: 100, // 1%
@@ -759,6 +760,7 @@ describe('Aggregator', function () {
 
         // Verify basic result structure
         console.log('simulate result:', simulate_result.minReceivedAmount.toString());
+        console.log('simulate priceImpact:', simulate_result.priceImpact.toString());
         // expect(simulate_result.priceImpact).toBeGreaterThan(-1); // extreme price, priceImpact = 100%
         expect(simulate_result.minReceivedAmount.gt(ZERO)).toBe(true);
         expect(simulate_result.route.length).toBeGreaterThan(0);
@@ -767,8 +769,8 @@ describe('Aggregator', function () {
         // Step 2: Execute multiSwap
         const rawTx = await ctx.aggregator.multiSwap(
             {
-                fromTokenAddress: test_token0.address,
-                toTokenAddress: test_token1.address,
+                fromTokenAddress: test_token1.address,
+                toTokenAddress: test_token0.address,
                 fromTokenAmount: amount,
                 bestPathInfo: route.bestPathInfo,
                 bestAmount: route.bestAmount,

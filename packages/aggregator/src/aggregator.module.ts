@@ -732,6 +732,7 @@ export class AggregatorModule implements AggregatorInterface {
         // Decode results
         const [, toAmount] = adapterInterface.decodeFunctionResult('querySell', multicallResults[0]);
         const [midPrice, ,] = adapterInterface.decodeFunctionResult('getMidPriceAndBalances', multicallResults[1]);
+        const correctMidPrice = isBuy ? midPrice : BigNumber.from(10).pow(36).div(midPrice);
 
         // Create pool info with token addresses in correct order (token0 < token1)
         const [token0, token1] = isBuy
@@ -763,7 +764,7 @@ export class AggregatorModule implements AggregatorInterface {
 
         return {
             bestAmount: toAmount,
-            midPrice: midPrice,
+            midPrice: correctMidPrice,
             bestPathInfo: bestPathInfo,
         };
     }
