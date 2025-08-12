@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@derivation-tech/context':
-      specifier: ^1.0.6
-      version: 1.0.6
+      specifier: 1.0.8-appchain.0
+      version: 1.0.8-appchain.0
     '@derivation-tech/tx-plugin':
-      specifier: ^1.0.6
-      version: 1.0.6
+      specifier: 1.0.8-appchain.0
+      version: 1.0.8-appchain.0
     ethers:
       specifier: ^5.7.2
       version: 5.7.2
@@ -103,14 +103,10 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-<<<<<<< HEAD
-        version: 1.0.6
-=======
-        version: 1.0.4
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
+        version: 1.0.8-appchain.0
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
-        version: 1.0.6
+        version: 1.0.8-appchain.0
       '@synfutures/sdks-perp':
         specifier: workspace:^
         version: link:../perp
@@ -122,14 +118,10 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-<<<<<<< HEAD
-        version: 1.0.6
-=======
-        version: 1.0.4
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
+        version: 1.0.8-appchain.0
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
-        version: 1.0.6
+        version: 1.0.8-appchain.0
       ethers:
         specifier: 'catalog:'
         version: 5.7.2
@@ -805,19 +797,14 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-<<<<<<< HEAD
-  '@derivation-tech/context@1.0.6':
-    resolution: {integrity: sha512-9jxlFBFuI6/78eh7b1Z1dm4IzdaVoLrjhWMyOC+AP7S+cbIHkFfjFVxwy/DQQyTnwNrfLf66eqIUPtHTgd9WwA==}
-=======
-  '@derivation-tech/context@1.0.4':
-    resolution: {integrity: sha512-4b4eue6Qt043ea/w1s0pRh2NXVAzfqNUDK/jkkHN3+NadqqJkG4xAoI6gk4HaTOtjJA+2aKi1TfZMIdGDlyD5w==}
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
+  '@derivation-tech/context@1.0.8-appchain.0':
+    resolution: {integrity: sha512-zJJVWOK8001e0p5GzOCadW53/s2BnH5Af7jWrvhTVL8Z84egJ7+BEp7qZYjpqdbAH79dhHzdJArMqHfUJlBNSA==}
 
-  '@derivation-tech/contracts@1.0.6':
-    resolution: {integrity: sha512-/Abe/RQfOngK+etyHB5Np9x6NqYpVxdaJnuPos8wQgk+dXuj/iPbWI9s0nXeTlBcbpEdlQXhf6wej00flLRKtw==}
+  '@derivation-tech/contracts@1.0.8':
+    resolution: {integrity: sha512-anJsXA7hnPjiz5SyN8PZ7jgE9wWhEm8XiigRwuuXf98h8OI1JnEeDHP4ZidKWI3hjcoZq/FbH3f1jHYNy9U/AA==}
 
-  '@derivation-tech/tx-plugin@1.0.6':
-    resolution: {integrity: sha512-s98m2eaBsBqHid9clCneCL8EtaqRajpdQiTwzb9QLYFjtPbEvwvlwkuPlQ22/ubl5+QJBad4Pqq7eVhCb1Ngmg==}
+  '@derivation-tech/tx-plugin@1.0.8-appchain.0':
+    resolution: {integrity: sha512-7q+pslbSAy5izkp5P7DgLgQAvNcKq6h1EHzuOHITOtDptrP4FwKeN5vRA4RDtRodeY4nHM3Mw51Pi2JmL7XZcA==}
 
   '@emnapi/core@1.3.1':
     resolution: {integrity: sha512-pVGjBIt1Y6gg3EJN8jTcfpP/+uuRksIo055oE/OBkDNcjZqVbfkWCksG1Jp4yZnj3iKWyWX8fdG/j6UDYPbFog==}
@@ -4500,13 +4487,9 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-<<<<<<< HEAD
-  '@derivation-tech/context@1.0.6':
-=======
-  '@derivation-tech/context@1.0.4':
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
+  '@derivation-tech/context@1.0.8-appchain.0':
     dependencies:
-      '@derivation-tech/contracts': 1.0.6
+      '@derivation-tech/contracts': 1.0.8
       '@eth-optimism/sdk': 3.3.3(ethers@5.7.2)
       async-retry: 1.3.3
       axios: 1.7.9
@@ -4519,7 +4502,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@derivation-tech/contracts@1.0.6':
+  '@derivation-tech/contracts@1.0.8':
     dependencies:
       chalk: 4.1.2
       ethers: 5.7.2
@@ -4527,15 +4510,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@derivation-tech/tx-plugin@1.0.6':
+  '@derivation-tech/tx-plugin@1.0.8-appchain.0':
     dependencies:
-<<<<<<< HEAD
-      '@derivation-tech/context': 1.0.6
-      '@derivation-tech/contracts': 1.0.6
-=======
-      '@derivation-tech/context': 1.0.4
-      '@derivation-tech/contracts': 1.0.3
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
+      '@derivation-tech/context': 1.0.8-appchain.0
+      '@derivation-tech/contracts': 1.0.8
       async-retry: 1.3.3
       chalk: 4.1.2
       ethers: 5.7.2
