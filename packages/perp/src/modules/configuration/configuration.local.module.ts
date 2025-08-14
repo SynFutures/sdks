@@ -12,6 +12,7 @@ import * as blastConfig from './config/blast.json';
 import * as baseConfig from './config/base.json';
 import * as monadTestnetConfig from './config/monadTestnet.json';
 import * as gelatoConfig from './config/gelato.json';
+import * as conduitConfig from './config/conduit.json';
 import { ConfigurationModuleBase } from './configuration.base.module';
 
 export class LocalConfigurationModule extends ConfigurationModuleBase {
@@ -49,6 +50,9 @@ export class LocalConfigurationModule extends ConfigurationModuleBase {
             }
             case CHAIN_ID.GELATO: {
                 return loadConfig(gelatoConfig);
+            }
+            case CHAIN_ID.CONDUIT: {
+                return loadConfig(conduitConfig);
             }
             default: {
                 return null;
