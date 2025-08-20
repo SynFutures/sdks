@@ -20,6 +20,6 @@ catalog:
     "ws": "^8.18.0"
     "@types/ws": "^8.5.14"
     "@derivation-tech/context": "1.0.8-appchain.3"
-    "@derivation-tech/tx-plugin": "1.0.8-appchain.3"
+    "@derivation-tech/tx-plugin": "1.0.8-appchain.3.1"
     "@derivation-tech/contracts": "^1.0.6"
     "decimal.js": "^10.4.3"
