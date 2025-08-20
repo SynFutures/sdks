@@ -1,6 +1,6 @@
 {
     "name": "@synfutures/sdks-perp",
-    "version": "1.0.8-appchain.3",
+    "version": "1.0.8-appchain.3.1",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
