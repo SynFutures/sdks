@@ -1,6 +1,6 @@
 {
     "name": "@synfutures/sdks-aggregator",
-    "version": "1.0.9-appchain.3",
+    "version": "1.0.9-appchain.3.1",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
@@ -19,7 +19,7 @@
     "dependencies": {
         "@derivation-tech/context": "catalog:",
         "@derivation-tech/tx-plugin": "catalog:",
-        "@synfutures/sdks-perp": "workspace:^",
+        "@synfutures/sdks-perp": "workspace:",
         "ethers": "catalog:"
     },
     "jest": {
