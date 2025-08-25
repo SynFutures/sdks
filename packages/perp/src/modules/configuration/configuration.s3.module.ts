@@ -18,7 +18,7 @@ export class S3ConfigurationModule extends ConfigurationModuleBase {
     protected async getConfig(): Promise<SynFuturesConfig | null> {
         const url = this.basePath + '/' + this.context.chainId + '.json';
         const res = await axios.get(url);
-        if (res.status !== 200) {
+        if (res.status === 403) {
             return this.localConfigurationModule.config;
         }
         return loadConfig(res.data);
