@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@derivation-tech/context':
-      specifier: 1.0.8-appchain.3
-      version: 1.0.8-appchain.3
+      specifier: 1.0.9-appchain
+      version: 1.0.9-appchain
     '@derivation-tech/tx-plugin':
-      specifier: 1.0.8-appchain.3
-      version: 1.0.8-appchain.3
+      specifier: 1.0.9-appchain
+      version: 1.0.9-appchain
     ethers:
       specifier: ^5.7.2
       version: 5.7.2
@@ -103,12 +103,12 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-        version: 1.0.8-appchain.3
+        version: 1.0.9-appchain
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
-        version: 1.0.8-appchain.3
+        version: 1.0.9-appchain
       '@synfutures/sdks-perp':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../perp
       ethers:
         specifier: 'catalog:'
@@ -118,10 +118,10 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-        version: 1.0.8-appchain.3
+        version: 1.0.9-appchain
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
-        version: 1.0.8-appchain.3
+        version: 1.0.9-appchain
       ethers:
         specifier: 'catalog:'
         version: 5.7.2
@@ -797,14 +797,14 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@derivation-tech/context@1.0.8-appchain.3':
-    resolution: {integrity: sha512-0amGAkfJcUzdBJlhOdUZy5dOu+JD7L440fbCJbsr/Morzq0F8jCISsjvuELAl9YpnwcCC1KOjjcKoVVNzrEpcg==}
+  '@derivation-tech/context@1.0.9-appchain':
+    resolution: {integrity: sha512-UZJYX0rDAK++fKy+bcjE1AXDKgk4PgbrghF0of6la+x0KWIkZvlLXOrq0vuumuw2lKZnbVgtDF4jjKBJ93vlXQ==}
 
   '@derivation-tech/contracts@1.0.8':
     resolution: {integrity: sha512-anJsXA7hnPjiz5SyN8PZ7jgE9wWhEm8XiigRwuuXf98h8OI1JnEeDHP4ZidKWI3hjcoZq/FbH3f1jHYNy9U/AA==}
 
-  '@derivation-tech/tx-plugin@1.0.8-appchain.3':
-    resolution: {integrity: sha512-Qvqe+fp/yRqxDg0Z5WViKwAQaOGIPtUNjmQGVTxL17kv3Z0WDFWpGVoql4HW4DcRYeAgJ6Bt+9tsXJ/4iqFRJQ==}
+  '@derivation-tech/tx-plugin@1.0.9-appchain':
+    resolution: {integrity: sha512-7A96UmkweztZeEf7bee1OCCLqdbMNpp9o5mI1QJlMQkHYFhuolFvVKIj+YFPVeupDpFxd7Teh1tIbQUa9KP2+w==}
 
   '@emnapi/core@1.3.1':
     resolution: {integrity: sha512-pVGjBIt1Y6gg3EJN8jTcfpP/+uuRksIo055oE/OBkDNcjZqVbfkWCksG1Jp4yZnj3iKWyWX8fdG/j6UDYPbFog==}
@@ -4487,7 +4487,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@derivation-tech/context@1.0.8-appchain.3':
+  '@derivation-tech/context@1.0.9-appchain':
     dependencies:
       '@derivation-tech/contracts': 1.0.8
       '@eth-optimism/sdk': 3.3.3(ethers@5.7.2)
@@ -4510,9 +4510,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@derivation-tech/tx-plugin@1.0.8-appchain.3':
+  '@derivation-tech/tx-plugin@1.0.9-appchain':
     dependencies:
-      '@derivation-tech/context': 1.0.8-appchain.3
+      '@derivation-tech/context': 1.0.9-appchain
       '@derivation-tech/contracts': 1.0.8
       async-retry: 1.3.3
       chalk: 4.1.2
