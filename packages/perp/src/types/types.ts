@@ -1,16 +1,8 @@
 import type { BlockInfo, CHAIN_ID } from '@derivation-tech/context';
 import type { BigNumber, CallOverrides, Signer } from 'ethers';
-import {
-    CexMarket,
-    Config,
-    DexV2Market,
-    Beacon,
-    Gate,
-    Observer,
-    Guardian,
-    EmergingFeederFactory,
-    PythFeederFactory,
-} from '../typechain';
+import { CexMarket, DexV2Market, Beacon, Guardian, EmergingFeederFactory, PythFeederFactory } from '../typechain';
+import { Config as LegacyConfig, Gate as LegacyGate, Observer as LegacyObserver } from '../typechain';
+import { Config as CurrentConfig, Gate as CurrentGate, Observer as CurrentObserver } from '../typechain/current';
 import type { FeederType, InstrumentCondition, MarketType, Side, Status } from '../enum';
 import type { InstrumentSetting, QuoteParam } from './params';
 
@@ -394,10 +386,13 @@ export interface SynfConfigJson {
 }
 
 export interface SynFuturesV3Contracts {
-    config: Config;
-    gate: Gate;
-    observer: Observer;
-    guardian?: Guardian;
+    // Use 'any' type to support both legacy and current contract versions
+    // The actual type safety is maintained by the TypeChain factories
+    // Both versions implement the same core functionality with slight differences
+    config: LegacyConfig | CurrentConfig; // Config contract (may have different methods between versions)
+    gate: LegacyGate | CurrentGate; // Gate contract
+    observer: LegacyObserver | CurrentObserver; // Observer contract (QuoteParam structure differs between versions)
+    guardian?: Guardian; // Guardian is unchanged between versions
     marketContracts: { [key in MarketType]?: MarketContracts };
     feederFactoryContracts: { [key in MarketType]?: FeederFactoryContracts };
 }

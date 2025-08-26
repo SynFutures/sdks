@@ -35,6 +35,32 @@ To improve the user experience, SynFutures@v3 introduces `Gate` contract serving
 
 Besides the user experience improvement, `Gate` also helps to isolate risk. With the intrinsic risk in the derivatives market, risk isolation is vital in SynFutures@v3. The smart contract structure shown in above figure is designed to achieve this goal as well, where `Gate` and each `Instrument` are isolated from each other. Moreover, the risk isolation is also applied to the pairs within the same `Instrument`. A dedicated field is embedded into the core of each pair to track the amount of margin involved in this pair. All margin going out is explicitly checked against this tracker to make sure that this pair never overspends. Even better, this field introduces an invariant between the pairs and the `Instrument`: quote balance of Instrument address always equals the sum of involved funds of all pairs. In this way, the margin between different pairs is isolated, and the risk is contained at the pair level.
 
+## Multi-Version ABI Support
+
+The Perp SDK supports multiple contract versions across different networks to accommodate contract structure changes. The main difference is in the `QuoteParam` structure:
+
+- **Legacy networks (Base Chain ID: 8453, Blast Chain ID: 81457)**: Contains `stabilityFeeRatioParam` field
+- **Current networks (all others)**: Does not contain `stabilityFeeRatioParam` field
+
+### Implementation
+
+The SDK automatically selects the correct ABI version based on the chain ID:
+
+```typescript
+// The SDK maintains two versions of ABIs and TypeChain files:
+src/
+├── abis/
+│   ├── legacy/   # ABIs with stabilityFeeRatioParam
+│   └── current/  # ABIs without stabilityFeeRatioParam
+└── typechain/
+    ├── legacy/   # TypeChain generated from legacy ABIs
+    └── current/  # TypeChain generated from current ABIs
+```
+
+Contract initialization in `configuration.base.module.ts` automatically uses the appropriate version:
+- For Base and Blast: Uses legacy factories
+- For other networks: Uses current factories
+
 ## Perp SDK Introduction
 
 Perp includes the following modules:

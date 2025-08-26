@@ -1,0 +1,991 @@
+[
+    {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [],
+        "name": "AddTraderIneligible",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "AlreadyInitialized",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "BadAmmStatus",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "BadAmmTiming",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "BadInstrumentCondition",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "BadMinMarginAmount",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "BadProtocolFeeRatio",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "BadTip",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "BadTradingFeeRatio",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "ExpiryNotAligned",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "margin",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "minMargin",
+                "type": "uint256"
+            }
+        ],
+        "name": "InitTrivial",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "LiquidatorIneligible",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "Locked",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotGate",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotSynFuturesV3Admin",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotTradeable",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            }
+        ],
+        "name": "PairNotCleared",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "PlacePaused",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "SelfLiquidation",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "Timeout",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "ZeroAddress",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32[2]",
+                "name": "args",
+                "type": "bytes32[2]"
+            }
+        ],
+        "name": "add",
+        "outputs": [
+            {
+                "internalType": "int24",
+                "name": "tickLower",
+                "type": "int24"
+            },
+            {
+                "internalType": "int24",
+                "name": "tickUpper",
+                "type": "int24"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint128",
+                        "name": "liquidity",
+                        "type": "uint128"
+                    },
+                    {
+                        "internalType": "uint128",
+                        "name": "entryFeeIndex",
+                        "type": "uint128"
+                    },
+                    {
+                        "internalType": "uint96",
+                        "name": "balance",
+                        "type": "uint96"
+                    },
+                    {
+                        "internalType": "uint160",
+                        "name": "sqrtEntryPX96",
+                        "type": "uint160"
+                    }
+                ],
+                "internalType": "struct Range",
+                "name": "range",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32[3]",
+                "name": "args",
+                "type": "bytes32[3]"
+            }
+        ],
+        "name": "batchPlace",
+        "outputs": [
+            {
+                "internalType": "uint24[]",
+                "name": "nonces",
+                "type": "uint24[]"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint128",
+                        "name": "balance",
+                        "type": "uint128"
+                    },
+                    {
+                        "internalType": "int128",
+                        "name": "size",
+                        "type": "int128"
+                    }
+                ],
+                "internalType": "struct Order[]",
+                "name": "orders",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "arg",
+                "type": "bytes32"
+            }
+        ],
+        "name": "cancel",
+        "outputs": [
+            {
+                "internalType": "bool[8]",
+                "name": "succees",
+                "type": "bool[8]"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "int256",
+                        "name": "balance",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "size",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entryNotional",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entrySocialLossIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "entryFundingIndex",
+                        "type": "int256"
+                    }
+                ],
+                "internalType": "struct PositionCache[8]",
+                "name": "pics",
+                "type": "tuple[8]"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            }
+        ],
+        "name": "claimProtocolFee",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "condition",
+        "outputs": [
+            {
+                "internalType": "enum Condition",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "donateInsuranceFund",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "arg",
+                "type": "bytes32"
+            }
+        ],
+        "name": "fill",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "int256",
+                        "name": "balance",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "size",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entryNotional",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entrySocialLossIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "entryFundingIndex",
+                        "type": "int256"
+                    }
+                ],
+                "internalType": "struct PositionCache",
+                "name": "pic",
+                "type": "tuple"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tip",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "freeze",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "fundingHour",
+        "outputs": [
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getExpiries",
+        "outputs": [
+            {
+                "internalType": "uint32[]",
+                "name": "",
+                "type": "uint32[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32[2]",
+                "name": "args",
+                "type": "bytes32[2]"
+            }
+        ],
+        "name": "init",
+        "outputs": [
+            {
+                "internalType": "int24",
+                "name": "tickLower",
+                "type": "int24"
+            },
+            {
+                "internalType": "int24",
+                "name": "tickUpper",
+                "type": "int24"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint128",
+                        "name": "liquidity",
+                        "type": "uint128"
+                    },
+                    {
+                        "internalType": "uint128",
+                        "name": "entryFeeIndex",
+                        "type": "uint128"
+                    },
+                    {
+                        "internalType": "uint96",
+                        "name": "balance",
+                        "type": "uint96"
+                    },
+                    {
+                        "internalType": "uint160",
+                        "name": "sqrtEntryPX96",
+                        "type": "uint160"
+                    }
+                ],
+                "internalType": "struct Range",
+                "name": "range",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            },
+            {
+                "internalType": "int256",
+                "name": "size",
+                "type": "int256"
+            }
+        ],
+        "name": "inquire",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "benchmark",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint160",
+                        "name": "sqrtFairPX96",
+                        "type": "uint160"
+                    },
+                    {
+                        "internalType": "int24",
+                        "name": "tick",
+                        "type": "int24"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mark",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entryNotional",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "minAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint160",
+                        "name": "sqrtPostFairPX96",
+                        "type": "uint160"
+                    },
+                    {
+                        "internalType": "int24",
+                        "name": "postTick",
+                        "type": "int24"
+                    }
+                ],
+                "internalType": "struct Quotation",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            },
+            {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+            },
+            {
+                "internalType": "int256",
+                "name": "size",
+                "type": "int256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "liquidate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes[]",
+                "name": "data",
+                "type": "bytes[]"
+            }
+        ],
+        "name": "multicall",
+        "outputs": [
+            {
+                "internalType": "bytes[]",
+                "name": "results",
+                "type": "bytes[]"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "normalize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32[2]",
+                "name": "args",
+                "type": "bytes32[2]"
+            }
+        ],
+        "name": "place",
+        "outputs": [
+            {
+                "internalType": "uint24",
+                "name": "nonce",
+                "type": "uint24"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint128",
+                        "name": "balance",
+                        "type": "uint128"
+                    },
+                    {
+                        "internalType": "int128",
+                        "name": "size",
+                        "type": "int128"
+                    }
+                ],
+                "internalType": "struct Order",
+                "name": "order",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "placePaused",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            },
+            {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+            },
+            {
+                "internalType": "enum QueryAcc",
+                "name": "query",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bytes",
+                "name": "inputs",
+                "type": "bytes"
+            }
+        ],
+        "name": "queryAccount",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "result",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            },
+            {
+                "internalType": "enum QueryCtx",
+                "name": "query",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "offsets",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "bytes",
+                "name": "inputs",
+                "type": "bytes"
+            }
+        ],
+        "name": "queryContext",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "offsets",
+                "type": "uint256[]"
+            }
+        ],
+        "name": "querySetting",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            }
+        ],
+        "name": "recycleInsuranceFund",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32[2]",
+                "name": "args",
+                "type": "bytes32[2]"
+            }
+        ],
+        "name": "remove",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "int256",
+                        "name": "balance",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "size",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entryNotional",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entrySocialLossIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "entryFundingIndex",
+                        "type": "int256"
+                    }
+                ],
+                "internalType": "struct PositionCache",
+                "name": "pic",
+                "type": "tuple"
+            },
+            {
+                "internalType": "uint256",
+                "name": "fee",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tip",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "settlementPrice",
+                "type": "uint128"
+            }
+        ],
+        "name": "resolve",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "newFundingHour",
+                "type": "uint8"
+            }
+        ],
+        "name": "setFundingHour",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint16",
+                "name": "initialMarginRatio",
+                "type": "uint16"
+            },
+            {
+                "internalType": "uint16",
+                "name": "maintenanceMarginRatio",
+                "type": "uint16"
+            }
+        ],
+        "name": "setLeverage",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bool",
+                "name": "paused",
+                "type": "bool"
+            }
+        ],
+        "name": "setPlacePaused",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint128",
+                        "name": "minMarginAmount",
+                        "type": "uint128"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "tradingFeeRatio",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "protocolFeeRatio",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "enum QuoteType",
+                        "name": "qtype",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint128",
+                        "name": "tip",
+                        "type": "uint128"
+                    }
+                ],
+                "internalType": "struct QuoteParam",
+                "name": "param",
+                "type": "tuple"
+            }
+        ],
+        "name": "setQuoteParam",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            },
+            {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+            }
+        ],
+        "name": "settle",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            },
+            {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+            },
+            {
+                "internalType": "int256",
+                "name": "size",
+                "type": "int256"
+            }
+        ],
+        "name": "sweep",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32[2]",
+                "name": "args",
+                "type": "bytes32[2]"
+            }
+        ],
+        "name": "trade",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "int256",
+                        "name": "balance",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "size",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entryNotional",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "entrySocialLossIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "entryFundingIndex",
+                        "type": "int256"
+                    }
+                ],
+                "internalType": "struct PositionCache",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "expiry",
+                "type": "uint32"
+            }
+        ],
+        "name": "update",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]

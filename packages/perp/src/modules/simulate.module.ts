@@ -1054,7 +1054,7 @@ export class SimulateModule implements SimulateInterface {
                 setting = {
                     initialMarginRatio: INITIAL_MARGIN_RATIO,
                     maintenanceMarginRatio: MAINTENANCE_MARGIN_RATIO,
-                    quoteParam: { ...quoteParam },
+                    quoteParam: { stabilityFeeRatioParam: ZERO, ...quoteParam },
                 };
             }
             amm = factory.createAmm({
@@ -1272,7 +1272,7 @@ export class SimulateModule implements SimulateInterface {
                 setting = {
                     initialMarginRatio: INITIAL_MARGIN_RATIO,
                     maintenanceMarginRatio: MAINTENANCE_MARGIN_RATIO,
-                    quoteParam: { ...quoteParam },
+                    quoteParam: { stabilityFeeRatioParam: ZERO, ...quoteParam },
                 };
             }
             amm = factory.createAmm({

@@ -1,6 +1,7 @@
 import { CallOverrides, ethers } from 'ethers';
 import { CHAIN_ID, Context } from '@derivation-tech/context';
 import { ConfigInterface } from './config.interface';
+import { Config as LegacyConfig } from 'src/typechain';
 
 export class ConfigModule implements ConfigInterface {
     context: Context;
@@ -71,6 +72,6 @@ export class ConfigModule implements ConfigInterface {
                 // ignore error since the contract on some network may not have this function
             }
         }
-        return this.context.perp.contracts.config.openLp(overrides ?? {});
+        return (this.context.perp.contracts.config as LegacyConfig).openLp(overrides ?? {});
     }
 }

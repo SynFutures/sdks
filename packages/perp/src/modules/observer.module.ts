@@ -38,11 +38,14 @@ import {
     signOfSide,
     factory,
     toPortfolio,
+    isLegacyChain,
 } from '../utils';
 import { calcBenchmarkPrice, cancelOrderToPosition, combine, fillOrderToPosition } from '../utils/lowLevel';
 import { InstrumentParser } from '../parser';
 import { SynfError } from '../errors';
 import { ObserverInterface } from './observer.interface';
+import { Observer as LegacyObserver } from 'src/typechain';
+import { Observer as CurrentObserver } from 'src/typechain/current';
 
 const batchSize = 10;
 
@@ -167,11 +170,23 @@ export class ObserverModule implements ObserverInterface {
                 (i + 1) * batchSize >= instrumentLists.length ? instrumentLists.length : (i + 1) * batchSize,
             );
 
-            rawList.push(
-                await quickRetry(() =>
-                    this.context.perp.contracts.observer.getInstrumentByAddressList(queryList, overrides ?? {}),
-                ),
-            );
+            let rawResult;
+            if (isLegacyChain(this.context.chainId)) {
+                rawResult = await quickRetry(() =>
+                    (this.context.perp.contracts.observer as LegacyObserver).getInstrumentByAddressList(
+                        queryList,
+                        overrides ?? {},
+                    ),
+                );
+            } else {
+                rawResult = await quickRetry(() =>
+                    (this.context.perp.contracts.observer as CurrentObserver).getInstrumentByAddressList(
+                        queryList,
+                        overrides ?? {},
+                    ),
+                );
+            }
+            rawList.push(rawResult);
 
             miscInfoList.push(await quickRetry(async () => this.getMiscInfo(queryList, overrides ?? {})));
         }
@@ -228,12 +243,29 @@ export class ObserverModule implements ObserverInterface {
             await this.context.perp.contracts.observer.getInstrumentBatch(formattedParams, overrides ?? {}),
         );
 
+        const rawListFormatted: AssembledInstrumentDataStructOutput[] = !isLegacyChain(this.context.chainId)
+            ? rawList
+            : rawList.map((instrument) => {
+                  return {
+                      ...instrument,
+                      param: {
+                          ...instrument.param,
+                          stabilityFeeRatioParam: BigNumber.from(0),
+                      },
+                  };
+              });
+
         const miscInfoList = await this.getMiscInfo(
             formattedParams.map((p) => p.instrument),
             overrides ?? {},
         );
 
-        const instruments = await this.parseInstrumentData(rawList, miscInfoList, rawBlockInfo, overrides ?? {});
+        const instruments = await this.parseInstrumentData(
+            rawListFormatted,
+            miscInfoList,
+            rawBlockInfo,
+            overrides ?? {},
+        );
 
         return Array.isArray(params) ? instruments : instruments?.[0];
     }
@@ -757,7 +789,11 @@ export class ObserverModule implements ObserverInterface {
             ?.market as CexMarket;
         let rawSpotPrice;
         try {
-            rawSpotPrice = await market.getRawPrice(instrumentAddress, overrides ?? {});
+            if (isLegacyChain(this.context.chainId)) {
+                rawSpotPrice = await market.getRawPrice(instrumentAddress, overrides ?? {});
+            } else {
+                rawSpotPrice = await market.getSpotPrice(instrumentAddress, overrides ?? {});
+            }
         } catch (e) {
             console.error('fetch chainlink spot price error', e);
             rawSpotPrice = ZERO;
