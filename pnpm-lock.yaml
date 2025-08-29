@@ -103,11 +103,7 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-<<<<<<< HEAD
         version: 1.0.6
-=======
-        version: 1.0.4
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
         version: 1.0.6
@@ -122,11 +118,7 @@ importers:
     dependencies:
       '@derivation-tech/context':
         specifier: 'catalog:'
-<<<<<<< HEAD
         version: 1.0.6
-=======
-        version: 1.0.4
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
       '@derivation-tech/tx-plugin':
         specifier: 'catalog:'
         version: 1.0.6
@@ -805,13 +797,8 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-<<<<<<< HEAD
   '@derivation-tech/context@1.0.6':
     resolution: {integrity: sha512-9jxlFBFuI6/78eh7b1Z1dm4IzdaVoLrjhWMyOC+AP7S+cbIHkFfjFVxwy/DQQyTnwNrfLf66eqIUPtHTgd9WwA==}
-=======
-  '@derivation-tech/context@1.0.4':
-    resolution: {integrity: sha512-4b4eue6Qt043ea/w1s0pRh2NXVAzfqNUDK/jkkHN3+NadqqJkG4xAoI6gk4HaTOtjJA+2aKi1TfZMIdGDlyD5w==}
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
 
   '@derivation-tech/contracts@1.0.6':
     resolution: {integrity: sha512-/Abe/RQfOngK+etyHB5Np9x6NqYpVxdaJnuPos8wQgk+dXuj/iPbWI9s0nXeTlBcbpEdlQXhf6wej00flLRKtw==}
@@ -4500,11 +4487,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-<<<<<<< HEAD
   '@derivation-tech/context@1.0.6':
-=======
-  '@derivation-tech/context@1.0.4':
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
     dependencies:
       '@derivation-tech/contracts': 1.0.6
       '@eth-optimism/sdk': 3.3.3(ethers@5.7.2)
@@ -4529,13 +4512,8 @@ snapshots:
 
   '@derivation-tech/tx-plugin@1.0.6':
     dependencies:
-<<<<<<< HEAD
       '@derivation-tech/context': 1.0.6
       '@derivation-tech/contracts': 1.0.6
-=======
-      '@derivation-tech/context': 1.0.4
-      '@derivation-tech/contracts': 1.0.3
->>>>>>> f630323 (Fix perp plugin: fetch config from local)
       async-retry: 1.3.3
       chalk: 4.1.2
       ethers: 5.7.2

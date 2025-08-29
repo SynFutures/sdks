@@ -1,7 +1,7 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider';
 import { BigNumber, ethers, PopulatedTransaction } from 'ethers';
-import { AbiCoder } from 'ethers/lib/utils';
-import { TxOptionsWithSigner, TxOptions, utils, RATIO_BASE } from '@synfutures/sdks-perp';
+import { AbiCoder, parseUnits } from 'ethers/lib/utils';
+import { TxOptionsWithSigner, TxOptions, utils, RATIO_BASE, TickMath } from '@synfutures/sdks-perp';
 import {
     Config,
     Config__factory,
@@ -13,6 +13,7 @@ import {
     QuerySplitRoute__factory,
     IWETH__factory,
 } from './typechain';
+import QuoterV2ABI from './abis/QuoterV2.json';
 import { Context, formatUnits, fromWad, ONE, ZERO, ZERO_ADDRESS } from '@derivation-tech/context';
 import { AggregatorInterface } from './aggregator.interface';
 import {
@@ -45,6 +46,7 @@ import {
     QuerySinglePoolRouteParam,
     SimulateMTSinglePoolParam,
     SimulateMTSinglePoolResult,
+    TradeToPriceParam,
 } from './params';
 import {
     analyzePoolLiquidity,
@@ -696,12 +698,12 @@ export class AggregatorModule implements AggregatorInterface {
         params.toTokenAddress = toWrappedETH(this.context, params.toTokenAddress);
 
         // Use provided adapter address or get default adapter for OYSTER pool type
-        const adapterAddress = params.adapterAddress || await this.getPoolAdapter(PoolType.OYSTER_NEW);
-        
+        const adapterAddress = params.adapterAddress || (await this.getPoolAdapter(PoolType.OYSTER_NEW));
+
         // Create adapter contract interface
         const adapterInterface = new ethers.utils.Interface([
-            "function querySell(address fromToken, uint256 fromAmount, address pool) external returns (address toToken, uint256 toAmount)",
-            "function getMidPriceAndBalances(address pool, bool isBuy) external view returns (uint256 price, uint256 token0bal, uint256 token1bal)"
+            'function querySell(address fromToken, uint256 fromAmount, address pool) external returns (address toToken, uint256 toAmount)',
+            'function getMidPriceAndBalances(address pool, bool isBuy) external view returns (uint256 price, uint256 token0bal, uint256 token1bal)',
         ]);
 
         // Determine if this is a buy operation based on token addresses lexicographical order
@@ -715,41 +717,41 @@ export class AggregatorModule implements AggregatorInterface {
                 callData: adapterInterface.encodeFunctionData('querySell', [
                     params.fromTokenAddress,
                     params.fromAmount,
-                    params.poolAddress
-                ])
+                    params.poolAddress,
+                ]),
             },
             {
                 target: adapterAddress,
-                callData: adapterInterface.encodeFunctionData('getMidPriceAndBalances', [
-                    params.poolAddress,
-                    isBuy
-                ])
-            }
+                callData: adapterInterface.encodeFunctionData('getMidPriceAndBalances', [params.poolAddress, isBuy]),
+            },
         ];
 
         // Execute multicall
         const multicallResults = (await this.context.multiCall3.callStatic.aggregate(multicallCalls)).returnData;
-        
+
         // Decode results
         const [, toAmount] = adapterInterface.decodeFunctionResult('querySell', multicallResults[0]);
-        const [midPrice, , ] = adapterInterface.decodeFunctionResult('getMidPriceAndBalances', multicallResults[1]);
+        const [midPrice, ,] = adapterInterface.decodeFunctionResult('getMidPriceAndBalances', multicallResults[1]);
+        const correctMidPrice = isBuy ? midPrice : BigNumber.from(10).pow(36).div(midPrice);
 
         // Create pool info with token addresses in correct order (token0 < token1)
-        const [token0, token1] = isBuy ? [params.fromTokenAddress, params.toTokenAddress] : [params.toTokenAddress, params.fromTokenAddress];
-        
+        const [token0, token1] = isBuy
+            ? [params.fromTokenAddress, params.toTokenAddress]
+            : [params.toTokenAddress, params.fromTokenAddress];
+
         const poolInfo: Pair = {
             token0,
             token1,
             poolAddr: params.poolAddress,
             poolType: PoolType.OYSTER_NEW,
             fee: ZERO, // Default fee, can be updated if needed
-            swapType: SwapType.ADAPTER
+            swapType: SwapType.ADAPTER,
         };
 
         // Create one hop with single pool
         const oneHop: OneHop = {
             pools: [poolInfo],
-            weights: [ONE] // Single pool gets 100% weight
+            weights: [ONE], // Single pool gets 100% weight
         };
 
         // Create best path info
@@ -757,13 +759,13 @@ export class AggregatorModule implements AggregatorInterface {
             tokens: [params.fromTokenAddress, params.toTokenAddress],
             oneHops: [oneHop],
             finalAmountOut: toAmount,
-            isValid: true
+            isValid: true,
         };
 
         return {
             bestAmount: toAmount,
-            midPrice: midPrice,
-            bestPathInfo: bestPathInfo
+            midPrice: correctMidPrice,
+            bestPathInfo: bestPathInfo,
         };
     }
 
@@ -785,10 +787,12 @@ export class AggregatorModule implements AggregatorInterface {
         const toTokenDecimalCorrect = BigNumber.from(10).pow(params.toTokenDecimals);
 
         // priceImpact: (bestAmount / (fromAmount * midPrice)) - 1
-        const priceImpactBN = querySinglePoolRouteResult.bestAmount
-            .mul(fromTokenDecimalCorrect)
-            .mul(WAD)
-            .div(params.fromAmount.mul(toTokenDecimalCorrect).mul(querySinglePoolRouteResult.midPrice).div(WAD));
+        const priceImpactBN = querySinglePoolRouteResult.midPrice.gt(ZERO)
+            ? querySinglePoolRouteResult.bestAmount
+                  .mul(fromTokenDecimalCorrect)
+                  .mul(WAD)
+                  .div(params.fromAmount.mul(toTokenDecimalCorrect).mul(querySinglePoolRouteResult.midPrice).div(WAD))
+            : ZERO;
 
         return {
             priceImpact: Math.min(Number(formatUnits(priceImpactBN, 18)) - 1, 0),
@@ -803,5 +807,384 @@ export class AggregatorModule implements AggregatorInterface {
             ),
             tokens: querySinglePoolRouteResult.bestPathInfo.tokens,
         };
+    }
+
+    tradeToPrice(params: TradeToPriceParam, txOptions: TxOptionsWithSigner): Promise<TransactionReceipt[]>;
+    tradeToPrice(params: TradeToPriceParam, txOptions?: TxOptions): Promise<PopulatedTransaction[]>;
+    async tradeToPrice(
+        params: TradeToPriceParam,
+        txOptions?: TxOptions,
+    ): Promise<TransactionReceipt[] | PopulatedTransaction[]> {
+        const { poolAddress, targetPrice, userAddress } = params;
+
+        // Set default values
+        const slippageInBps = 200; // 2%
+        const broker = ZERO_ADDRESS;
+        const brokerFeeRate = ZERO;
+        const deadline = Math.floor(Date.now() / 1000) + 300; // Current time + 300 seconds
+
+        // Get token addresses and decimals from pool contract
+        const poolInterface = new ethers.utils.Interface([
+            'function token0() view returns (address)',
+            'function token1() view returns (address)',
+            'function fee() view returns (uint24)',
+            'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
+        ]);
+
+        const erc20Interface = new ethers.utils.Interface(['function decimals() view returns (uint8)']);
+
+        // Prepare multicall to get pool info
+        const multicallCalls = [
+            {
+                target: poolAddress,
+                callData: poolInterface.encodeFunctionData('token0', []),
+            },
+            {
+                target: poolAddress,
+                callData: poolInterface.encodeFunctionData('token1', []),
+            },
+            {
+                target: poolAddress,
+                callData: poolInterface.encodeFunctionData('fee', []),
+            },
+            {
+                target: poolAddress,
+                callData: poolInterface.encodeFunctionData('slot0', []),
+            },
+        ];
+
+        const multicallResults = (await this.context.multiCall3.callStatic.aggregate(multicallCalls)).returnData;
+
+        const poolToken0Address = poolInterface.decodeFunctionResult('token0', multicallResults[0])[0];
+        const poolToken1Address = poolInterface.decodeFunctionResult('token1', multicallResults[1])[0];
+        const poolFee = poolInterface.decodeFunctionResult('fee', multicallResults[2])[0];
+        const slot0Result = poolInterface.decodeFunctionResult('slot0', multicallResults[3]);
+        const currentTick = slot0Result.tick;
+
+        // Check if pool contains wrapped native token and support native token swaps
+        let token0Address: string = poolToken0Address;
+        let token1Address: string = poolToken1Address;
+
+        // If token0 is wrapped native token, support native token (ZERO_ADDRESS) for token0
+        if (poolToken0Address.toLowerCase() === this.context.wrappedNativeToken.address.toLowerCase()) {
+            token0Address = ZERO_ADDRESS;
+        }
+
+        // If token1 is wrapped native token, support native token (ZERO_ADDRESS) for token1
+        if (poolToken1Address.toLowerCase() === this.context.wrappedNativeToken.address.toLowerCase()) {
+            token1Address = ZERO_ADDRESS;
+        }
+
+        // Get token decimals (use pool addresses for decimals query)
+        const decimalsCalls = [
+            {
+                target: poolToken0Address,
+                callData: erc20Interface.encodeFunctionData('decimals', []),
+            },
+            {
+                target: poolToken1Address,
+                callData: erc20Interface.encodeFunctionData('decimals', []),
+            },
+        ];
+
+        const decimalsResults = (await this.context.multiCall3.callStatic.aggregate(decimalsCalls)).returnData;
+        const token0Decimals = erc20Interface.decodeFunctionResult('decimals', decimalsResults[0])[0];
+        const token1Decimals = erc20Interface.decodeFunctionResult('decimals', decimalsResults[1])[0];
+
+        // Get oyster adapter address (all pools are OYSTER_NEW)
+        const adapterAddress = await this.getPoolAdapter(PoolType.OYSTER_NEW);
+
+        // Create adapter interface to get quoterV2 address
+        const adapterInterface = new ethers.utils.Interface(['function quoterV2() view returns (address)']);
+
+        // Get quoterV2 address from adapter
+        const quoterV2Address = await this.context.provider.call({
+            to: adapterAddress,
+            data: adapterInterface.encodeFunctionData('quoterV2', []),
+        });
+        const decodedQuoterV2Address = adapterInterface.decodeFunctionResult('quoterV2', quoterV2Address)[0];
+
+        // Validate quoterV2 address
+        if (!decodedQuoterV2Address || decodedQuoterV2Address === ZERO_ADDRESS) {
+            throw new Error('Invalid quoterV2 address from adapter');
+        }
+
+        // Create QuoterV2 interface using the imported ABI
+        const quoterV2 = new ethers.Contract(decodedQuoterV2Address, QuoterV2ABI, this.context.provider);
+
+        const transactions: TransactionReceipt[] | PopulatedTransaction[] = [];
+
+        if (targetPrice) {
+            // calculate pool format target price
+            const poolFormatTargetPrice = targetPrice
+                .mul(BigNumber.from(10).pow(token1Decimals))
+                .div(BigNumber.from(10).pow(token0Decimals));
+            // Validate target price
+            if (poolFormatTargetPrice.lte(ZERO)) {
+                throw new Error('Target price must be greater than zero');
+            }
+
+            const currentPrice = TickMath.getWadAtTick(currentTick);
+
+            // Determine direction: if target > current, buy token1 (sell token0)
+            const isBuyingToken1 = poolFormatTargetPrice.gt(currentPrice);
+
+            // Use wrapped addresses for routing queries
+            const wrappedToken0 = toWrappedETH(this.context, token0Address);
+            const wrappedToken1 = toWrappedETH(this.context, token1Address);
+
+            const fromToken = isBuyingToken1 ? wrappedToken1 : wrappedToken0;
+            const toToken = isBuyingToken1 ? wrappedToken0 : wrappedToken1;
+
+            // Calculate sqrtPriceLimitX96 from target price
+            const targetTick = TickMath.getTickAtPWad(poolFormatTargetPrice);
+            const sqrtPriceLimitX96 = TickMath.getSqrtRatioAtTick(targetTick);
+
+            // Create params struct for quoterV2
+            const quoterParams = {
+                tokenIn: fromToken,
+                tokenOut: toToken,
+                amount: parseUnits('1000000', 18),
+                fee: poolFee,
+                sqrtPriceLimitX96: sqrtPriceLimitX96,
+            };
+
+            // Query quoterV2 for required input amount
+            let quoteResult;
+            try {
+                quoteResult = await quoterV2.callStatic.quoteExactOutputSingle(quoterParams);
+            } catch (error) {
+                throw new Error(`Failed to query quoterV2: ${error.message}`);
+            }
+
+            const requiredAmountIn = quoteResult.amountIn;
+
+            // Validate required amount
+            if (requiredAmountIn.lte(ZERO)) {
+                throw new Error('Invalid required amount from quoterV2');
+            }
+
+            // Determine original token addresses for transaction
+            const originalFromToken = isBuyingToken1 ? token1Address : token0Address;
+            const originalToToken = isBuyingToken1 ? token0Address : token1Address;
+
+            // Check if fromToken is native token (zero address)
+            const isFromNativeToken = originalFromToken.toLowerCase() === ZERO_ADDRESS.toLowerCase();
+
+            // Check allowance only for ERC20 tokens
+            if (!isFromNativeToken) {
+                const erc20Contract = new ethers.Contract(
+                    fromToken,
+                    ['function allowance(address owner, address spender) view returns (uint256)'],
+                    this.context.provider,
+                );
+                const allowance = await erc20Contract.allowance(userAddress, this.oysterAggregator.address);
+                if (allowance.lt(requiredAmountIn)) {
+                    throw new Error(
+                        `Insufficient allowance for ${fromToken}. Required: ${formatUnits(requiredAmountIn, 18)}, Available: ${formatUnits(allowance, 18)}. Please approve first.`,
+                    );
+                }
+            }
+
+            // Query route for this trade using wrapped addresses
+            const routeResult = await this.querySinglePoolRoute({
+                fromTokenAddress: fromToken,
+                toTokenAddress: toToken,
+                fromAmount: requiredAmountIn,
+                poolAddress,
+            });
+
+            // Convert token addresses for swap transaction
+            const fromTokenForSwap = zeroToETHForSwap(originalFromToken);
+            const toTokenForSwap = zeroToETHForSwap(originalToToken);
+
+            // Create transaction for the trade using original addresses
+            const tx = await this.multiSwap(
+                {
+                    fromTokenAddress: fromTokenForSwap,
+                    toTokenAddress: toTokenForSwap,
+                    fromTokenAmount: requiredAmountIn,
+                    bestPathInfo: routeResult.bestPathInfo,
+                    bestAmount: routeResult.bestAmount,
+                    slippageInBps,
+                    broker,
+                    brokerFeeRate,
+                    deadline,
+                },
+                txOptions,
+            );
+
+            transactions.push(tx as TransactionReceipt);
+        } else {
+            // Default behavior: small buy then sell
+            // For native tokens, check ETH balance; for ERC20 tokens, check token balance
+            let token0Balance: BigNumber;
+            let token1Balance: BigNumber;
+
+            if (token0Address.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+                // token0 is native token, check ETH balance
+                token0Balance = await this.context.provider.getBalance(userAddress);
+            } else {
+                // token0 is ERC20, check token balance
+                const erc20Token0 = new ethers.Contract(
+                    token0Address,
+                    ['function balanceOf(address account) view returns (uint256)'],
+                    this.context.provider,
+                );
+                token0Balance = await erc20Token0.balanceOf(userAddress);
+            }
+
+            if (token1Address.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+                // token1 is native token, check ETH balance
+                token1Balance = await this.context.provider.getBalance(userAddress);
+            } else {
+                // token1 is ERC20, check token balance
+                const erc20Token1 = new ethers.Contract(
+                    token1Address,
+                    ['function balanceOf(address account) view returns (uint256)'],
+                    this.context.provider,
+                );
+                token1Balance = await erc20Token1.balanceOf(userAddress);
+            }
+
+            // Choose direction based on which token user has more balance
+            const useToken0First = token0Balance.gt(token1Balance);
+
+            // Use wrapped addresses for routing queries
+            const wrappedToken0 = toWrappedETH(this.context, token0Address);
+            const wrappedToken1 = toWrappedETH(this.context, token1Address);
+
+            const firstToken = useToken0First ? wrappedToken0 : wrappedToken1;
+            const secondToken = useToken0First ? wrappedToken1 : wrappedToken0;
+            const firstTokenDecimals = useToken0First ? token0Decimals : token1Decimals;
+            const firstTokenBalance = useToken0First ? token0Balance : token1Balance;
+
+            // Calculate smart trade amount: min(user balance, amount needed to move price by 0.2%)
+            const currentPrice = TickMath.getWadAtTick(currentTick);
+
+            // Calculate target price for 0.2% price movement based on trade direction
+            const priceImpactBps = 20; // 0.2% = 20 basis points
+            const targetPrice = useToken0First
+                ? currentPrice.mul(RATIO_BASE - priceImpactBps).div(RATIO_BASE) // Price down 0.2%
+                : currentPrice.mul(RATIO_BASE + priceImpactBps).div(RATIO_BASE); // Price up 0.2%
+
+            // Calculate the tick and sqrtPriceLimitX96 for the target price
+            const targetTick = TickMath.getTickAtPWad(targetPrice);
+            const sqrtPriceLimitX96 = TickMath.getSqrtRatioAtTick(targetTick);
+
+            // Calculate amount needed to reach target price
+            const quoterParams = {
+                tokenIn: firstToken,
+                tokenOut: secondToken,
+                amount: parseUnits('1000000', 18), // Large amount for estimation
+                fee: poolFee,
+                sqrtPriceLimitX96: sqrtPriceLimitX96,
+            };
+
+            let requiredAmountForPriceImpact: BigNumber;
+            try {
+                const quoteResult = await quoterV2.callStatic.quoteExactOutputSingle(quoterParams);
+                requiredAmountForPriceImpact = quoteResult.amountIn;
+            } catch (error) {
+                // If quote fails, fallback to 1% of balance or minimum amount
+                console.warn('Failed to calculate price impact amount, using fallback:', error.message);
+                requiredAmountForPriceImpact = firstTokenBalance.div(100).gt(parseUnits('0.01', firstTokenDecimals))
+                    ? firstTokenBalance.div(100)
+                    : parseUnits('0.01', firstTokenDecimals);
+            }
+
+            // Reserve some balance for gas (for native tokens)
+            const reservedBalance =
+                token0Address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ||
+                token1Address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
+                    ? parseUnits('0.01', 18) // Reserve 0.01 ETH for gas
+                    : ZERO;
+
+            const availableBalance = firstTokenBalance.gt(reservedBalance)
+                ? firstTokenBalance.sub(reservedBalance)
+                : ZERO;
+
+            // Take minimum of user balance and required amount for 0.2% price impact
+            const tradeAmount = availableBalance.lt(requiredAmountForPriceImpact)
+                ? availableBalance
+                : requiredAmountForPriceImpact;
+
+            // Determine original token addresses
+            const originalFirstToken = useToken0First ? token0Address : token1Address;
+            const originalSecondToken = useToken0First ? token1Address : token0Address;
+
+            // Check allowance for first trade (only for ERC20 tokens)
+            const isFirstTokenNative = originalFirstToken.toLowerCase() === ZERO_ADDRESS.toLowerCase();
+
+            if (!isFirstTokenNative) {
+                const erc20FirstToken = new ethers.Contract(
+                    firstToken,
+                    ['function allowance(address owner, address spender) view returns (uint256)'],
+                    this.context.provider,
+                );
+                const allowance = await erc20FirstToken.allowance(userAddress, this.oysterAggregator.address);
+                if (allowance.lt(tradeAmount)) {
+                    throw new Error(
+                        `Insufficient allowance for ${firstToken}. Required: ${formatUnits(tradeAmount, firstTokenDecimals)}, Available: ${formatUnits(allowance, firstTokenDecimals)}. Please approve first.`,
+                    );
+                }
+            }
+
+            // Trade 1: First token to second token
+            const firstRoute = await this.querySinglePoolRoute({
+                fromTokenAddress: firstToken,
+                toTokenAddress: secondToken,
+                fromAmount: tradeAmount,
+                poolAddress,
+            });
+
+            // Convert token addresses for swap transaction
+            const firstTokenForSwap = zeroToETHForSwap(originalFirstToken);
+            const secondTokenForSwap = zeroToETHForSwap(originalSecondToken);
+
+            const firstTx = await this.multiSwap(
+                {
+                    fromTokenAddress: firstTokenForSwap,
+                    toTokenAddress: secondTokenForSwap,
+                    fromTokenAmount: tradeAmount,
+                    bestPathInfo: firstRoute.bestPathInfo,
+                    bestAmount: firstRoute.bestAmount,
+                    slippageInBps,
+                    broker,
+                    brokerFeeRate,
+                    deadline,
+                },
+                txOptions,
+            );
+
+            transactions.push(firstTx as TransactionReceipt);
+
+            // Trade 2: Second token back to first token
+            const secondRoute = await this.querySinglePoolRoute({
+                fromTokenAddress: secondToken,
+                toTokenAddress: firstToken,
+                fromAmount: firstRoute.bestAmount,
+                poolAddress,
+            });
+
+            const secondTx = await this.multiSwap(
+                {
+                    fromTokenAddress: secondTokenForSwap,
+                    toTokenAddress: firstTokenForSwap,
+                    fromTokenAmount: firstRoute.bestAmount,
+                    bestPathInfo: secondRoute.bestPathInfo,
+                    bestAmount: secondRoute.bestAmount,
+                    slippageInBps,
+                    broker,
+                    brokerFeeRate,
+                    deadline,
+                },
+                txOptions,
+            );
+
+            transactions.push(secondTx as TransactionReceipt);
+        }
+
+        return transactions;
     }
 }

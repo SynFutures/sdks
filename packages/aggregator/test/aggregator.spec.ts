@@ -2,7 +2,7 @@ import { perpPlugin } from '@synfutures/sdks-perp';
 import { parseUnits } from 'ethers/lib/utils';
 import { ZERO, WAD, Context } from '@derivation-tech/context';
 import { DefaultEthGasEstimator, txPlugin } from '@derivation-tech/tx-plugin';
-import { PopulatedTransaction, BigNumber, ethers } from 'ethers';
+import { PopulatedTransaction, BigNumber, ethers, Wallet } from 'ethers';
 import { aggregatorPlugin, PoolType, SwapType, getDexFlag } from '../src';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -11,7 +11,7 @@ describe('Aggregator', function () {
     let ctx: Context;
 
     beforeEach(async function () {
-        ctx = new Context('base', { providerOps: { url: process.env.BASE_RPC! }});
+        ctx = new Context('monadTestnet', { providerOps: { url: process.env.MONAD_TESTNET_RPC! } });
         ctx.use(perpPlugin({ configuration: 'local' }));
         ctx.use(aggregatorPlugin());
         ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
@@ -707,5 +707,98 @@ describe('Aggregator', function () {
         expect(rawTx.to).toBeDefined();
         expect(rawTx.data).toBeDefined();
         expect(rawTx.value).toBeDefined();
+    });
+
+    it('should trade to price succeed', async function () {
+        // Use real WMON/USDC pool on Monad testnet
+        const poolAddress = '0x7d148143b7033f150830ff9114797b54671dde2e';
+
+        const poolInterface = new ethers.utils.Interface([
+            'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
+            'function token0() view returns (address)',
+            'function token1() view returns (address)',
+        ]);
+        const slot0Result = await ctx.provider.call({
+            to: poolAddress,
+            data: poolInterface.encodeFunctionData('slot0', []),
+        });
+        const slot0ResultDecoded = poolInterface.decodeFunctionResult('slot0', slot0Result);
+        const currentTick = slot0ResultDecoded.tick;
+
+        // Calculate current price from tick using TickMath
+        const { TickMath } = await import('@synfutures/sdks-perp');
+        const currentPriceWad = TickMath.getWadAtTick(currentTick);
+
+        // get token0 and token1 decimals
+        const token0 = poolInterface.decodeFunctionResult(
+            'token0',
+            await ctx.provider.call({
+                to: poolAddress,
+                data: poolInterface.encodeFunctionData('token0', []),
+            }),
+        )[0];
+        const token1 = poolInterface.decodeFunctionResult(
+            'token1',
+            await ctx.provider.call({
+                to: poolAddress,
+                data: poolInterface.encodeFunctionData('token1', []),
+            }),
+        )[0];
+        const token0Decimals = (await ctx.getTokenInfo(token0)).decimals;
+        const token1Decimals = (await ctx.getTokenInfo(token1)).decimals;
+
+        // Adjust price by 2% upward (buying token1/USDC with token0/WMON)
+        const targetPriceWad = currentPriceWad
+            .mul(BigNumber.from(10).pow(token0Decimals))
+            .div(BigNumber.from(10).pow(token1Decimals))
+            .mul(998)
+            .div(1000); // +0.5%
+        console.log('targetPriceWad', targetPriceWad.toString());
+
+        // targetPriceWad is already in 18 decimal format (WAD)
+        const targetPrice = targetPriceWad;
+
+        console.log('Price calculation:', {
+            currentTick,
+            currentPriceWad: currentPriceWad.toString(),
+            targetPriceWad: targetPriceWad.toString(),
+            targetPrice: targetPrice.toString(),
+            poolAddress,
+        });
+
+        // // Test with target price
+        // const signer = new Wallet(process.env.ALLAN_PRIVATE_KEY!).connect(ctx.provider);
+        // const result = await ctx.aggregator.tradeToPrice(
+        //     {
+        //         poolAddress: poolAddress,
+        //         targetPrice: targetPrice,
+        //         userAddress: userAddress,
+        //     },
+        //     {
+        //         signer,
+        //     },
+        // );
+
+        // console.log('Trade to price result:', JSON.stringify(result, null, 2));
+    });
+
+    it('should trade to price with default behavior (buy then sell)', async function () {
+        // Use real WMON/USDC pool on Monad testnet
+        const poolAddress = '0x7d148143b7033f150830ff9114797b54671dde2e';
+        const userAddress = '0x5a5ed56cff810e2cbdc105c5dc3044841564a564';
+
+        // Test without target price (default behavior)
+        const signer = new Wallet(process.env.ALLAN_PRIVATE_KEY!).connect(ctx.provider);
+        const result = await ctx.aggregator.tradeToPrice(
+            {
+                poolAddress: poolAddress,
+                userAddress: userAddress,
+            },
+            {
+                signer,
+            },
+        );
+
+        console.log('Default trade behavior result:', JSON.stringify(result, null, 2));
     });
 });
