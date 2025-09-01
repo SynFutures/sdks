@@ -59,6 +59,7 @@ import {
     ADDRESS_ZERO,
     calcAsymmetricBoost,
     getMinOrderMargin,
+    wdivDown,
 } from '../math';
 import {
     signOfSide,
@@ -84,6 +85,7 @@ import {
     rangeUpperPositionIfRemove,
     tickDeltaToAlphaWad,
     inquireTransferAmountFromTargetLeverage,
+    bnMax,
 } from '../utils';
 import {
     updateFundingIndex,
@@ -402,7 +404,16 @@ export class SimulateModule implements SimulateInterface {
             throw new SimulationError('Fair price is too far away from mark price');
         }
 
-        const { baseSize, quoteSize } = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {});
+        let baseSize: BigNumber;
+        let quoteSize: BigNumber;
+
+        if (isByBase(params.size)) {
+            baseSize = params.size.base;
+            quoteSize = wmulUp(baseSize, bnMax(amm.markPrice, targetPrice));
+        } else {
+            quoteSize = params.size.quote;
+            baseSize = wdivDown(quoteSize, bnMax(amm.markPrice, targetPrice));
+        }
 
         const res = this._simulateOrder(instrument, amm, targetPrice, baseSize, params.leverage);
 
@@ -456,13 +467,7 @@ export class SimulateModule implements SimulateInterface {
             try {
                 const baseSize = wmul(params.baseSize, r2w(params.ratios[index]));
 
-                const { quoteAmount: quoteSize } = await this.observer.inquireByBase(
-                    params.tradeInfo.instrumentAddr,
-                    params.tradeInfo.expiry,
-                    params.side,
-                    baseSize,
-                    overrides ?? {},
-                );
+                const quoteSize = wmulUp(baseSize, bnMax(amm.markPrice, targetPrice));
 
                 const res = this._simulateOrder(instrument, amm, targetPrice, baseSize, params.leverage);
 
@@ -493,13 +498,14 @@ export class SimulateModule implements SimulateInterface {
             );
         }
 
-        const { instrument, amm } = await this.mustGetInstrumentAndAmm(
-            params.tradeInfo,
-            params.instrument,
-            overrides ?? {},
-        );
+        const { instrument } = await this.mustGetInstrumentAndAmm(params.tradeInfo, params.instrument, overrides ?? {});
 
-        const { baseSize, quoteSize } = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {});
+        let baseSize: BigNumber;
+        if (isByBase(params.size)) {
+            baseSize = params.size.base;
+        } else {
+            throw new SimulationError('quote size is not supported');
+        }
 
         const targetTicks = params.priceInfo.map((p) => (typeof p === 'number' ? p : TickMath.getTickAtPWad(p)));
 
@@ -525,7 +531,6 @@ export class SimulateModule implements SimulateInterface {
 
         // calculate totalMinSize
         const sizes = ratios.map((ratio) => baseSize.mul(ratio).div(RATIO_BASE));
-        const bnMax = (a: BigNumber, b: BigNumber): BigNumber => (a.gt(b) ? a : b);
 
         // pick the max minSize/size ratio
         const minSizeToSizeRatio = minSizes
@@ -559,7 +564,7 @@ export class SimulateModule implements SimulateInterface {
             totalMinSize,
             size: {
                 base: baseSize,
-                quote: quoteSize,
+                quote: res.reduce((acc, res) => acc.add(res?.size.quote ?? ZERO), ZERO),
             },
         };
     }
