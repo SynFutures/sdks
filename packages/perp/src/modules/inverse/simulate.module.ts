@@ -48,7 +48,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateCrossMarketOrderParams,
         overrides?: CallOverrides,
     ): Promise<SimulateCrossMarketOrderResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         const result = await super.simulateCrossMarketOrder(
             isInverse
@@ -75,7 +76,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateLimitOrderParams,
         overrides?: CallOverrides,
     ): Promise<SimulateLimitOrderResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         return await super.simulateLimitOrder(
             isInverse
@@ -94,7 +96,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateScaledLimitOrderParams,
         overrides?: CallOverrides,
     ): Promise<SimulateScaledLimitOrderResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         let result = await super.simulateScaledLimitOrder(
             isInverse
@@ -129,7 +132,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateMarketOrderByMarginParams,
         overrides?: CallOverrides,
     ): Promise<SimulateTradeResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         const result = await super.simulateMarketOrderByMargin(
             isInverse
@@ -150,7 +154,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateMarketOrderByLeverageParams,
         overrides?: CallOverrides,
     ): Promise<SimulateTradeResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         const result = await super.simulateMarketOrderByLeverage(
             isInverse
@@ -168,7 +173,8 @@ export class InverseSimulateModule extends SimulateModule {
     }
 
     async simulateClose(param: SimulateCloseParams, overrides?: CallOverrides): Promise<SimulateTradeResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         const result = await super.simulateClose(
             isInverse
@@ -188,7 +194,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateAdjustMarginByMarginParams,
         overrides?: CallOverrides,
     ): Promise<SimulateAdjustMarginByMarginResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         const result = await super.simulateAdjustMarginByMargin(
             isInverse
@@ -208,7 +215,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateAdjustMarginByLeverageParams,
         overrides?: CallOverrides,
     ): Promise<SimulateAdjustMarginByLeverageResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         const result = await super.simulateAdjustMarginByLeverage(
             isInverse
@@ -228,9 +236,12 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateAddLiquidityParams,
         overrides?: CallOverrides,
     ): Promise<SimulateAddLiquidityResult> {
-        const isInverse = isInstrument(param.instrument)
-            ? await this.context.perp.configuration.isInverse(param.instrument.instrumentAddr)
-            : await this.context.perp.configuration.isInverseByIdentifier(param.instrument);
+        const isInverse =
+            param.isInverse !== undefined
+                ? param.isInverse
+                : isInstrument(param.instrument)
+                  ? await this.context.perp.configuration.isInverse(param.instrument.instrumentAddr)
+                  : await this.context.perp.configuration.isInverseByIdentifier(param.instrument);
 
         const result = await super.simulateAddLiquidity(
             isInverse
@@ -261,9 +272,12 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateAddLiquidityWithAsymmetricRangeParams,
         overrides?: CallOverrides,
     ): Promise<SimulateAddLiquidityWithAsymmetricRangeResult> {
-        const isInverse = isInstrument(param.instrument)
-            ? await this.context.perp.configuration.isInverse(param.instrument.instrumentAddr)
-            : await this.context.perp.configuration.isInverseByIdentifier(param.instrument);
+        const isInverse =
+            param.isInverse !== undefined
+                ? param.isInverse
+                : isInstrument(param.instrument)
+                  ? await this.context.perp.configuration.isInverse(param.instrument.instrumentAddr)
+                  : await this.context.perp.configuration.isInverseByIdentifier(param.instrument);
 
         const result = await super.simulateAddLiquidityWithAsymmetricRange(
             isInverse
@@ -300,7 +314,8 @@ export class InverseSimulateModule extends SimulateModule {
         param: SimulateRemoveLiquidityParams,
         overrides?: CallOverrides,
     ): Promise<SimulateRemoveLiquidityResult> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr);
+        const isInverse =
+            param.isInverse ?? (await this.context.perp.configuration.isInverse(param.tradeInfo.instrumentAddr));
 
         const result = await super.simulateRemoveLiquidity(
             isInverse
