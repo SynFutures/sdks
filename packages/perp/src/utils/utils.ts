@@ -379,3 +379,8 @@ export function toPortfolio(
 
     return portfolio;
 }
+
+
+export function bnMax(a: BigNumber, b: BigNumber): BigNumber {
+    return a.gt(b) ? a : b;
+}
