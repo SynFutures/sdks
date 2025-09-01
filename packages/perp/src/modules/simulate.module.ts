@@ -1014,21 +1014,16 @@ export class SimulateModule implements SimulateInterface {
               }
             : params.instrument;
 
-        const instruments = (await this.context.perp.contracts.gate.getAllInstruments(overrides ?? {})).map((addr) =>
-            addr.toLowerCase(),
-        );
-        const info = instruments.includes(instrumentAddress)
-            ? isInstrument(params.instrument)
-                ? {
-                      instrument: params.instrument,
-                      amm: params.instrument.amms.get(params.expiry),
-                  }
-                : await this.getInstrumentAndAmm(
-                      { expiry: params.expiry, instrumentAddr: instrumentAddress },
-                      undefined,
-                      overrides ?? {},
-                  )
-            : undefined;
+        const info = isInstrument(params.instrument)
+            ? {
+                  instrument: params.instrument,
+                  amm: params.instrument.amms.get(params.expiry),
+              }
+            : await this.getInstrumentAndAmm(
+                  { expiry: params.expiry, instrumentAddr: instrumentAddress },
+                  undefined,
+                  overrides ?? {},
+              );
 
         let quoteInfo: TokenInfo;
         let setting: InstrumentSetting;
@@ -1232,21 +1227,16 @@ export class SimulateModule implements SimulateInterface {
               }
             : params.instrument;
 
-        const instruments = (await this.context.perp.contracts.gate.getAllInstruments(overrides ?? {})).map((addr) =>
-            addr.toLowerCase(),
-        );
-        const info = instruments.includes(instrumentAddress)
-            ? isInstrument(params.instrument)
-                ? {
-                      instrument: params.instrument,
-                      amm: params.instrument.amms.get(params.expiry),
-                  }
-                : await this.getInstrumentAndAmm(
-                      { expiry: params.expiry, instrumentAddr: instrumentAddress },
-                      undefined,
-                      overrides ?? {},
-                  )
-            : undefined;
+        const info = isInstrument(params.instrument)
+            ? {
+                  instrument: params.instrument,
+                  amm: params.instrument.amms.get(params.expiry),
+              }
+            : await this.getInstrumentAndAmm(
+                  { expiry: params.expiry, instrumentAddr: instrumentAddress },
+                  undefined,
+                  overrides ?? {},
+              );
 
         let quoteInfo: TokenInfo;
         let setting: InstrumentSetting;
