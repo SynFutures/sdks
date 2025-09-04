@@ -1,44 +1,44 @@
 {
-    "chainId": 420001846,
-    "chainName": "gelato",
+    "chainId": 20250903,
+    "chainName": "abc",
     "nativeToken": "F",
-    "blockExplorerUrl": "https://synfutures-testnet.cloud.blockscout.com/",
-    "blockTime": 100,
-    "wrappedNativeAddress": "0x9c0298AfB9b1408B2E4236475F417068911e3e96",
+    "blockExplorerUrl": "https://synfutures-abc-testnet.cloud.blockscout.com/",
+    "blockTime": 50,
+    "wrappedNativeAddress": "0xd7d13F2D4EBC0E43fa65bB16e831eB2068a2f4ae",
     "subgraph": "",
     "subgraphProxy": "",
     "commit": "",
     "contractAddress": {
-        "config": "0x45Da5FFd5F4C04f03D4fFaa13D01802505C822b5",
-        "gate": "0x9b899ff3c25FC3CcF6ff292BF7a44e52F03115B8",
-        "observer": "0x0a9d3Ca7EE53C8be4cdE618D0A7f3F3B35B4495D",
-        "guardian": "0x6143582Eb3fEB298B7B5fd4D589057e70B090A90",
+        "config": "0xdfBA572929De47838BdE12336dfE8842B06d9628",
+        "gate": "0x22C05a9E9B2a0094e278153CED02B8617A0b00fE",
+        "observer": "0xEb8F6266Ab36A296fF8D092E45D2327511FB7bA6",
+        "guardian": "0x544d56774E7cD11CD1986Dc00831DB567B7Eabb9",
         "market": {
             "LINK": {
-                "beacon": "0x1Ed2eeF95D8DD308EbFda9F06619560a2268cbC0",
-                "market": "0x133adAcA292F0d4809325023d34108dF5B846c17"
+                "beacon": "0x8421ed7a43Ae5B10014A97561CFE804d36Cdf4D3",
+                "market": "0x5EbF27c6E786417C62C1d3a7D6786F1350c56222"
             },
             "DEXV2": {
-                "beacon": "0x1Ed2eeF95D8DD308EbFda9F06619560a2268cbC0",
-                "market": "0xeBFaDdaF4b35cC58AD25D0e5fA94007D37b1e838"
+                "beacon": "0x8421ed7a43Ae5B10014A97561CFE804d36Cdf4D3",
+                "market": "0x28282D7fb7F2f40703365F00F0ecF50322A7Df86"
             },
             "EMG": {
-                "beacon": "0x1Ed2eeF95D8DD308EbFda9F06619560a2268cbC0",
-                "market": "0xDC6d23Da3030d89276a0c336568175696E176dC7"
+                "beacon": "0x8421ed7a43Ae5B10014A97561CFE804d36Cdf4D3",
+                "market": "0xCAB47625cc30a955DBEbB0FF6B8852080e92Ac85"
             },
             "PYTH": {
-                "beacon": "0x1Ed2eeF95D8DD308EbFda9F06619560a2268cbC0",
-                "market": "0x2806d9ffBA7613E87a6C20089D43A25Fee1D8690"
+                "beacon": "0x8421ed7a43Ae5B10014A97561CFE804d36Cdf4D3",
+                "market": "0x438ED1B59fEF76c5fE4458b7Fcc7988E7DFf2641"
             }
         },
         "feederFactory": {
             "PYTH": {
-                "beacon": "0x7238B95eBa2A8F08036fa1aF450B51EAa7d712D9",
-                "factory": "0x4403Ca46fA4F81153f702c18Eaf8a10003f6E9E0"
+                "beacon": "0x6A06Ad08b74a38e027F4E69a32B799Cd0166e2F4",
+                "factory": "0x7e42465dfE75Ae916ad4C48bBAF92d12CAfcD98a"
             },
             "EMG": {
-                "beacon": "0x87BCE78240C61ABB47fc7a0a6d2761c15672D377",
-                "factory": "0x9b4ffBC4C702751497aA28E3231c60687B64A5dC"
+                "beacon": "0xDfe1d7590Cd7bAf94D72D4749a2520416705D2e5",
+                "factory": "0x118ac15F71aca60dd0478B66B8b586e83aB3e9cA"
             }
         }
     },
@@ -58,7 +58,7 @@
                     "baseSymbol": "BTC",
                     "quoteSymbol": "USDM",
                     "ftype": 1,
-                    "aggregator0": "0x8dfDb87D10e3957E4cf8935B6e3294A3fA52CB0f",
+                    "aggregator0": "",
                     "heartBeat0": 129600,
                     "aggregator1": "0x0000000000000000000000000000000000000000",
                     "heartBeat1": 0
@@ -67,7 +67,7 @@
                     "baseSymbol": "ETH",
                     "quoteSymbol": "USDM",
                     "ftype": 1,
-                    "aggregator0": "0xD8c33199752917D5f12591F192b7817f4cc91d2F",
+                    "aggregator0": "",
                     "heartBeat0": 129600,
                     "aggregator1": "0x0000000000000000000000000000000000000000",
                     "heartBeat1": 0
@@ -76,7 +76,7 @@
                     "baseSymbol": "SOL",
                     "quoteSymbol": "USDM",
                     "ftype": 1,
-                    "aggregator0": "0xD5214F6C83D93C5D318e6B2bCD4bA983bC50df2C",
+                    "aggregator0": "",
                     "heartBeat0": 129600,
                     "aggregator1": "0x0000000000000000000000000000000000000000",
                     "heartBeat1": 0
