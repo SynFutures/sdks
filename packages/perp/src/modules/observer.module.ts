@@ -62,46 +62,62 @@ export class ObserverModule implements ObserverInterface {
     private async getMiscInfo(
         instrumentAddress: string[],
         overrides?: CallOverrides,
-    ): Promise<{ placePaused: boolean; fundingHour: number }[]> {
-        const instrumentInterface = Instrument__factory.createInterface();
+    ): Promise<{ placePaused: boolean; fundingHour: number; disableOrderRebate: boolean }[]> {
+        const miscList: { placePaused: boolean; fundingHour: number; disableOrderRebate: boolean }[] = [];
 
-        let needFundingHour = this.context.chainId !== CHAIN_ID.BLAST && this.context.chainId !== CHAIN_ID.LOCAL;
-        if (overrides && overrides.blockTag) {
-            const blockTag = await overrides.blockTag;
-            if (typeof blockTag === 'number' || blockTag.startsWith('0x')) {
-                const blockNumber = ethers.BigNumber.from(blockTag).toNumber();
-                if (this.context.chainId === CHAIN_ID.BASE && blockNumber < 21216046) {
-                    needFundingHour = false;
+        // For BASE, BLAST chains: use old way with Instrument getters
+        if (this.context.chainId === CHAIN_ID.BASE || this.context.chainId === CHAIN_ID.BLAST) {
+            const instrumentInterface = Instrument__factory.createInterface();
+            const calls = [];
+
+            let needFundingHour = this.context.chainId !== CHAIN_ID.BLAST;
+            if (overrides && overrides.blockTag) {
+                const blockTag = await overrides.blockTag;
+                if (typeof blockTag === 'number' || blockTag.startsWith('0x')) {
+                    const blockNumber = ethers.BigNumber.from(blockTag).toNumber();
+                    if (this.context.chainId === CHAIN_ID.BASE && blockNumber < 21216046) {
+                        needFundingHour = false;
+                    }
                 }
             }
-        }
 
-        const calls = [];
-        for (const instrumentAddr of instrumentAddress) {
-            calls.push({
-                target: instrumentAddr,
-                callData: instrumentInterface.encodeFunctionData('placePaused'),
-            });
-            if (needFundingHour) {
+            for (const instrumentAddr of instrumentAddress) {
                 calls.push({
                     target: instrumentAddr,
-                    callData: instrumentInterface.encodeFunctionData('fundingHour'),
+                    callData: instrumentInterface.encodeFunctionData('placePaused'),
+                });
+                if (needFundingHour) {
+                    calls.push({
+                        target: instrumentAddr,
+                        callData: instrumentInterface.encodeFunctionData('fundingHour'),
+                    });
+                }
+            }
+
+            const rawMiscInfo = await this.context.getMulticall3().callStatic.aggregate(calls, overrides ?? {});
+
+            for (let j = 0; j < rawMiscInfo.returnData.length; j = needFundingHour ? j + 2 : j + 1) {
+                const [placePaused] = instrumentInterface.decodeFunctionResult('placePaused', rawMiscInfo.returnData[j]);
+                const [fundingHour] = needFundingHour
+                    ? instrumentInterface.decodeFunctionResult('fundingHour', rawMiscInfo.returnData[j + 1])
+                    : [24];
+                miscList.push({
+                    placePaused: placePaused,
+                    fundingHour: fundingHour === 0 ? 24 : fundingHour,
+                    disableOrderRebate: false, // default false for old chains
                 });
             }
-        }
-
-        const rawMiscInfo = await this.context.getMulticall3().callStatic.aggregate(calls, overrides ?? {});
-
-        const miscList: { placePaused: boolean; fundingHour: number }[] = [];
-        for (let j = 0; j < rawMiscInfo.returnData.length; j = needFundingHour ? j + 2 : j + 1) {
-            const [placePaused] = instrumentInterface.decodeFunctionResult('placePaused', rawMiscInfo.returnData[j]);
-            const [fundingHour] = needFundingHour
-                ? instrumentInterface.decodeFunctionResult('fundingHour', rawMiscInfo.returnData[j + 1])
-                : [24];
-            miscList.push({
-                placePaused: placePaused,
-                fundingHour: fundingHour === 0 ? 24 : fundingHour,
-            });
+        } else {
+            // For new chains: fetch from Observer's getSetting
+            for (const instrumentAddr of instrumentAddress) {
+                const setting = await (this.context.perp.contracts.observer as CurrentObserver).getSetting(instrumentAddr, overrides ?? {});
+                const fundingHourValue = setting.fundingHour.toNumber();
+                miscList.push({
+                    placePaused: setting.placePaused,
+                    fundingHour: fundingHourValue === 0 ? 24 : fundingHourValue,
+                    disableOrderRebate: setting.disableOrderRebate,
+                });
+            }
         }
 
         return miscList;
@@ -287,7 +303,7 @@ export class ObserverModule implements ObserverInterface {
 
     async parseInstrumentData(
         rawList: AssembledInstrumentDataStructOutput[],
-        miscInfoList: { placePaused: boolean; fundingHour: number }[],
+        miscInfoList: { placePaused: boolean; fundingHour: number; disableOrderRebate: boolean }[],
         blockInfo: BlockInfo,
         overrides?: CallOverrides,
     ): Promise<Instrument[]> {

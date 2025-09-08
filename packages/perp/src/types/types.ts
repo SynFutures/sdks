@@ -65,6 +65,7 @@ export interface Instrument {
 
     placePaused: boolean;
     fundingHour: number;
+    disableOrderRebate: boolean;
     isInverse?: boolean;
 
     blockInfo?: BlockInfo;

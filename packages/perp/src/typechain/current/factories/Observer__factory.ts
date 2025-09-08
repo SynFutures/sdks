@@ -1903,6 +1903,21 @@ const _abi = [
             name: "param",
             type: "tuple",
           },
+          {
+            internalType: "bool",
+            name: "placePaused",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "fundingHour",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "disableOrderRebate",
+            type: "bool",
+          },
         ],
         internalType: "struct Setting",
         name: "",
