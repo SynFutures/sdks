@@ -379,10 +379,10 @@ export type SettingStructOutput = [
   number,
   number,
   number,
-  QuoteParamStructOutput,
   boolean,
   BigNumber,
-  boolean
+  boolean,
+  QuoteParamStructOutput
 ] & {
   symbol: string;
   config: string;
@@ -392,10 +392,10 @@ export type SettingStructOutput = [
   decimals: number;
   initialMarginRatio: number;
   maintenanceMarginRatio: number;
-  param: QuoteParamStructOutput;
   placePaused: boolean;
   fundingHour: BigNumber;
   disableOrderRebate: boolean;
+  param: QuoteParamStructOutput;
 };
 
 export type QuotationStruct = {

@@ -1872,6 +1872,21 @@ const _abi = [
             type: "uint16",
           },
           {
+            internalType: "bool",
+            name: "placePaused",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "fundingHour",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "disableOrderRebate",
+            type: "bool",
+          },
+          {
             components: [
               {
                 internalType: "uint128",
@@ -1902,21 +1917,6 @@ const _abi = [
             internalType: "struct QuoteParam",
             name: "param",
             type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "placePaused",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "fundingHour",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "disableOrderRebate",
-            type: "bool",
           },
         ],
         internalType: "struct Setting",
