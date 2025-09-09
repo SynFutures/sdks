@@ -1,7 +1,7 @@
 import type { BigNumber } from 'ethers';
 import type { TokenInfo } from '@derivation-tech/context';
 import type { BatchOrderSizeDistribution, MarketType, QuoteType, Side } from '../enum';
-import type { Portfolio, Instrument, Position } from './types';
+import type { Portfolio, Instrument, Position, Quotation } from './types';
 
 export interface InstrumentSetting {
     initialMarginRatio: number;
@@ -239,6 +239,10 @@ export interface SimulateTradeParamsBase {
     strictMode?: boolean;
     instrument?: Instrument;
     isInverse?: boolean;
+    inquireResult?: {
+        size?: BigNumber;
+        quotation: Quotation;
+    };
 }
 
 export interface SimulateMarketOrderByMarginParams extends SimulateTradeParamsBase {

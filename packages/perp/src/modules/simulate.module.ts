@@ -617,12 +617,26 @@ export class SimulateModule implements SimulateInterface {
         );
         const prePosition = await this.getPosition(params.tradeInfo, overrides ?? {});
 
-        const { baseSize, quoteSize, quotation } = await this.inquireByBaseOrQuote(
-            params,
-            amm.markPrice,
-            overrides ?? {},
-            true,
-        );
+        let baseSize: BigNumber;
+        let quoteSize: BigNumber;
+        let quotation: Quotation;
+        // if inquireResult is provided, skip on-chain inquire or inquireByNotional rpc call
+        if (params.inquireResult) {
+            if (isByBase(params.size)) {
+                baseSize = params.size.base;
+                quoteSize = params.inquireResult.quotation.entryNotional;
+                quotation = params.inquireResult.quotation;
+            } else {
+                baseSize = params.inquireResult.size;
+                quoteSize = params.size.quote;
+                quotation = params.inquireResult.quotation;
+            }
+        } else {
+            const res = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {}, true);
+            baseSize = res.baseSize;
+            quoteSize = res.quoteSize;
+            quotation = res.quotation;
+        }
 
         if (baseSize.lte(0)) {
             // TODO: @samlior
