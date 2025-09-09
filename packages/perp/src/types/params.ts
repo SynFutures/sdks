@@ -260,6 +260,10 @@ export interface SimulateCloseParams {
     strictMode?: boolean;
     instrument?: Instrument;
     isInverse?: boolean;
+    inquireResult?: {
+        size?: BigNumber;
+        quotation: Quotation;
+    };
 }
 
 export interface SimulateTradeResult {
