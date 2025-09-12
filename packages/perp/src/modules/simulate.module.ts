@@ -295,23 +295,37 @@ export class SimulateModule implements SimulateInterface {
         }
 
         let swapToTick = long ? targetTick + 1 : targetTick - 1;
-        let { size: swapSize, quotation } = await this.context.perp.contracts.observer.inquireByTick(
-            instrument.instrumentAddr,
-            amm.expiry,
-            swapToTick,
-            overrides ?? {},
-        );
-
-        if ((long && quotation.postTick <= targetTick) || (!long && quotation.postTick >= targetTick)) {
-            swapToTick = long ? swapToTick + 1 : swapToTick - 1;
-            const retry = await this.context.perp.contracts.observer.inquireByTick(
+        let swapSize: BigNumber;
+        let quotation: Quotation;
+        if (params.inquireResult) {
+            swapSize = params.inquireResult.firstQuote.size;
+            quotation = params.inquireResult.firstQuote.quotation;
+        } else {
+            const res = await this.context.perp.contracts.observer.inquireByTick(
                 instrument.instrumentAddr,
                 amm.expiry,
                 swapToTick,
                 overrides ?? {},
             );
-            swapSize = retry.size;
-            quotation = retry.quotation;
+            swapSize = res.size;
+            quotation = res.quotation;
+        }
+
+        if ((long && quotation.postTick <= targetTick) || (!long && quotation.postTick >= targetTick)) {
+            swapToTick = long ? swapToTick + 1 : swapToTick - 1;
+            if (params.inquireResult) {
+                swapSize = params.inquireResult.secondQuote.size;
+                quotation = params.inquireResult.secondQuote.quotation;
+            } else {
+                const retry = await this.context.perp.contracts.observer.inquireByTick(
+                    instrument.instrumentAddr,
+                    amm.expiry,
+                    swapToTick,
+                    overrides ?? {},
+                );
+                swapSize = retry.size;
+                quotation = retry.quotation;
+            }
         }
 
         if ((long && swapSize.lt(0)) || (!long && swapSize.gt(0))) {

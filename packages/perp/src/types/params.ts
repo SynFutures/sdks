@@ -390,6 +390,16 @@ export interface SimulateCrossMarketOrderParams {
     strictMode?: boolean;
     instrument?: Instrument;
     isInverse?: boolean;
+    inquireResult?: {
+        firstQuote: {
+            size: BigNumber;
+            quotation: Quotation;
+        };
+        secondQuote: {
+            size: BigNumber;
+            quotation: Quotation;
+        };
+    };
 }
 
 export interface SimulateCrossMarketOrderResult {
