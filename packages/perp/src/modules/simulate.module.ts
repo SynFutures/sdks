@@ -285,8 +285,6 @@ export class SimulateModule implements SimulateInterface {
             overrides ?? {},
         );
 
-        const { baseSize, quoteSize } = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {});
-
         const sign = signOfSide(params.side);
         const long = sign > 0;
         const { targetTick, targetPrice } = this.getPriceInfo(params.priceInfo);
@@ -338,8 +336,28 @@ export class SimulateModule implements SimulateInterface {
             throw new SimulationError('Size to tick is trivial');
         }
 
-        const orderBaseSize = baseSize.sub(swapSize.abs());
-        const orderQuoteSize = quoteSize.sub(tradeSimulation.size.quote);
+        // split user's intended size into:
+        // - market leg: swapSize.abs() executed immediately to reach target tick
+        // - limit leg: the remaining size to place at targetTick
+        // For ByBase, base amount is the user's intent; quote is derived at worst-of(mark, target)
+        // For ByQuote, quote amount is the user's intent; base is derived at worst-of(mark, target)
+        const worstPrice = bnMax(amm.markPrice, targetPrice);
+
+        let orderBaseSize: BigNumber;
+        let orderQuoteSize: BigNumber;
+        if (isByBase(params.size)) {
+            const totalBase = params.size.base;
+            const remainingBase = totalBase.sub(swapSize.abs());
+            orderBaseSize = remainingBase.gt(ZERO) ? remainingBase : ZERO;
+            orderQuoteSize = wmulUp(orderBaseSize, worstPrice);
+        } else {
+            const totalQuote = params.size.quote;
+            const spentQuote = tradeSimulation.size.quote;
+            const remainingQuote = totalQuote.sub(spentQuote);
+            orderQuoteSize = remainingQuote.gt(ZERO) ? remainingQuote : ZERO;
+            // derive base conservatively at worstPrice to keep size.quote and base consistent
+            orderBaseSize = wdivDown(orderQuoteSize, worstPrice);
+        }
 
         const orderSimulation = {
             ...this._simulateOrder(instrument, amm, targetPrice, orderBaseSize, params.leverage),
@@ -351,7 +369,8 @@ export class SimulateModule implements SimulateInterface {
         const targetTickPrice = TickMath.getWadAtTick(targetTick);
         const minOrderSize = wdivUp(minOrderValue, targetTickPrice);
 
-        if (swapSize.abs().add(minOrderSize).gt(baseSize)) {
+        // placeable only if remaining base meets min base requirement at target
+        if (orderBaseSize.lt(minOrderSize)) {
             // in this case we can't place order since size is too small
             return {
                 canPlaceOrder: false,
