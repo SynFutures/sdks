@@ -341,6 +341,10 @@ export class SimulateModule implements SimulateInterface {
                 strictMode: params.strictMode,
                 instrument: instrument,
                 leverage: params.leverage,
+                inquireResult: {
+                    size: swapSize,
+                    quotation,
+                }
             },
             overrides ?? {},
         );

@@ -381,7 +381,7 @@ export interface SimulateRemoveLiquidityResult {
 }
 
 export interface SimulateCrossMarketOrderParams {
-    tradeInfo: TradeInfo | Portfolio;
+    tradeInfo: TradeInfo | Position;
     priceInfo: BigNumber | number;
     size: ByBase | ByQuote;
     side: Side;
