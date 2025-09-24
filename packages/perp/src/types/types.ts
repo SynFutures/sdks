@@ -40,6 +40,7 @@ export interface Pending {
 export interface Instrument {
     // redundant fields
     instrumentAddr: string;
+    handler: string;
 
     // basic fields
     symbol: string;
@@ -74,6 +75,7 @@ export interface Instrument {
 export interface InstrumentInfo {
     chainId: CHAIN_ID;
     addr: string;
+    handler: string;
     symbol: string;
     base: BaseInfo;
     quote: TokenInfo;

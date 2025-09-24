@@ -29,6 +29,7 @@ export function createInstrument(
     return {
         ...instrument,
         instrumentAddr: instrument.instrumentAddr.toLowerCase(),
+        handler: instrument.handler.toLowerCase(),
         instrumentType: instrument.market.feeder.ftype,
         marketType: instrument.market.info.type as MarketType,
         minTradeValue,

@@ -221,14 +221,103 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "string",
-            name: "symbol",
-            type: "string",
+            internalType: "address",
+            name: "handler",
+            type: "address",
           },
           {
-            internalType: "address",
-            name: "market",
-            type: "address",
+            components: [
+              {
+                internalType: "string",
+                name: "symbol",
+                type: "string",
+              },
+              {
+                internalType: "address",
+                name: "config",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "gate",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "market",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "quote",
+                type: "address",
+              },
+              {
+                internalType: "uint8",
+                name: "decimals",
+                type: "uint8",
+              },
+              {
+                internalType: "uint16",
+                name: "initialMarginRatio",
+                type: "uint16",
+              },
+              {
+                internalType: "uint16",
+                name: "maintenanceMarginRatio",
+                type: "uint16",
+              },
+              {
+                internalType: "bool",
+                name: "placePaused",
+                type: "bool",
+              },
+              {
+                internalType: "uint8",
+                name: "fundingHour",
+                type: "uint8",
+              },
+              {
+                internalType: "bool",
+                name: "disableOrderRebate",
+                type: "bool",
+              },
+              {
+                components: [
+                  {
+                    internalType: "uint128",
+                    name: "minMarginAmount",
+                    type: "uint128",
+                  },
+                  {
+                    internalType: "uint16",
+                    name: "tradingFeeRatio",
+                    type: "uint16",
+                  },
+                  {
+                    internalType: "uint16",
+                    name: "protocolFeeRatio",
+                    type: "uint16",
+                  },
+                  {
+                    internalType: "enum QuoteType",
+                    name: "qtype",
+                    type: "uint8",
+                  },
+                  {
+                    internalType: "uint128",
+                    name: "tip",
+                    type: "uint128",
+                  },
+                ],
+                internalType: "struct QuoteParam",
+                name: "param",
+                type: "tuple",
+              },
+            ],
+            internalType: "struct Setting",
+            name: "setting",
+            type: "tuple",
           },
           {
             components: [
@@ -302,48 +391,6 @@ const _abi = [
             ],
             internalType: "struct PriceFeeder",
             name: "priceFeeder",
-            type: "tuple",
-          },
-          {
-            internalType: "uint16",
-            name: "initialMarginRatio",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "maintenanceMarginRatio",
-            type: "uint16",
-          },
-          {
-            components: [
-              {
-                internalType: "uint128",
-                name: "minMarginAmount",
-                type: "uint128",
-              },
-              {
-                internalType: "uint16",
-                name: "tradingFeeRatio",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
-                name: "protocolFeeRatio",
-                type: "uint16",
-              },
-              {
-                internalType: "enum QuoteType",
-                name: "qtype",
-                type: "uint8",
-              },
-              {
-                internalType: "uint128",
-                name: "tip",
-                type: "uint128",
-              },
-            ],
-            internalType: "struct QuoteParam",
-            name: "param",
             type: "tuple",
           },
           {
@@ -640,14 +687,103 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "string",
-            name: "symbol",
-            type: "string",
+            internalType: "address",
+            name: "handler",
+            type: "address",
           },
           {
-            internalType: "address",
-            name: "market",
-            type: "address",
+            components: [
+              {
+                internalType: "string",
+                name: "symbol",
+                type: "string",
+              },
+              {
+                internalType: "address",
+                name: "config",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "gate",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "market",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "quote",
+                type: "address",
+              },
+              {
+                internalType: "uint8",
+                name: "decimals",
+                type: "uint8",
+              },
+              {
+                internalType: "uint16",
+                name: "initialMarginRatio",
+                type: "uint16",
+              },
+              {
+                internalType: "uint16",
+                name: "maintenanceMarginRatio",
+                type: "uint16",
+              },
+              {
+                internalType: "bool",
+                name: "placePaused",
+                type: "bool",
+              },
+              {
+                internalType: "uint8",
+                name: "fundingHour",
+                type: "uint8",
+              },
+              {
+                internalType: "bool",
+                name: "disableOrderRebate",
+                type: "bool",
+              },
+              {
+                components: [
+                  {
+                    internalType: "uint128",
+                    name: "minMarginAmount",
+                    type: "uint128",
+                  },
+                  {
+                    internalType: "uint16",
+                    name: "tradingFeeRatio",
+                    type: "uint16",
+                  },
+                  {
+                    internalType: "uint16",
+                    name: "protocolFeeRatio",
+                    type: "uint16",
+                  },
+                  {
+                    internalType: "enum QuoteType",
+                    name: "qtype",
+                    type: "uint8",
+                  },
+                  {
+                    internalType: "uint128",
+                    name: "tip",
+                    type: "uint128",
+                  },
+                ],
+                internalType: "struct QuoteParam",
+                name: "param",
+                type: "tuple",
+              },
+            ],
+            internalType: "struct Setting",
+            name: "setting",
+            type: "tuple",
           },
           {
             components: [
@@ -721,48 +857,6 @@ const _abi = [
             ],
             internalType: "struct PriceFeeder",
             name: "priceFeeder",
-            type: "tuple",
-          },
-          {
-            internalType: "uint16",
-            name: "initialMarginRatio",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "maintenanceMarginRatio",
-            type: "uint16",
-          },
-          {
-            components: [
-              {
-                internalType: "uint128",
-                name: "minMarginAmount",
-                type: "uint128",
-              },
-              {
-                internalType: "uint16",
-                name: "tradingFeeRatio",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
-                name: "protocolFeeRatio",
-                type: "uint16",
-              },
-              {
-                internalType: "enum QuoteType",
-                name: "qtype",
-                type: "uint8",
-              },
-              {
-                internalType: "uint128",
-                name: "tip",
-                type: "uint128",
-              },
-            ],
-            internalType: "struct QuoteParam",
-            name: "param",
             type: "tuple",
           },
           {
@@ -926,14 +1020,103 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "string",
-            name: "symbol",
-            type: "string",
+            internalType: "address",
+            name: "handler",
+            type: "address",
           },
           {
-            internalType: "address",
-            name: "market",
-            type: "address",
+            components: [
+              {
+                internalType: "string",
+                name: "symbol",
+                type: "string",
+              },
+              {
+                internalType: "address",
+                name: "config",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "gate",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "market",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "quote",
+                type: "address",
+              },
+              {
+                internalType: "uint8",
+                name: "decimals",
+                type: "uint8",
+              },
+              {
+                internalType: "uint16",
+                name: "initialMarginRatio",
+                type: "uint16",
+              },
+              {
+                internalType: "uint16",
+                name: "maintenanceMarginRatio",
+                type: "uint16",
+              },
+              {
+                internalType: "bool",
+                name: "placePaused",
+                type: "bool",
+              },
+              {
+                internalType: "uint8",
+                name: "fundingHour",
+                type: "uint8",
+              },
+              {
+                internalType: "bool",
+                name: "disableOrderRebate",
+                type: "bool",
+              },
+              {
+                components: [
+                  {
+                    internalType: "uint128",
+                    name: "minMarginAmount",
+                    type: "uint128",
+                  },
+                  {
+                    internalType: "uint16",
+                    name: "tradingFeeRatio",
+                    type: "uint16",
+                  },
+                  {
+                    internalType: "uint16",
+                    name: "protocolFeeRatio",
+                    type: "uint16",
+                  },
+                  {
+                    internalType: "enum QuoteType",
+                    name: "qtype",
+                    type: "uint8",
+                  },
+                  {
+                    internalType: "uint128",
+                    name: "tip",
+                    type: "uint128",
+                  },
+                ],
+                internalType: "struct QuoteParam",
+                name: "param",
+                type: "tuple",
+              },
+            ],
+            internalType: "struct Setting",
+            name: "setting",
+            type: "tuple",
           },
           {
             components: [
@@ -1007,48 +1190,6 @@ const _abi = [
             ],
             internalType: "struct PriceFeeder",
             name: "priceFeeder",
-            type: "tuple",
-          },
-          {
-            internalType: "uint16",
-            name: "initialMarginRatio",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "maintenanceMarginRatio",
-            type: "uint16",
-          },
-          {
-            components: [
-              {
-                internalType: "uint128",
-                name: "minMarginAmount",
-                type: "uint128",
-              },
-              {
-                internalType: "uint16",
-                name: "tradingFeeRatio",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
-                name: "protocolFeeRatio",
-                type: "uint16",
-              },
-              {
-                internalType: "enum QuoteType",
-                name: "qtype",
-                type: "uint8",
-              },
-              {
-                internalType: "uint128",
-                name: "tip",
-                type: "uint128",
-              },
-            ],
-            internalType: "struct QuoteParam",
-            name: "param",
             type: "tuple",
           },
           {
@@ -1877,9 +2018,9 @@ const _abi = [
             type: "bool",
           },
           {
-            internalType: "uint256",
+            internalType: "uint8",
             name: "fundingHour",
-            type: "uint256",
+            type: "uint8",
           },
           {
             internalType: "bool",

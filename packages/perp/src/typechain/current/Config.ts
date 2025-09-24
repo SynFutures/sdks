@@ -24,15 +24,14 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "./common";
 
 export type QuoteParamStruct = {
-  minMarginAmount: PromiseOrValue<BigNumberish>;
-  tradingFeeRatio: PromiseOrValue<BigNumberish>;
-  protocolFeeRatio: PromiseOrValue<BigNumberish>;
-  qtype: PromiseOrValue<BigNumberish>;
-  tip: PromiseOrValue<BigNumberish>;
+  minMarginAmount: BigNumberish;
+  tradingFeeRatio: BigNumberish;
+  protocolFeeRatio: BigNumberish;
+  qtype: BigNumberish;
+  tip: BigNumberish;
 };
 
 export type QuoteParamStructOutput = [
@@ -50,9 +49,9 @@ export type QuoteParamStructOutput = [
 };
 
 export type MarketInfoStruct = {
-  mtype: PromiseOrValue<string>;
-  market: PromiseOrValue<string>;
-  beacon: PromiseOrValue<string>;
+  mtype: string;
+  market: string;
+  beacon: string;
 };
 
 export type MarketInfoStructOutput = [string, string, string] & {
@@ -68,6 +67,7 @@ export interface ConfigInterface extends utils.Interface {
     "getAllMarkets()": FunctionFragment;
     "getMarketInfo(string)": FunctionFragment;
     "getQuoteParam(address)": FunctionFragment;
+    "initialize(address)": FunctionFragment;
     "isAuthorizedLiquidator(address)": FunctionFragment;
     "isAuthorizedLp(address,address)": FunctionFragment;
     "liquidatorWhitelist(address)": FunctionFragment;
@@ -76,6 +76,7 @@ export interface ConfigInterface extends utils.Interface {
     "marketsLength()": FunctionFragment;
     "openLiquidator()": FunctionFragment;
     "owner()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "restrictLp(address)": FunctionFragment;
     "setLiquidatorWhitelist(address[],bool[])": FunctionFragment;
     "setLpWhiteList(address[],address[],bool[])": FunctionFragment;
@@ -91,6 +92,7 @@ export interface ConfigInterface extends utils.Interface {
       | "getAllMarkets"
       | "getMarketInfo"
       | "getQuoteParam"
+      | "initialize"
       | "isAuthorizedLiquidator"
       | "isAuthorizedLp"
       | "liquidatorWhitelist"
@@ -99,6 +101,7 @@ export interface ConfigInterface extends utils.Interface {
       | "marketsLength"
       | "openLiquidator"
       | "owner"
+      | "renounceOwnership"
       | "restrictLp"
       | "setLiquidatorWhitelist"
       | "setLpWhiteList"
@@ -113,7 +116,7 @@ export interface ConfigInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "enableLpWhitelistForQuote",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+    values: [string, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "getAllMarkets",
@@ -121,31 +124,32 @@ export interface ConfigInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getMarketInfo",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getQuoteParam",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
   encodeFunctionData(
     functionFragment: "isAuthorizedLiquidator",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "isAuthorizedLp",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "liquidatorWhitelist",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "lpWhitelist",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "markets",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "marketsLength",
@@ -157,36 +161,29 @@ export interface ConfigInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "restrictLp",
-    values: [PromiseOrValue<string>]
+    functionFragment: "renounceOwnership",
+    values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "restrictLp", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setLiquidatorWhitelist",
-    values: [PromiseOrValue<string>[], PromiseOrValue<boolean>[]]
+    values: [string[], boolean[]]
   ): string;
   encodeFunctionData(
     functionFragment: "setLpWhiteList",
-    values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<string>[],
-      PromiseOrValue<boolean>[]
-    ]
+    values: [string[], string[], boolean[]]
   ): string;
   encodeFunctionData(
     functionFragment: "setMarketInfo",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "setQuoteParam",
-    values: [PromiseOrValue<string>[], QuoteParamStruct[]]
+    values: [string[], QuoteParamStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
 
   decodeFunctionResult(
@@ -209,6 +206,7 @@ export interface ConfigInterface extends utils.Interface {
     functionFragment: "getQuoteParam",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isAuthorizedLiquidator",
     data: BytesLike
@@ -235,6 +233,10 @@ export interface ConfigInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "restrictLp", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setLiquidatorWhitelist",
@@ -260,15 +262,17 @@ export interface ConfigInterface extends utils.Interface {
   events: {
     "DisableLiquidatorWhitelist()": EventFragment;
     "EnableLpWhitelistForQuote(address,bool)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "SetLiquidatorWhitelist(address,bool)": EventFragment;
     "SetLpWhitelistForQuote(address,address,bool)": EventFragment;
     "SetMarketInfo(string,address,address)": EventFragment;
-    "SetQuoteParam(address,tuple)": EventFragment;
+    "SetQuoteParam(address,(uint128,uint16,uint16,uint8,uint128))": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "DisableLiquidatorWhitelist"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EnableLpWhitelistForQuote"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetLiquidatorWhitelist"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetLpWhitelistForQuote"): EventFragment;
@@ -297,8 +301,15 @@ export type EnableLpWhitelistForQuoteEvent = TypedEvent<
 export type EnableLpWhitelistForQuoteEventFilter =
   TypedEventFilter<EnableLpWhitelistForQuoteEvent>;
 
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
 export interface OwnershipTransferredEventObject {
-  user: string;
+  previousOwner: string;
   newOwner: string;
 }
 export type OwnershipTransferredEvent = TypedEvent<
@@ -385,53 +396,55 @@ export interface Config extends BaseContract {
 
   functions: {
     disableLiquidatorWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     enableLpWhitelistForQuote(
-      quote: PromiseOrValue<string>,
-      enable: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      enable: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     getAllMarkets(overrides?: CallOverrides): Promise<[string[]]>;
 
     getMarketInfo(
-      mtype: PromiseOrValue<string>,
+      mtype: string,
       overrides?: CallOverrides
     ): Promise<[MarketInfoStructOutput]>;
 
     getQuoteParam(
-      quote: PromiseOrValue<string>,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<[QuoteParamStructOutput]>;
 
+    initialize(
+      admin: string,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
     isAuthorizedLiquidator(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     isAuthorizedLp(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     liquidatorWhitelist(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<[boolean] & { authorized: boolean }>;
 
     lpWhitelist(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<[boolean] & { authorized: boolean }>;
 
-    markets(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    markets(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
 
     marketsLength(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -439,91 +452,97 @@ export interface Config extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
     restrictLp(
-      quote: PromiseOrValue<string>,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<[boolean] & { restricted: boolean }>;
 
     setLiquidatorWhitelist(
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      users: string[],
+      flags: boolean[],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setLpWhiteList(
-      quotes: PromiseOrValue<string>[],
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quotes: string[],
+      users: string[],
+      flags: boolean[],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setMarketInfo(
-      mtype: PromiseOrValue<string>,
-      market: PromiseOrValue<string>,
-      beacon: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      mtype: string,
+      market: string,
+      beacon: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setQuoteParam(
-      coins: PromiseOrValue<string>[],
+      coins: string[],
       params: QuoteParamStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      newOwner: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
   disableLiquidatorWhitelist(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   enableLpWhitelistForQuote(
-    quote: PromiseOrValue<string>,
-    enable: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    quote: string,
+    enable: boolean,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   getAllMarkets(overrides?: CallOverrides): Promise<string[]>;
 
   getMarketInfo(
-    mtype: PromiseOrValue<string>,
+    mtype: string,
     overrides?: CallOverrides
   ): Promise<MarketInfoStructOutput>;
 
   getQuoteParam(
-    quote: PromiseOrValue<string>,
+    quote: string,
     overrides?: CallOverrides
   ): Promise<QuoteParamStructOutput>;
 
+  initialize(
+    admin: string,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
   isAuthorizedLiquidator(
-    user: PromiseOrValue<string>,
+    user: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   isAuthorizedLp(
-    quote: PromiseOrValue<string>,
-    user: PromiseOrValue<string>,
+    quote: string,
+    user: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   liquidatorWhitelist(
-    user: PromiseOrValue<string>,
+    user: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   lpWhitelist(
-    quote: PromiseOrValue<string>,
-    user: PromiseOrValue<string>,
+    quote: string,
+    user: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  markets(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  markets(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   marketsLength(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -531,89 +550,89 @@ export interface Config extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  restrictLp(
-    quote: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  renounceOwnership(
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  restrictLp(quote: string, overrides?: CallOverrides): Promise<boolean>;
 
   setLiquidatorWhitelist(
-    users: PromiseOrValue<string>[],
-    flags: PromiseOrValue<boolean>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    users: string[],
+    flags: boolean[],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setLpWhiteList(
-    quotes: PromiseOrValue<string>[],
-    users: PromiseOrValue<string>[],
-    flags: PromiseOrValue<boolean>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    quotes: string[],
+    users: string[],
+    flags: boolean[],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setMarketInfo(
-    mtype: PromiseOrValue<string>,
-    market: PromiseOrValue<string>,
-    beacon: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    mtype: string,
+    market: string,
+    beacon: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setQuoteParam(
-    coins: PromiseOrValue<string>[],
+    coins: string[],
     params: QuoteParamStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   transferOwnership(
-    newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    newOwner: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     disableLiquidatorWhitelist(overrides?: CallOverrides): Promise<void>;
 
     enableLpWhitelistForQuote(
-      quote: PromiseOrValue<string>,
-      enable: PromiseOrValue<boolean>,
+      quote: string,
+      enable: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
     getAllMarkets(overrides?: CallOverrides): Promise<string[]>;
 
     getMarketInfo(
-      mtype: PromiseOrValue<string>,
+      mtype: string,
       overrides?: CallOverrides
     ): Promise<MarketInfoStructOutput>;
 
     getQuoteParam(
-      quote: PromiseOrValue<string>,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<QuoteParamStructOutput>;
 
+    initialize(admin: string, overrides?: CallOverrides): Promise<void>;
+
     isAuthorizedLiquidator(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     isAuthorizedLp(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     liquidatorWhitelist(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     lpWhitelist(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    markets(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    markets(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     marketsLength(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -621,39 +640,38 @@ export interface Config extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    restrictLp(
-      quote: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    restrictLp(quote: string, overrides?: CallOverrides): Promise<boolean>;
 
     setLiquidatorWhitelist(
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
+      users: string[],
+      flags: boolean[],
       overrides?: CallOverrides
     ): Promise<void>;
 
     setLpWhiteList(
-      quotes: PromiseOrValue<string>[],
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
+      quotes: string[],
+      users: string[],
+      flags: boolean[],
       overrides?: CallOverrides
     ): Promise<void>;
 
     setMarketInfo(
-      mtype: PromiseOrValue<string>,
-      market: PromiseOrValue<string>,
-      beacon: PromiseOrValue<string>,
+      mtype: string,
+      market: string,
+      beacon: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setQuoteParam(
-      coins: PromiseOrValue<string>[],
+      coins: string[],
       params: QuoteParamStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
     transferOwnership(
-      newOwner: PromiseOrValue<string>,
+      newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -671,13 +689,16 @@ export interface Config extends BaseContract {
       restricted?: null
     ): EnableLpWhitelistForQuoteEventFilter;
 
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OwnershipTransferred(address,address)"(
-      user?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      previousOwner?: string | null,
+      newOwner?: string | null
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
-      user?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      previousOwner?: string | null,
+      newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
     "SetLiquidatorWhitelist(address,bool)"(
@@ -711,7 +732,7 @@ export interface Config extends BaseContract {
       beacon?: null
     ): SetMarketInfoEventFilter;
 
-    "SetQuoteParam(address,tuple)"(
+    "SetQuoteParam(address,(uint128,uint16,uint16,uint8,uint128))"(
       quote?: null,
       param?: null
     ): SetQuoteParamEventFilter;
@@ -720,53 +741,49 @@ export interface Config extends BaseContract {
 
   estimateGas: {
     disableLiquidatorWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     enableLpWhitelistForQuote(
-      quote: PromiseOrValue<string>,
-      enable: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      enable: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     getAllMarkets(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getMarketInfo(
-      mtype: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getMarketInfo(mtype: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getQuoteParam(
-      quote: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    getQuoteParam(quote: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      admin: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     isAuthorizedLiquidator(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     isAuthorizedLp(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidatorWhitelist(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     lpWhitelist(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    markets(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    markets(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     marketsLength(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -774,90 +791,96 @@ export interface Config extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    restrictLp(
-      quote: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    renounceOwnership(
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
+    restrictLp(quote: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     setLiquidatorWhitelist(
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      users: string[],
+      flags: boolean[],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setLpWhiteList(
-      quotes: PromiseOrValue<string>[],
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quotes: string[],
+      users: string[],
+      flags: boolean[],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setMarketInfo(
-      mtype: PromiseOrValue<string>,
-      market: PromiseOrValue<string>,
-      beacon: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      mtype: string,
+      market: string,
+      beacon: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setQuoteParam(
-      coins: PromiseOrValue<string>[],
+      coins: string[],
       params: QuoteParamStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      newOwner: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     disableLiquidatorWhitelist(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     enableLpWhitelistForQuote(
-      quote: PromiseOrValue<string>,
-      enable: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      enable: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     getAllMarkets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getMarketInfo(
-      mtype: PromiseOrValue<string>,
+      mtype: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getQuoteParam(
-      quote: PromiseOrValue<string>,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    initialize(
+      admin: string,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
     isAuthorizedLiquidator(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     isAuthorizedLp(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidatorWhitelist(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     lpWhitelist(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     markets(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -867,40 +890,44 @@ export interface Config extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
     restrictLp(
-      quote: PromiseOrValue<string>,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setLiquidatorWhitelist(
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      users: string[],
+      flags: boolean[],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setLpWhiteList(
-      quotes: PromiseOrValue<string>[],
-      users: PromiseOrValue<string>[],
-      flags: PromiseOrValue<boolean>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quotes: string[],
+      users: string[],
+      flags: boolean[],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setMarketInfo(
-      mtype: PromiseOrValue<string>,
-      market: PromiseOrValue<string>,
-      beacon: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      mtype: string,
+      market: string,
+      beacon: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setQuoteParam(
-      coins: PromiseOrValue<string>[],
+      coins: string[],
       params: QuoteParamStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      newOwner: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

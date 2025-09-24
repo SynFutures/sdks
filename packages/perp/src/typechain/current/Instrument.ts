@@ -24,14 +24,13 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "./common";
 
 export type RangeStruct = {
-  liquidity: PromiseOrValue<BigNumberish>;
-  entryFeeIndex: PromiseOrValue<BigNumberish>;
-  balance: PromiseOrValue<BigNumberish>;
-  sqrtEntryPX96: PromiseOrValue<BigNumberish>;
+  liquidity: BigNumberish;
+  entryFeeIndex: BigNumberish;
+  balance: BigNumberish;
+  sqrtEntryPX96: BigNumberish;
 };
 
 export type RangeStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
@@ -41,10 +40,7 @@ export type RangeStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
   sqrtEntryPX96: BigNumber;
 };
 
-export type OrderStruct = {
-  balance: PromiseOrValue<BigNumberish>;
-  size: PromiseOrValue<BigNumberish>;
-};
+export type OrderStruct = { balance: BigNumberish; size: BigNumberish };
 
 export type OrderStructOutput = [BigNumber, BigNumber] & {
   balance: BigNumber;
@@ -52,11 +48,11 @@ export type OrderStructOutput = [BigNumber, BigNumber] & {
 };
 
 export type PositionCacheStruct = {
-  balance: PromiseOrValue<BigNumberish>;
-  size: PromiseOrValue<BigNumberish>;
-  entryNotional: PromiseOrValue<BigNumberish>;
-  entrySocialLossIndex: PromiseOrValue<BigNumberish>;
-  entryFundingIndex: PromiseOrValue<BigNumberish>;
+  balance: BigNumberish;
+  size: BigNumberish;
+  entryNotional: BigNumberish;
+  entrySocialLossIndex: BigNumberish;
+  entryFundingIndex: BigNumberish;
 };
 
 export type PositionCacheStructOutput = [
@@ -74,15 +70,15 @@ export type PositionCacheStructOutput = [
 };
 
 export type QuotationStruct = {
-  benchmark: PromiseOrValue<BigNumberish>;
-  sqrtFairPX96: PromiseOrValue<BigNumberish>;
-  tick: PromiseOrValue<BigNumberish>;
-  mark: PromiseOrValue<BigNumberish>;
-  entryNotional: PromiseOrValue<BigNumberish>;
-  fee: PromiseOrValue<BigNumberish>;
-  minAmount: PromiseOrValue<BigNumberish>;
-  sqrtPostFairPX96: PromiseOrValue<BigNumberish>;
-  postTick: PromiseOrValue<BigNumberish>;
+  benchmark: BigNumberish;
+  sqrtFairPX96: BigNumberish;
+  tick: BigNumberish;
+  mark: BigNumberish;
+  entryNotional: BigNumberish;
+  fee: BigNumberish;
+  minAmount: BigNumberish;
+  sqrtPostFairPX96: BigNumberish;
+  postTick: BigNumberish;
 };
 
 export type QuotationStructOutput = [
@@ -108,11 +104,11 @@ export type QuotationStructOutput = [
 };
 
 export type QuoteParamStruct = {
-  minMarginAmount: PromiseOrValue<BigNumberish>;
-  tradingFeeRatio: PromiseOrValue<BigNumberish>;
-  protocolFeeRatio: PromiseOrValue<BigNumberish>;
-  qtype: PromiseOrValue<BigNumberish>;
-  tip: PromiseOrValue<BigNumberish>;
+  minMarginAmount: BigNumberish;
+  tradingFeeRatio: BigNumberish;
+  protocolFeeRatio: BigNumberish;
+  qtype: BigNumberish;
+  tip: BigNumberish;
 };
 
 export type QuoteParamStructOutput = [
@@ -132,15 +128,18 @@ export type QuoteParamStructOutput = [
 export interface InstrumentInterface extends utils.Interface {
   functions: {
     "add(bytes32[2])": FunctionFragment;
+    "addFor(address,bytes32[2])": FunctionFragment;
     "batchPlace(bytes32[3])": FunctionFragment;
+    "batchPlaceFor(address,bytes32[3])": FunctionFragment;
     "cancel(bytes32)": FunctionFragment;
+    "cancelFor(address,bytes32)": FunctionFragment;
     "claimProtocolFee(uint32)": FunctionFragment;
     "condition()": FunctionFragment;
     "donateInsuranceFund(uint32,uint256)": FunctionFragment;
     "fill(bytes32)": FunctionFragment;
     "freeze()": FunctionFragment;
-    "fundingHour()": FunctionFragment;
     "getExpiries()": FunctionFragment;
+    "handler()": FunctionFragment;
     "init(address,bytes32[2])": FunctionFragment;
     "initialize(bytes)": FunctionFragment;
     "inquire(uint32,int256)": FunctionFragment;
@@ -148,13 +147,15 @@ export interface InstrumentInterface extends utils.Interface {
     "multicall(bytes[])": FunctionFragment;
     "normalize()": FunctionFragment;
     "place(bytes32[2])": FunctionFragment;
-    "placePaused()": FunctionFragment;
+    "placeFor(address,bytes32[2])": FunctionFragment;
     "queryAccount(uint32,address,uint8,bytes)": FunctionFragment;
     "queryContext(uint32,uint8,uint256[],bytes)": FunctionFragment;
     "querySetting(uint256[])": FunctionFragment;
     "recycleInsuranceFund(uint32)": FunctionFragment;
     "remove(bytes32[2])": FunctionFragment;
+    "removeFor(bytes32[2])": FunctionFragment;
     "resolve(uint128)": FunctionFragment;
+    "setDisableOrderRebate(bool)": FunctionFragment;
     "setFundingHour(uint8)": FunctionFragment;
     "setLeverage(uint16,uint16)": FunctionFragment;
     "setPlacePaused(bool)": FunctionFragment;
@@ -162,21 +163,25 @@ export interface InstrumentInterface extends utils.Interface {
     "settle(uint32,address)": FunctionFragment;
     "sweep(uint32,address,int256)": FunctionFragment;
     "trade(bytes32[2])": FunctionFragment;
+    "tradeFor(address,bytes32[2])": FunctionFragment;
     "update(uint32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "add"
+      | "addFor"
       | "batchPlace"
+      | "batchPlaceFor"
       | "cancel"
+      | "cancelFor"
       | "claimProtocolFee"
       | "condition"
       | "donateInsuranceFund"
       | "fill"
       | "freeze"
-      | "fundingHour"
       | "getExpiries"
+      | "handler"
       | "init"
       | "initialize"
       | "inquire"
@@ -184,13 +189,15 @@ export interface InstrumentInterface extends utils.Interface {
       | "multicall"
       | "normalize"
       | "place"
-      | "placePaused"
+      | "placeFor"
       | "queryAccount"
       | "queryContext"
       | "querySetting"
       | "recycleInsuranceFund"
       | "remove"
+      | "removeFor"
       | "resolve"
+      | "setDisableOrderRebate"
       | "setFundingHour"
       | "setLeverage"
       | "setPlacePaused"
@@ -198,131 +205,119 @@ export interface InstrumentInterface extends utils.Interface {
       | "settle"
       | "sweep"
       | "trade"
+      | "tradeFor"
       | "update"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "add",
-    values: [[PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]]
+    values: [[BytesLike, BytesLike]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addFor",
+    values: [string, [BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
     functionFragment: "batchPlace",
-    values: [
-      [
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>
-      ]
-    ]
+    values: [[BytesLike, BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
-    functionFragment: "cancel",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "batchPlaceFor",
+    values: [string, [BytesLike, BytesLike, BytesLike]]
+  ): string;
+  encodeFunctionData(functionFragment: "cancel", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "cancelFor",
+    values: [string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "claimProtocolFee",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "condition", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "donateInsuranceFund",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    values: [BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "fill",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
+  encodeFunctionData(functionFragment: "fill", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "freeze", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "fundingHour",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "getExpiries",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "handler", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "init",
-    values: [
-      PromiseOrValue<string>,
-      [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-    ]
+    values: [string, [BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [PromiseOrValue<BytesLike>]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "inquire",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "liquidate",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [BigNumberish, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "multicall",
-    values: [PromiseOrValue<BytesLike>[]]
+    values: [BytesLike[]]
   ): string;
   encodeFunctionData(functionFragment: "normalize", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "place",
-    values: [[PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]]
+    values: [[BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
-    functionFragment: "placePaused",
-    values?: undefined
+    functionFragment: "placeFor",
+    values: [string, [BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
     functionFragment: "queryAccount",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [BigNumberish, string, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "queryContext",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BytesLike>
-    ]
+    values: [BigNumberish, BigNumberish, BigNumberish[], BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "querySetting",
-    values: [PromiseOrValue<BigNumberish>[]]
+    values: [BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "recycleInsuranceFund",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "remove",
-    values: [[PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]]
+    values: [[BytesLike, BytesLike]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeFor",
+    values: [[BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
     functionFragment: "resolve",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDisableOrderRebate",
+    values: [boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setFundingHour",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setLeverage",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setPlacePaused",
-    values: [PromiseOrValue<boolean>]
+    values: [boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setQuoteParam",
@@ -330,28 +325,34 @@ export interface InstrumentInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "settle",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "sweep",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [BigNumberish, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "trade",
-    values: [[PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]]
+    values: [[BytesLike, BytesLike]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tradeFor",
+    values: [string, [BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
     functionFragment: "update",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "add", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addFor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "batchPlace", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "batchPlaceFor",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "cancelFor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimProtocolFee",
     data: BytesLike
@@ -364,13 +365,10 @@ export interface InstrumentInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "fill", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "freeze", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "fundingHour",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getExpiries",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "handler", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "inquire", data: BytesLike): Result;
@@ -378,10 +376,7 @@ export interface InstrumentInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "multicall", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "normalize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "place", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "placePaused",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "placeFor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "queryAccount",
     data: BytesLike
@@ -399,7 +394,12 @@ export interface InstrumentInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remove", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeFor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "resolve", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setDisableOrderRebate",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setFundingHour",
     data: BytesLike
@@ -419,21 +419,22 @@ export interface InstrumentInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sweep", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "trade", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tradeFor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "update", data: BytesLike): Result;
 
   events: {
-    "Add(uint32,address,int24,int24,tuple)": EventFragment;
+    "Add(uint32,address,int24,int24,(uint128,uint128,uint96,uint160))": EventFragment;
     "Adjust(uint32,address,int256)": EventFragment;
-    "Cancel(uint32,address,int24,uint32,uint256,tuple)": EventFragment;
+    "Cancel(uint32,address,int24,uint32,uint256,(int256,int256,uint256,uint256,int256))": EventFragment;
     "ClaimProtocolFee(uint32,uint256)": EventFragment;
     "DeleteContext(uint32)": EventFragment;
     "DonateInsuranceFund(uint32,address,uint256)": EventFragment;
-    "Fill(uint32,address,int24,uint32,uint256,tuple,address,uint256)": EventFragment;
+    "Fill(uint32,address,int24,uint32,uint256,(int256,int256,uint256,uint256,int256),address,uint256)": EventFragment;
     "FundingFee(address,int256)": EventFragment;
     "Liquidate(uint32,address,uint256,uint256,address,int256)": EventFragment;
-    "Place(uint32,address,int24,uint32,tuple)": EventFragment;
+    "Place(uint32,address,int24,uint32,(uint128,int128))": EventFragment;
     "RecycleInsuranceFund(uint32,uint256)": EventFragment;
-    "Remove(uint32,address,int24,int24,uint256,tuple,address,uint256)": EventFragment;
+    "Remove(uint32,address,int24,int24,uint256,(int256,int256,uint256,uint256,int256),address,uint256)": EventFragment;
     "Settle(uint32,address,uint256,uint256,address)": EventFragment;
     "Sweep(uint32,address,int256,int256,uint256,uint256,uint16,uint160,uint256,address)": EventFragment;
     "Trade(uint32,address,int256,uint256,int256,uint256,uint256,uint16,uint160,uint256)": EventFragment;
@@ -443,8 +444,8 @@ export interface InstrumentInterface extends utils.Interface {
     "UpdateFundingHour(uint8)": EventFragment;
     "UpdateFundingIndex(uint256)": EventFragment;
     "UpdateMarginRatio(uint16,uint16)": EventFragment;
-    "UpdateParam(tuple)": EventFragment;
-    "UpdatePosition(uint32,address,tuple)": EventFragment;
+    "UpdateParam((uint128,uint16,uint16,uint8,uint128))": EventFragment;
+    "UpdatePosition(uint32,address,(int256,int256,uint256,uint256,int256))": EventFragment;
     "UpdateSocialLossInsuranceFund(uint32,uint128,uint128,uint128)": EventFragment;
     "AdminChanged(address,address)": EventFragment;
     "BeaconUpgraded(address)": EventFragment;
@@ -895,341 +896,421 @@ export interface Instrument extends BaseContract {
 
   functions: {
     add(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    addFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     batchPlace(
-      args: [
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>
-      ],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    batchPlaceFor(
+      to: string,
+      args: [BytesLike, BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     cancel(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    cancelFor(
+      to: string,
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     claimProtocolFee(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     condition(overrides?: CallOverrides): Promise<[number]>;
 
     donateInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     fill(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     freeze(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
-
-    fundingHour(overrides?: CallOverrides): Promise<[number]>;
 
     getExpiries(overrides?: CallOverrides): Promise<[number[]]>;
 
+    handler(overrides?: CallOverrides): Promise<[string]>;
+
     init(
-      target: PromiseOrValue<string>,
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      target: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     initialize(
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      data: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     inquire(
-      expiry: PromiseOrValue<BigNumberish>,
-      size: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
+      size: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[QuotationStructOutput]>;
 
     liquidate(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     multicall(
-      data: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     normalize(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     place(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    placePaused(overrides?: CallOverrides): Promise<[boolean]>;
+    placeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
 
     queryAccount(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      query: PromiseOrValue<BigNumberish>,
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      target: string,
+      query: BigNumberish,
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<[string] & { result: string }>;
 
     queryContext(
-      expiry: PromiseOrValue<BigNumberish>,
-      query: PromiseOrValue<BigNumberish>,
-      offsets: PromiseOrValue<BigNumberish>[],
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      query: BigNumberish,
+      offsets: BigNumberish[],
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
 
     querySetting(
-      offsets: PromiseOrValue<BigNumberish>[],
+      offsets: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
 
     recycleInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     remove(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    removeFor(
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     resolve(
-      settlementPrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      settlementPrice: BigNumberish,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    setDisableOrderRebate(
+      disable: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setFundingHour(
-      newFundingHour: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      newFundingHour: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setLeverage(
-      initialMarginRatio: PromiseOrValue<BigNumberish>,
-      maintenanceMarginRatio: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      initialMarginRatio: BigNumberish,
+      maintenanceMarginRatio: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setPlacePaused(
-      paused: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      paused: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setQuoteParam(
       param: QuoteParamStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     settle(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     sweep(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     trade(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    tradeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     update(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
   add(
-    args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  addFor(
+    to: string,
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   batchPlace(
-    args: [
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>
-    ],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    args: [BytesLike, BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  batchPlaceFor(
+    to: string,
+    args: [BytesLike, BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   cancel(
-    arg: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    arg: BytesLike,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  cancelFor(
+    to: string,
+    arg: BytesLike,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   claimProtocolFee(
-    expiry: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    expiry: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   condition(overrides?: CallOverrides): Promise<number>;
 
   donateInsuranceFund(
-    expiry: PromiseOrValue<BigNumberish>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    expiry: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   fill(
-    arg: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    arg: BytesLike,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   freeze(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
-
-  fundingHour(overrides?: CallOverrides): Promise<number>;
 
   getExpiries(overrides?: CallOverrides): Promise<number[]>;
 
+  handler(overrides?: CallOverrides): Promise<string>;
+
   init(
-    target: PromiseOrValue<string>,
-    args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    target: string,
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   initialize(
-    data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    data: BytesLike,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   inquire(
-    expiry: PromiseOrValue<BigNumberish>,
-    size: PromiseOrValue<BigNumberish>,
+    expiry: BigNumberish,
+    size: BigNumberish,
     overrides?: CallOverrides
   ): Promise<QuotationStructOutput>;
 
   liquidate(
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
-    size: PromiseOrValue<BigNumberish>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    expiry: BigNumberish,
+    target: string,
+    size: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   multicall(
-    data: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    data: BytesLike[],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   normalize(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   place(
-    args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  placePaused(overrides?: CallOverrides): Promise<boolean>;
+  placeFor(
+    to: string,
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
 
   queryAccount(
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
-    query: PromiseOrValue<BigNumberish>,
-    inputs: PromiseOrValue<BytesLike>,
+    expiry: BigNumberish,
+    target: string,
+    query: BigNumberish,
+    inputs: BytesLike,
     overrides?: CallOverrides
   ): Promise<string>;
 
   queryContext(
-    expiry: PromiseOrValue<BigNumberish>,
-    query: PromiseOrValue<BigNumberish>,
-    offsets: PromiseOrValue<BigNumberish>[],
-    inputs: PromiseOrValue<BytesLike>,
+    expiry: BigNumberish,
+    query: BigNumberish,
+    offsets: BigNumberish[],
+    inputs: BytesLike,
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
 
   querySetting(
-    offsets: PromiseOrValue<BigNumberish>[],
+    offsets: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
 
   recycleInsuranceFund(
-    expiry: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    expiry: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   remove(
-    args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  removeFor(
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   resolve(
-    settlementPrice: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    settlementPrice: BigNumberish,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  setDisableOrderRebate(
+    disable: boolean,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setFundingHour(
-    newFundingHour: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    newFundingHour: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setLeverage(
-    initialMarginRatio: PromiseOrValue<BigNumberish>,
-    maintenanceMarginRatio: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    initialMarginRatio: BigNumberish,
+    maintenanceMarginRatio: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setPlacePaused(
-    paused: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    paused: boolean,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setQuoteParam(
     param: QuoteParamStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   settle(
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    expiry: BigNumberish,
+    target: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   sweep(
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
-    size: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    expiry: BigNumberish,
+    target: string,
+    size: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   trade(
-    args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  tradeFor(
+    to: string,
+    args: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   update(
-    expiry: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    expiry: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     add(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+      args: [BytesLike, BytesLike],
+      overrides?: CallOverrides
+    ): Promise<
+      [number, number, RangeStructOutput] & {
+        tickLower: number;
+        tickUpper: number;
+        range: RangeStructOutput;
+      }
+    >;
+
+    addFor(
+      to: string,
+      args: [BytesLike, BytesLike],
       overrides?: CallOverrides
     ): Promise<
       [number, number, RangeStructOutput] & {
@@ -1240,11 +1321,18 @@ export interface Instrument extends BaseContract {
     >;
 
     batchPlace(
-      args: [
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>
-      ],
+      args: [BytesLike, BytesLike, BytesLike],
+      overrides?: CallOverrides
+    ): Promise<
+      [number[], OrderStructOutput[]] & {
+        nonces: number[];
+        orders: OrderStructOutput[];
+      }
+    >;
+
+    batchPlaceFor(
+      to: string,
+      args: [BytesLike, BytesLike, BytesLike],
       overrides?: CallOverrides
     ): Promise<
       [number[], OrderStructOutput[]] & {
@@ -1254,7 +1342,18 @@ export interface Instrument extends BaseContract {
     >;
 
     cancel(
-      arg: PromiseOrValue<BytesLike>,
+      arg: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<
+      [boolean[], PositionCacheStructOutput[]] & {
+        succees: boolean[];
+        pics: PositionCacheStructOutput[];
+      }
+    >;
+
+    cancelFor(
+      to: string,
+      arg: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [boolean[], PositionCacheStructOutput[]] & {
@@ -1264,20 +1363,20 @@ export interface Instrument extends BaseContract {
     >;
 
     claimProtocolFee(
-      expiry: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     condition(overrides?: CallOverrides): Promise<number>;
 
     donateInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     fill(
-      arg: PromiseOrValue<BytesLike>,
+      arg: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [PositionCacheStructOutput, BigNumber] & {
@@ -1288,13 +1387,13 @@ export interface Instrument extends BaseContract {
 
     freeze(overrides?: CallOverrides): Promise<void>;
 
-    fundingHour(overrides?: CallOverrides): Promise<number>;
-
     getExpiries(overrides?: CallOverrides): Promise<number[]>;
 
+    handler(overrides?: CallOverrides): Promise<string>;
+
     init(
-      target: PromiseOrValue<string>,
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+      target: string,
+      args: [BytesLike, BytesLike],
       overrides?: CallOverrides
     ): Promise<
       [number, number, RangeStructOutput] & {
@@ -1304,69 +1403,80 @@ export interface Instrument extends BaseContract {
       }
     >;
 
-    initialize(
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    initialize(data: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     inquire(
-      expiry: PromiseOrValue<BigNumberish>,
-      size: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
+      size: BigNumberish,
       overrides?: CallOverrides
     ): Promise<QuotationStructOutput>;
 
     liquidate(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    multicall(
-      data: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<string[]>;
+    multicall(data: BytesLike[], overrides?: CallOverrides): Promise<string[]>;
 
     normalize(overrides?: CallOverrides): Promise<void>;
 
     place(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+      args: [BytesLike, BytesLike],
       overrides?: CallOverrides
     ): Promise<
       [number, OrderStructOutput] & { nonce: number; order: OrderStructOutput }
     >;
 
-    placePaused(overrides?: CallOverrides): Promise<boolean>;
+    placeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: CallOverrides
+    ): Promise<
+      [number, OrderStructOutput] & { nonce: number; order: OrderStructOutput }
+    >;
 
     queryAccount(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      query: PromiseOrValue<BigNumberish>,
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      target: string,
+      query: BigNumberish,
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<string>;
 
     queryContext(
-      expiry: PromiseOrValue<BigNumberish>,
-      query: PromiseOrValue<BigNumberish>,
-      offsets: PromiseOrValue<BigNumberish>[],
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      query: BigNumberish,
+      offsets: BigNumberish[],
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
 
     querySetting(
-      offsets: PromiseOrValue<BigNumberish>[],
+      offsets: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
 
     recycleInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     remove(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+      args: [BytesLike, BytesLike],
+      overrides?: CallOverrides
+    ): Promise<
+      [PositionCacheStructOutput, BigNumber, BigNumber] & {
+        pic: PositionCacheStructOutput;
+        fee: BigNumber;
+        tip: BigNumber;
+      }
+    >;
+
+    removeFor(
+      args: [BytesLike, BytesLike],
       overrides?: CallOverrides
     ): Promise<
       [PositionCacheStructOutput, BigNumber, BigNumber] & {
@@ -1377,25 +1487,27 @@ export interface Instrument extends BaseContract {
     >;
 
     resolve(
-      settlementPrice: PromiseOrValue<BigNumberish>,
+      settlementPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setDisableOrderRebate(
+      disable: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setFundingHour(
-      newFundingHour: PromiseOrValue<BigNumberish>,
+      newFundingHour: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setLeverage(
-      initialMarginRatio: PromiseOrValue<BigNumberish>,
-      maintenanceMarginRatio: PromiseOrValue<BigNumberish>,
+      initialMarginRatio: BigNumberish,
+      maintenanceMarginRatio: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setPlacePaused(
-      paused: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setPlacePaused(paused: boolean, overrides?: CallOverrides): Promise<void>;
 
     setQuoteParam(
       param: QuoteParamStruct,
@@ -1403,67 +1515,70 @@ export interface Instrument extends BaseContract {
     ): Promise<void>;
 
     settle(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     sweep(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     trade(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+      args: [BytesLike, BytesLike],
       overrides?: CallOverrides
     ): Promise<PositionCacheStructOutput>;
 
-    update(
-      expiry: PromiseOrValue<BigNumberish>,
+    tradeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<PositionCacheStructOutput>;
+
+    update(expiry: BigNumberish, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
-    "Add(uint32,address,int24,int24,tuple)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+    "Add(uint32,address,int24,int24,(uint128,uint128,uint96,uint160))"(
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tickLower?: null,
       tickUpper?: null,
       range?: null
     ): AddEventFilter;
     Add(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tickLower?: null,
       tickUpper?: null,
       range?: null
     ): AddEventFilter;
 
     "Adjust(uint32,address,int256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       net?: null
     ): AdjustEventFilter;
     Adjust(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       net?: null
     ): AdjustEventFilter;
 
-    "Cancel(uint32,address,int24,uint32,uint256,tuple)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+    "Cancel(uint32,address,int24,uint32,uint256,(int256,int256,uint256,uint256,int256))"(
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tick?: null,
       nonce?: null,
       fee?: null,
       pic?: null
     ): CancelEventFilter;
     Cancel(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tick?: null,
       nonce?: null,
       fee?: null,
@@ -1471,35 +1586,33 @@ export interface Instrument extends BaseContract {
     ): CancelEventFilter;
 
     "ClaimProtocolFee(uint32,uint256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       amount?: null
     ): ClaimProtocolFeeEventFilter;
     ClaimProtocolFee(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       amount?: null
     ): ClaimProtocolFeeEventFilter;
 
     "DeleteContext(uint32)"(
-      expiry?: PromiseOrValue<BigNumberish> | null
+      expiry?: BigNumberish | null
     ): DeleteContextEventFilter;
-    DeleteContext(
-      expiry?: PromiseOrValue<BigNumberish> | null
-    ): DeleteContextEventFilter;
+    DeleteContext(expiry?: BigNumberish | null): DeleteContextEventFilter;
 
     "DonateInsuranceFund(uint32,address,uint256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      donator?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      donator?: string | null,
       amount?: null
     ): DonateInsuranceFundEventFilter;
     DonateInsuranceFund(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      donator?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      donator?: string | null,
       amount?: null
     ): DonateInsuranceFundEventFilter;
 
-    "Fill(uint32,address,int24,uint32,uint256,tuple,address,uint256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+    "Fill(uint32,address,int24,uint32,uint256,(int256,int256,uint256,uint256,int256),address,uint256)"(
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tick?: null,
       nonce?: null,
       fee?: null,
@@ -1508,8 +1621,8 @@ export interface Instrument extends BaseContract {
       tip?: null
     ): FillEventFilter;
     Fill(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tick?: null,
       nonce?: null,
       fee?: null,
@@ -1519,58 +1632,55 @@ export interface Instrument extends BaseContract {
     ): FillEventFilter;
 
     "FundingFee(address,int256)"(
-      trader?: PromiseOrValue<string> | null,
+      trader?: string | null,
       funding?: null
     ): FundingFeeEventFilter;
-    FundingFee(
-      trader?: PromiseOrValue<string> | null,
-      funding?: null
-    ): FundingFeeEventFilter;
+    FundingFee(trader?: string | null, funding?: null): FundingFeeEventFilter;
 
     "Liquidate(uint32,address,uint256,uint256,address,int256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       amount?: null,
       mark?: null,
       target?: null,
       size?: null
     ): LiquidateEventFilter;
     Liquidate(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       amount?: null,
       mark?: null,
       target?: null,
       size?: null
     ): LiquidateEventFilter;
 
-    "Place(uint32,address,int24,uint32,tuple)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+    "Place(uint32,address,int24,uint32,(uint128,int128))"(
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tick?: null,
       nonce?: null,
       order?: null
     ): PlaceEventFilter;
     Place(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tick?: null,
       nonce?: null,
       order?: null
     ): PlaceEventFilter;
 
     "RecycleInsuranceFund(uint32,uint256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       amount?: null
     ): RecycleInsuranceFundEventFilter;
     RecycleInsuranceFund(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       amount?: null
     ): RecycleInsuranceFundEventFilter;
 
-    "Remove(uint32,address,int24,int24,uint256,tuple,address,uint256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+    "Remove(uint32,address,int24,int24,uint256,(int256,int256,uint256,uint256,int256),address,uint256)"(
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tickLower?: null,
       tickUpper?: null,
       fee?: null,
@@ -1579,8 +1689,8 @@ export interface Instrument extends BaseContract {
       tip?: null
     ): RemoveEventFilter;
     Remove(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       tickLower?: null,
       tickUpper?: null,
       fee?: null,
@@ -1590,23 +1700,23 @@ export interface Instrument extends BaseContract {
     ): RemoveEventFilter;
 
     "Settle(uint32,address,uint256,uint256,address)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       settlement?: null,
       balance?: null,
       operator?: null
     ): SettleEventFilter;
     Settle(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       settlement?: null,
       balance?: null,
       operator?: null
     ): SettleEventFilter;
 
     "Sweep(uint32,address,int256,int256,uint256,uint256,uint16,uint160,uint256,address)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       size?: null,
       takenSize?: null,
       takenValue?: null,
@@ -1617,8 +1727,8 @@ export interface Instrument extends BaseContract {
       operator?: null
     ): SweepEventFilter;
     Sweep(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       size?: null,
       takenSize?: null,
       takenValue?: null,
@@ -1630,8 +1740,8 @@ export interface Instrument extends BaseContract {
     ): SweepEventFilter;
 
     "Trade(uint32,address,int256,uint256,int256,uint256,uint256,uint16,uint160,uint256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       size?: null,
       amount?: null,
       takenSize?: null,
@@ -1642,8 +1752,8 @@ export interface Instrument extends BaseContract {
       mark?: null
     ): TradeEventFilter;
     Trade(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       size?: null,
       amount?: null,
       takenSize?: null,
@@ -1655,13 +1765,13 @@ export interface Instrument extends BaseContract {
     ): TradeEventFilter;
 
     "UpdateAmmStatus(uint32,uint8,uint160,uint256)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       status?: null,
       sqrtPX96?: null,
       mark?: null
     ): UpdateAmmStatusEventFilter;
     UpdateAmmStatus(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       status?: null,
       sqrtPX96?: null,
       mark?: null
@@ -1677,12 +1787,12 @@ export interface Instrument extends BaseContract {
     ): UpdateConditionEventFilter;
 
     "UpdateFeeState(uint32,uint128,uint128)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       feeIndex?: null,
       protocolFee?: null
     ): UpdateFeeStateEventFilter;
     UpdateFeeState(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       feeIndex?: null,
       protocolFee?: null
     ): UpdateFeeStateEventFilter;
@@ -1706,28 +1816,30 @@ export interface Instrument extends BaseContract {
       maintenanceMarginRatio?: null
     ): UpdateMarginRatioEventFilter;
 
-    "UpdateParam(tuple)"(param?: null): UpdateParamEventFilter;
+    "UpdateParam((uint128,uint16,uint16,uint8,uint128))"(
+      param?: null
+    ): UpdateParamEventFilter;
     UpdateParam(param?: null): UpdateParamEventFilter;
 
-    "UpdatePosition(uint32,address,tuple)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+    "UpdatePosition(uint32,address,(int256,int256,uint256,uint256,int256))"(
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       pic?: null
     ): UpdatePositionEventFilter;
     UpdatePosition(
-      expiry?: PromiseOrValue<BigNumberish> | null,
-      trader?: PromiseOrValue<string> | null,
+      expiry?: BigNumberish | null,
+      trader?: string | null,
       pic?: null
     ): UpdatePositionEventFilter;
 
     "UpdateSocialLossInsuranceFund(uint32,uint128,uint128,uint128)"(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       longSocialLossIndex?: null,
       shortSocialLossIndex?: null,
       insuranceFund?: null
     ): UpdateSocialLossInsuranceFundEventFilter;
     UpdateSocialLossInsuranceFund(
-      expiry?: PromiseOrValue<BigNumberish> | null,
+      expiry?: BigNumberish | null,
       longSocialLossIndex?: null,
       shortSocialLossIndex?: null,
       insuranceFund?: null
@@ -1743,353 +1855,411 @@ export interface Instrument extends BaseContract {
     ): AdminChangedEventFilter;
 
     "BeaconUpgraded(address)"(
-      beacon?: PromiseOrValue<string> | null
+      beacon?: string | null
     ): BeaconUpgradedEventFilter;
-    BeaconUpgraded(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
+    BeaconUpgraded(beacon?: string | null): BeaconUpgradedEventFilter;
 
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-    Upgraded(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
+    "Upgraded(address)"(implementation?: string | null): UpgradedEventFilter;
+    Upgraded(implementation?: string | null): UpgradedEventFilter;
   };
 
   estimateGas: {
     add(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    addFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     batchPlace(
-      args: [
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>
-      ],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    batchPlaceFor(
+      to: string,
+      args: [BytesLike, BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     cancel(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    cancelFor(
+      to: string,
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     claimProtocolFee(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     condition(overrides?: CallOverrides): Promise<BigNumber>;
 
     donateInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     fill(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    freeze(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    fundingHour(overrides?: CallOverrides): Promise<BigNumber>;
+    freeze(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     getExpiries(overrides?: CallOverrides): Promise<BigNumber>;
 
+    handler(overrides?: CallOverrides): Promise<BigNumber>;
+
     init(
-      target: PromiseOrValue<string>,
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      target: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     initialize(
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      data: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     inquire(
-      expiry: PromiseOrValue<BigNumberish>,
-      size: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
+      size: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidate(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     multicall(
-      data: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    normalize(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    normalize(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     place(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    placePaused(overrides?: CallOverrides): Promise<BigNumber>;
+    placeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
 
     queryAccount(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      query: PromiseOrValue<BigNumberish>,
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      target: string,
+      query: BigNumberish,
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     queryContext(
-      expiry: PromiseOrValue<BigNumberish>,
-      query: PromiseOrValue<BigNumberish>,
-      offsets: PromiseOrValue<BigNumberish>[],
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      query: BigNumberish,
+      offsets: BigNumberish[],
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     querySetting(
-      offsets: PromiseOrValue<BigNumberish>[],
+      offsets: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     recycleInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     remove(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    removeFor(
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     resolve(
-      settlementPrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      settlementPrice: BigNumberish,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    setDisableOrderRebate(
+      disable: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setFundingHour(
-      newFundingHour: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      newFundingHour: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setLeverage(
-      initialMarginRatio: PromiseOrValue<BigNumberish>,
-      maintenanceMarginRatio: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      initialMarginRatio: BigNumberish,
+      maintenanceMarginRatio: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setPlacePaused(
-      paused: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      paused: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setQuoteParam(
       param: QuoteParamStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     settle(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     sweep(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     trade(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    tradeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     update(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     add(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    addFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     batchPlace(
-      args: [
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>,
-        PromiseOrValue<BytesLike>
-      ],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    batchPlaceFor(
+      to: string,
+      args: [BytesLike, BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     cancel(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    cancelFor(
+      to: string,
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     claimProtocolFee(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     condition(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     donateInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     fill(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     freeze(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
-
-    fundingHour(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getExpiries(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    handler(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     init(
-      target: PromiseOrValue<string>,
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      target: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      data: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     inquire(
-      expiry: PromiseOrValue<BigNumberish>,
-      size: PromiseOrValue<BigNumberish>,
+      expiry: BigNumberish,
+      size: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidate(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     multicall(
-      data: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     normalize(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     place(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    placePaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    placeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
 
     queryAccount(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      query: PromiseOrValue<BigNumberish>,
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      target: string,
+      query: BigNumberish,
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     queryContext(
-      expiry: PromiseOrValue<BigNumberish>,
-      query: PromiseOrValue<BigNumberish>,
-      offsets: PromiseOrValue<BigNumberish>[],
-      inputs: PromiseOrValue<BytesLike>,
+      expiry: BigNumberish,
+      query: BigNumberish,
+      offsets: BigNumberish[],
+      inputs: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     querySetting(
-      offsets: PromiseOrValue<BigNumberish>[],
+      offsets: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     recycleInsuranceFund(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     remove(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    removeFor(
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     resolve(
-      settlementPrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      settlementPrice: BigNumberish,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    setDisableOrderRebate(
+      disable: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setFundingHour(
-      newFundingHour: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      newFundingHour: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setLeverage(
-      initialMarginRatio: PromiseOrValue<BigNumberish>,
-      maintenanceMarginRatio: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      initialMarginRatio: BigNumberish,
+      maintenanceMarginRatio: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setPlacePaused(
-      paused: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      paused: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setQuoteParam(
       param: QuoteParamStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     settle(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     sweep(
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      size: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      target: string,
+      size: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     trade(
-      args: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    tradeFor(
+      to: string,
+      args: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     update(
-      expiry: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      expiry: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

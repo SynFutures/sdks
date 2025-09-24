@@ -1,7 +1,11 @@
 import { BigNumber, CallOverrides, ethers } from 'ethers';
 import { BlockInfo, TokenInfo, ZERO_ADDRESS, CHAIN_ID, Context } from '@derivation-tech/context';
 import { CexMarket, Instrument__factory } from '../typechain';
-import { AssembledInstrumentDataStructOutput } from '../typechain/Observer';
+import {
+    AssembledInstrumentDataStructOutput as LegacyAssembledInstrumentDataStructOutput,
+    QuoteParamStructOutput as LegacyQuoteParamStructOutput,
+} from '../typechain/Observer';
+import { AssembledInstrumentDataStructOutput as CurrentAssembledInstrumentDataStructOutput } from '../typechain/current/Observer';
 import {
     Amm,
     Instrument,
@@ -18,7 +22,6 @@ import {
     Position,
     PriceFeeder,
     Quotation,
-    QuoteParam,
     InstrumentSetting,
     RawPosition,
     RawAmm,
@@ -48,6 +51,37 @@ import { Observer as LegacyObserver } from 'src/typechain';
 import { Observer as CurrentObserver } from 'src/typechain/current';
 
 const batchSize = 10;
+
+type NormalizedAssembledInstrumentData = {
+    instrumentAddr: string;
+    handler: string;
+    setting: {
+        symbol: string;
+        config: string;
+        gate: string;
+        market: string;
+        quote: string;
+        decimals: number;
+        initialMarginRatio: number;
+        maintenanceMarginRatio: number;
+        placePaused: boolean;
+        fundingHour: number;
+        disableOrderRebate: boolean;
+        param: {
+            minMarginAmount: BigNumber;
+            tradingFeeRatio: number;
+            protocolFeeRatio: number;
+            qtype: number;
+            tip: BigNumber;
+        };
+    };
+    dexV2Feeder: CurrentAssembledInstrumentDataStructOutput['dexV2Feeder'];
+    priceFeeder: CurrentAssembledInstrumentDataStructOutput['priceFeeder'];
+    spotPrice: BigNumber;
+    condition: number;
+    amms: CurrentAssembledInstrumentDataStructOutput['amms'];
+    markPrices: CurrentAssembledInstrumentDataStructOutput['markPrices'];
+};
 
 export class ObserverModule implements ObserverInterface {
     context: Context;
@@ -97,7 +131,10 @@ export class ObserverModule implements ObserverInterface {
             const rawMiscInfo = await this.context.getMulticall3().callStatic.aggregate(calls, overrides ?? {});
 
             for (let j = 0; j < rawMiscInfo.returnData.length; j = needFundingHour ? j + 2 : j + 1) {
-                const [placePaused] = instrumentInterface.decodeFunctionResult('placePaused', rawMiscInfo.returnData[j]);
+                const [placePaused] = instrumentInterface.decodeFunctionResult(
+                    'placePaused',
+                    rawMiscInfo.returnData[j],
+                );
                 const [fundingHour] = needFundingHour
                     ? instrumentInterface.decodeFunctionResult('fundingHour', rawMiscInfo.returnData[j + 1])
                     : [24];
@@ -110,8 +147,11 @@ export class ObserverModule implements ObserverInterface {
         } else {
             // For new chains: fetch from Observer's getSetting
             for (const instrumentAddr of instrumentAddress) {
-                const setting = await (this.context.perp.contracts.observer as CurrentObserver).getSetting(instrumentAddr, overrides ?? {});
-                const fundingHourValue = setting.fundingHour.toNumber();
+                const setting = await (this.context.perp.contracts.observer as CurrentObserver).getSetting(
+                    instrumentAddr,
+                    overrides ?? {},
+                );
+                const fundingHourValue = setting.fundingHour;
                 miscList.push({
                     placePaused: setting.placePaused,
                     fundingHour: fundingHourValue === 0 ? 24 : fundingHourValue,
@@ -121,6 +161,79 @@ export class ObserverModule implements ObserverInterface {
         }
 
         return miscList;
+    }
+
+    private normalizeAssembledInstrumentData(
+        rawList: (LegacyAssembledInstrumentDataStructOutput | CurrentAssembledInstrumentDataStructOutput)[],
+        useLegacy: boolean,
+    ): NormalizedAssembledInstrumentData[] {
+        if (!useLegacy) {
+            return (rawList as CurrentAssembledInstrumentDataStructOutput[]).map((instrument) => ({
+                instrumentAddr: instrument.instrumentAddr,
+                handler: instrument.handler,
+                setting: {
+                    symbol: instrument.setting.symbol,
+                    config: instrument.setting.config,
+                    gate: instrument.setting.gate,
+                    market: instrument.setting.market,
+                    quote: instrument.setting.quote,
+                    decimals: instrument.setting.decimals,
+                    initialMarginRatio: instrument.setting.initialMarginRatio,
+                    maintenanceMarginRatio: instrument.setting.maintenanceMarginRatio,
+                    placePaused: instrument.setting.placePaused,
+                    fundingHour: instrument.setting.fundingHour,
+                    disableOrderRebate: instrument.setting.disableOrderRebate,
+                    param: {
+                        minMarginAmount: instrument.setting.param.minMarginAmount,
+                        tradingFeeRatio: instrument.setting.param.tradingFeeRatio,
+                        protocolFeeRatio: instrument.setting.param.protocolFeeRatio,
+                        qtype: instrument.setting.param.qtype,
+                        tip: instrument.setting.param.tip,
+                    },
+                },
+                dexV2Feeder: instrument.dexV2Feeder,
+                priceFeeder: instrument.priceFeeder,
+                spotPrice: instrument.spotPrice,
+                condition: instrument.condition,
+                amms: instrument.amms,
+                markPrices: instrument.markPrices,
+            }));
+        }
+
+        return (rawList as LegacyAssembledInstrumentDataStructOutput[]).map((instrument) => {
+            const legacyParam = instrument.param as LegacyQuoteParamStructOutput;
+
+            return {
+                instrumentAddr: instrument.instrumentAddr,
+                handler: ZERO_ADDRESS,
+                setting: {
+                    symbol: instrument.symbol,
+                    config: ZERO_ADDRESS,
+                    gate: ZERO_ADDRESS,
+                    market: instrument.market,
+                    quote: ZERO_ADDRESS,
+                    decimals: 0,
+                    initialMarginRatio: instrument.initialMarginRatio,
+                    maintenanceMarginRatio: instrument.maintenanceMarginRatio,
+                    placePaused: false,
+                    fundingHour: 24,
+                    disableOrderRebate: false,
+                    param: {
+                        minMarginAmount: legacyParam.minMarginAmount,
+                        tradingFeeRatio: legacyParam.tradingFeeRatio,
+                        protocolFeeRatio: legacyParam.protocolFeeRatio,
+                        qtype: legacyParam.qtype,
+                        tip: legacyParam.tip,
+                    },
+                },
+                dexV2Feeder: instrument.dexV2Feeder,
+                priceFeeder: instrument.priceFeeder,
+                spotPrice: instrument.spotPrice,
+                condition: instrument.condition,
+                amms: instrument.amms,
+                markPrices: instrument.markPrices,
+            };
+        });
     }
 
     getPortfolio(params: FetchPortfolioParam, overrides?: CallOverrides): Promise<Portfolio>;
@@ -178,7 +291,15 @@ export class ObserverModule implements ObserverInterface {
 
         const totalPage = Math.ceil(instrumentLists.length / batchSize);
         const rawList = [];
-        const miscInfoList = [];
+        const miscInfoList: (
+            | {
+                  placePaused: boolean;
+                  fundingHour: number;
+                  disableOrderRebate: boolean;
+              }[]
+            | undefined
+        )[] = [];
+        const useLegacy = isLegacyChain(this.context.chainId);
 
         for (let i = 0; i < totalPage; i++) {
             const queryList = instrumentLists.slice(
@@ -204,15 +325,18 @@ export class ObserverModule implements ObserverInterface {
             }
             rawList.push(rawResult);
 
-            miscInfoList.push(await quickRetry(async () => this.getMiscInfo(queryList, overrides ?? {})));
+            miscInfoList.push(
+                useLegacy ? await quickRetry(async () => this.getMiscInfo(queryList, overrides ?? {})) : undefined,
+            );
         }
 
         let assembledInstrumentDatas: Instrument[] = [];
         for (let i = 0; i < rawList.length; i++) {
-            const miscInfo = miscInfoList[i];
             const [rawInstrument, rawBlockInfo] = trimObj(rawList[i]);
+            const normalizedInstrument = this.normalizeAssembledInstrumentData(rawInstrument, useLegacy);
+            const miscInfo = miscInfoList[i];
             assembledInstrumentDatas = assembledInstrumentDatas.concat(
-                await this.parseInstrumentData(rawInstrument, miscInfo, rawBlockInfo, overrides ?? {}),
+                await this.parseInstrumentData(normalizedInstrument, rawBlockInfo, overrides ?? {}, miscInfo),
             );
         }
 
@@ -259,28 +383,21 @@ export class ObserverModule implements ObserverInterface {
             await this.context.perp.contracts.observer.getInstrumentBatch(formattedParams, overrides ?? {}),
         );
 
-        const rawListFormatted: AssembledInstrumentDataStructOutput[] = !isLegacyChain(this.context.chainId)
-            ? rawList
-            : rawList.map((instrument) => {
-                  return {
-                      ...instrument,
-                      param: {
-                          ...instrument.param,
-                          stabilityFeeRatioParam: BigNumber.from(0),
-                      },
-                  };
-              });
+        const useLegacy = isLegacyChain(this.context.chainId);
+        const normalizedRawList = this.normalizeAssembledInstrumentData(rawList, useLegacy);
 
-        const miscInfoList = await this.getMiscInfo(
-            formattedParams.map((p) => p.instrument),
-            overrides ?? {},
-        );
+        const miscInfoList = useLegacy
+            ? await this.getMiscInfo(
+                  formattedParams.map((p) => p.instrument),
+                  overrides ?? {},
+              )
+            : undefined;
 
         const instruments = await this.parseInstrumentData(
-            rawListFormatted,
-            miscInfoList,
+            normalizedRawList,
             rawBlockInfo,
             overrides ?? {},
+            miscInfoList,
         );
 
         return Array.isArray(params) ? instruments : instruments?.[0];
@@ -302,20 +419,27 @@ export class ObserverModule implements ObserverInterface {
     }
 
     async parseInstrumentData(
-        rawList: AssembledInstrumentDataStructOutput[],
-        miscInfoList: { placePaused: boolean; fundingHour: number; disableOrderRebate: boolean }[],
+        rawList: NormalizedAssembledInstrumentData[],
         blockInfo: BlockInfo,
         overrides?: CallOverrides,
+        miscInfoList?: { placePaused: boolean; fundingHour: number; disableOrderRebate: boolean }[],
     ): Promise<Instrument[]> {
         const assembledInstrumentDatas: Instrument[] = [];
         for (let i = 0; i < rawList.length; i++) {
             const rawInstrument = rawList[i];
-            const miscInfo = miscInfoList[i];
-            const [baseSymbol, quoteSymbol, marketType] = rawInstrument.symbol.split('-');
+            const setting = rawInstrument.setting;
+            const symbol = setting.symbol;
+            const [baseSymbol, quoteSymbol, marketType] = symbol.split('-');
+            const miscInfo = miscInfoList?.[i];
+            const placePaused = miscInfo?.placePaused ?? setting.placePaused;
+            const settingFundingHour = setting.fundingHour;
+            const fundingHour = miscInfo?.fundingHour ?? (settingFundingHour === 0 ? 24 : settingFundingHour);
+            const disableOrderRebate = miscInfo?.disableOrderRebate ?? setting.disableOrderRebate;
             const quoteTokenInfo = await this.getQuoteTokenInfo(
                 quoteSymbol,
                 rawInstrument.instrumentAddr,
                 overrides ?? {},
+                setting.quote,
             );
             let baseInfo: TokenInfo = { symbol: baseSymbol, address: ethers.constants.AddressZero, decimals: 0 };
             if (!isCexMarket(marketType as MarketType)) {
@@ -329,13 +453,14 @@ export class ObserverModule implements ObserverInterface {
             const instrumentInfo: InstrumentInfo = {
                 chainId: this.context.chainId,
                 addr: rawInstrument.instrumentAddr,
-                symbol: rawInstrument.symbol,
+                handler: rawInstrument.handler,
+                symbol,
                 base: baseInfo,
                 quote: quoteTokenInfo,
             };
 
             const marketInfo: MarketInfo = {
-                addr: rawInstrument.market,
+                addr: setting.market,
                 type: marketType,
                 beacon: this.context.perp.configuration.config.contractAddress.market[marketType as MarketType]!.beacon,
             };
@@ -348,9 +473,16 @@ export class ObserverModule implements ObserverInterface {
             const market: InstrumentMarket = { info: marketInfo, config: marketConfig, feeder: feeder };
 
             const instrumentSetting: InstrumentSetting = {
-                initialMarginRatio: rawInstrument.initialMarginRatio,
-                maintenanceMarginRatio: rawInstrument.maintenanceMarginRatio,
-                quoteParam: rawInstrument.param as QuoteParam,
+                initialMarginRatio: setting.initialMarginRatio,
+                maintenanceMarginRatio: setting.maintenanceMarginRatio,
+                quoteParam: {
+                    minMarginAmount: setting.param.minMarginAmount,
+                    tradingFeeRatio: setting.param.tradingFeeRatio,
+                    protocolFeeRatio: setting.param.protocolFeeRatio,
+                    stabilityFeeRatioParam: BigNumber.from(0),
+                    tip: setting.param.tip,
+                    qtype: setting.param.qtype as QuoteType,
+                },
             };
 
             const amms: Map<number, Amm> = new Map<number, Amm>();
@@ -371,7 +503,8 @@ export class ObserverModule implements ObserverInterface {
 
             const rawAssembledInstrumentData = {
                 instrumentAddr: rawInstrument.instrumentAddr,
-                symbol: rawInstrument.symbol,
+                handler: rawInstrument.handler,
+                symbol,
                 market,
                 condition: rawInstrument.condition as InstrumentCondition,
                 setting: instrumentSetting,
@@ -380,7 +513,9 @@ export class ObserverModule implements ObserverInterface {
                 base: baseInfo,
                 quote: quoteTokenInfo,
                 blockInfo,
-                ...miscInfo,
+                placePaused,
+                fundingHour,
+                disableOrderRebate,
             };
 
             const assembledInstrumentData = factory.createInstrument(rawAssembledInstrumentData);
@@ -399,13 +534,22 @@ export class ObserverModule implements ObserverInterface {
         quoteSymbol: string,
         instrumentAddr: string,
         overrides?: CallOverrides,
+        quoteAddr?: string,
     ): Promise<TokenInfo> {
-        return (
-            (await this.context.getTokenInfo(quoteSymbol)) ??
-            (await this.context.getTokenInfo(
-                (await this.context.perp.contracts.observer.getSetting(instrumentAddr, overrides ?? {})).quote,
-            ))
-        );
+        const bySymbol = await this.context.getTokenInfo(quoteSymbol);
+        if (bySymbol) {
+            return bySymbol;
+        }
+
+        if (quoteAddr) {
+            const byAddress = await this.context.getTokenInfo(quoteAddr);
+            if (byAddress) {
+                return byAddress;
+            }
+        }
+
+        const setting = await this.context.perp.contracts.observer.getSetting(instrumentAddr, overrides ?? {});
+        return this.context.getTokenInfo(setting.quote);
     }
 
     async inspectDexV2MarketBenchmarkPrice(

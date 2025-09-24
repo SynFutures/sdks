@@ -8,7 +8,13 @@ import type { Instrument, InstrumentInterface } from "../Instrument";
 
 const _abi = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "address",
+        name: "_handler",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
@@ -91,6 +97,11 @@ const _abi = [
   {
     inputs: [],
     name: "NotGate",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotHandler",
     type: "error",
   },
   {
@@ -188,6 +199,62 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "bytes32[2]",
+        name: "args",
+        type: "bytes32[2]",
+      },
+    ],
+    name: "addFor",
+    outputs: [
+      {
+        internalType: "int24",
+        name: "tickLower",
+        type: "int24",
+      },
+      {
+        internalType: "int24",
+        name: "tickUpper",
+        type: "int24",
+      },
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "liquidity",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "entryFeeIndex",
+            type: "uint128",
+          },
+          {
+            internalType: "uint96",
+            name: "balance",
+            type: "uint96",
+          },
+          {
+            internalType: "uint160",
+            name: "sqrtEntryPX96",
+            type: "uint160",
+          },
+        ],
+        internalType: "struct Range",
+        name: "range",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32[3]",
         name: "args",
         type: "bytes32[3]",
@@ -224,12 +291,109 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "bytes32[3]",
+        name: "args",
+        type: "bytes32[3]",
+      },
+    ],
+    name: "batchPlaceFor",
+    outputs: [
+      {
+        internalType: "uint24[]",
+        name: "nonces",
+        type: "uint24[]",
+      },
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "balance",
+            type: "uint128",
+          },
+          {
+            internalType: "int128",
+            name: "size",
+            type: "int128",
+          },
+        ],
+        internalType: "struct Order[]",
+        name: "orders",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "arg",
         type: "bytes32",
       },
     ],
     name: "cancel",
+    outputs: [
+      {
+        internalType: "bool[8]",
+        name: "succees",
+        type: "bool[8]",
+      },
+      {
+        components: [
+          {
+            internalType: "int256",
+            name: "balance",
+            type: "int256",
+          },
+          {
+            internalType: "int256",
+            name: "size",
+            type: "int256",
+          },
+          {
+            internalType: "uint256",
+            name: "entryNotional",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "entrySocialLossIndex",
+            type: "uint256",
+          },
+          {
+            internalType: "int256",
+            name: "entryFundingIndex",
+            type: "int256",
+          },
+        ],
+        internalType: "struct PositionCache[8]",
+        name: "pics",
+        type: "tuple[8]",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
+        name: "arg",
+        type: "bytes32",
+      },
+    ],
+    name: "cancelFor",
     outputs: [
       {
         internalType: "bool[8]",
@@ -376,12 +540,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "fundingHour",
+    name: "getExpiries",
     outputs: [
       {
-        internalType: "uint8",
+        internalType: "uint32[]",
         name: "",
-        type: "uint8",
+        type: "uint32[]",
       },
     ],
     stateMutability: "view",
@@ -389,12 +553,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getExpiries",
+    name: "handler",
     outputs: [
       {
-        internalType: "uint32[]",
+        internalType: "address",
         name: "",
-        type: "uint32[]",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -631,16 +795,44 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "placePaused",
-    outputs: [
+    inputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "bytes32[2]",
+        name: "args",
+        type: "bytes32[2]",
       },
     ],
-    stateMutability: "view",
+    name: "placeFor",
+    outputs: [
+      {
+        internalType: "uint24",
+        name: "nonce",
+        type: "uint24",
+      },
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "balance",
+            type: "uint128",
+          },
+          {
+            internalType: "int128",
+            name: "size",
+            type: "int128",
+          },
+        ],
+        internalType: "struct Order",
+        name: "order",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -802,12 +994,81 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32[2]",
+        name: "args",
+        type: "bytes32[2]",
+      },
+    ],
+    name: "removeFor",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "int256",
+            name: "balance",
+            type: "int256",
+          },
+          {
+            internalType: "int256",
+            name: "size",
+            type: "int256",
+          },
+          {
+            internalType: "uint256",
+            name: "entryNotional",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "entrySocialLossIndex",
+            type: "uint256",
+          },
+          {
+            internalType: "int256",
+            name: "entryFundingIndex",
+            type: "int256",
+          },
+        ],
+        internalType: "struct PositionCache",
+        name: "pic",
+        type: "tuple",
+      },
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "tip",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint128",
         name: "settlementPrice",
         type: "uint128",
       },
     ],
     name: "resolve",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "disable",
+        type: "bool",
+      },
+    ],
+    name: "setDisableOrderRebate",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -946,6 +1207,57 @@ const _abi = [
       },
     ],
     name: "trade",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "int256",
+            name: "balance",
+            type: "int256",
+          },
+          {
+            internalType: "int256",
+            name: "size",
+            type: "int256",
+          },
+          {
+            internalType: "uint256",
+            name: "entryNotional",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "entrySocialLossIndex",
+            type: "uint256",
+          },
+          {
+            internalType: "int256",
+            name: "entryFundingIndex",
+            type: "int256",
+          },
+        ],
+        internalType: "struct PositionCache",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "bytes32[2]",
+        name: "args",
+        type: "bytes32[2]",
+      },
+    ],
+    name: "tradeFor",
     outputs: [
       {
         components: [

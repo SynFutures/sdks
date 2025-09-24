@@ -18,15 +18,14 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "./common";
 
 export type PositionStruct = {
-  balance: PromiseOrValue<BigNumberish>;
-  size: PromiseOrValue<BigNumberish>;
-  entryNotional: PromiseOrValue<BigNumberish>;
-  entrySocialLossIndex: PromiseOrValue<BigNumberish>;
-  entryFundingIndex: PromiseOrValue<BigNumberish>;
+  balance: BigNumberish;
+  size: BigNumberish;
+  entryNotional: BigNumberish;
+  entrySocialLossIndex: BigNumberish;
+  entryFundingIndex: BigNumberish;
 };
 
 export type PositionStructOutput = [
@@ -43,10 +42,7 @@ export type PositionStructOutput = [
   entryFundingIndex: BigNumber;
 };
 
-export type OrderStruct = {
-  balance: PromiseOrValue<BigNumberish>;
-  size: PromiseOrValue<BigNumberish>;
-};
+export type OrderStruct = { balance: BigNumberish; size: BigNumberish };
 
 export type OrderStructOutput = [BigNumber, BigNumber] & {
   balance: BigNumber;
@@ -54,10 +50,10 @@ export type OrderStructOutput = [BigNumber, BigNumber] & {
 };
 
 export type RangeStruct = {
-  liquidity: PromiseOrValue<BigNumberish>;
-  entryFeeIndex: PromiseOrValue<BigNumberish>;
-  balance: PromiseOrValue<BigNumberish>;
-  sqrtEntryPX96: PromiseOrValue<BigNumberish>;
+  liquidity: BigNumberish;
+  entryFeeIndex: BigNumberish;
+  balance: BigNumberish;
+  sqrtEntryPX96: BigNumberish;
 };
 
 export type RangeStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
@@ -68,12 +64,12 @@ export type RangeStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
 };
 
 export type PortfolioStruct = {
-  oids: PromiseOrValue<BigNumberish>[];
-  rids: PromiseOrValue<BigNumberish>[];
+  oids: BigNumberish[];
+  rids: BigNumberish[];
   position: PositionStruct;
   orders: OrderStruct[];
   ranges: RangeStruct[];
-  ordersTaken: PromiseOrValue<BigNumberish>[];
+  ordersTaken: BigNumberish[];
 };
 
 export type PortfolioStructOutput = [
@@ -92,22 +88,84 @@ export type PortfolioStructOutput = [
   ordersTaken: BigNumber[];
 };
 
-export type BlockInfoStruct = {
-  timestamp: PromiseOrValue<BigNumberish>;
-  height: PromiseOrValue<BigNumberish>;
-};
+export type BlockInfoStruct = { timestamp: BigNumberish; height: BigNumberish };
 
 export type BlockInfoStructOutput = [number, number] & {
   timestamp: number;
   height: number;
 };
 
+export type QuoteParamStruct = {
+  minMarginAmount: BigNumberish;
+  tradingFeeRatio: BigNumberish;
+  protocolFeeRatio: BigNumberish;
+  qtype: BigNumberish;
+  tip: BigNumberish;
+};
+
+export type QuoteParamStructOutput = [
+  BigNumber,
+  number,
+  number,
+  number,
+  BigNumber
+] & {
+  minMarginAmount: BigNumber;
+  tradingFeeRatio: number;
+  protocolFeeRatio: number;
+  qtype: number;
+  tip: BigNumber;
+};
+
+export type SettingStruct = {
+  symbol: string;
+  config: string;
+  gate: string;
+  market: string;
+  quote: string;
+  decimals: BigNumberish;
+  initialMarginRatio: BigNumberish;
+  maintenanceMarginRatio: BigNumberish;
+  placePaused: boolean;
+  fundingHour: BigNumberish;
+  disableOrderRebate: boolean;
+  param: QuoteParamStruct;
+};
+
+export type SettingStructOutput = [
+  string,
+  string,
+  string,
+  string,
+  string,
+  number,
+  number,
+  number,
+  boolean,
+  number,
+  boolean,
+  QuoteParamStructOutput
+] & {
+  symbol: string;
+  config: string;
+  gate: string;
+  market: string;
+  quote: string;
+  decimals: number;
+  initialMarginRatio: number;
+  maintenanceMarginRatio: number;
+  placePaused: boolean;
+  fundingHour: number;
+  disableOrderRebate: boolean;
+  param: QuoteParamStructOutput;
+};
+
 export type DexV2FeederStruct = {
-  ftype: PromiseOrValue<BigNumberish>;
-  isToken0Quote: PromiseOrValue<boolean>;
-  pair: PromiseOrValue<string>;
-  scaler0: PromiseOrValue<BigNumberish>;
-  scaler1: PromiseOrValue<BigNumberish>;
+  ftype: BigNumberish;
+  isToken0Quote: boolean;
+  pair: string;
+  scaler0: BigNumberish;
+  scaler1: BigNumberish;
 };
 
 export type DexV2FeederStructOutput = [
@@ -125,13 +183,13 @@ export type DexV2FeederStructOutput = [
 };
 
 export type PriceFeederStruct = {
-  ftype: PromiseOrValue<BigNumberish>;
-  scaler0: PromiseOrValue<BigNumberish>;
-  aggregator0: PromiseOrValue<string>;
-  heartBeat0: PromiseOrValue<BigNumberish>;
-  scaler1: PromiseOrValue<BigNumberish>;
-  aggregator1: PromiseOrValue<string>;
-  heartBeat1: PromiseOrValue<BigNumberish>;
+  ftype: BigNumberish;
+  scaler0: BigNumberish;
+  aggregator0: string;
+  heartBeat0: BigNumberish;
+  scaler1: BigNumberish;
+  aggregator1: string;
+  heartBeat1: BigNumberish;
 };
 
 export type PriceFeederStructOutput = [
@@ -152,48 +210,26 @@ export type PriceFeederStructOutput = [
   heartBeat1: number;
 };
 
-export type QuoteParamStruct = {
-  minMarginAmount: PromiseOrValue<BigNumberish>;
-  tradingFeeRatio: PromiseOrValue<BigNumberish>;
-  protocolFeeRatio: PromiseOrValue<BigNumberish>;
-  qtype: PromiseOrValue<BigNumberish>;
-  tip: PromiseOrValue<BigNumberish>;
-};
-
-export type QuoteParamStructOutput = [
-  BigNumber,
-  number,
-  number,
-  number,
-  BigNumber
-] & {
-  minMarginAmount: BigNumber;
-  tradingFeeRatio: number;
-  protocolFeeRatio: number;
-  qtype: number;
-  tip: BigNumber;
-};
-
 export type AmmStruct = {
-  expiry: PromiseOrValue<BigNumberish>;
-  timestamp: PromiseOrValue<BigNumberish>;
-  status: PromiseOrValue<BigNumberish>;
-  tick: PromiseOrValue<BigNumberish>;
-  sqrtPX96: PromiseOrValue<BigNumberish>;
-  liquidity: PromiseOrValue<BigNumberish>;
-  totalLiquidity: PromiseOrValue<BigNumberish>;
-  totalShort: PromiseOrValue<BigNumberish>;
-  openInterests: PromiseOrValue<BigNumberish>;
-  totalLong: PromiseOrValue<BigNumberish>;
-  involvedFund: PromiseOrValue<BigNumberish>;
-  feeIndex: PromiseOrValue<BigNumberish>;
-  protocolFee: PromiseOrValue<BigNumberish>;
-  longSocialLossIndex: PromiseOrValue<BigNumberish>;
-  shortSocialLossIndex: PromiseOrValue<BigNumberish>;
-  longFundingIndex: PromiseOrValue<BigNumberish>;
-  shortFundingIndex: PromiseOrValue<BigNumberish>;
-  insuranceFund: PromiseOrValue<BigNumberish>;
-  settlementPrice: PromiseOrValue<BigNumberish>;
+  expiry: BigNumberish;
+  timestamp: BigNumberish;
+  status: BigNumberish;
+  tick: BigNumberish;
+  sqrtPX96: BigNumberish;
+  liquidity: BigNumberish;
+  totalLiquidity: BigNumberish;
+  totalShort: BigNumberish;
+  openInterests: BigNumberish;
+  totalLong: BigNumberish;
+  involvedFund: BigNumberish;
+  feeIndex: BigNumberish;
+  protocolFee: BigNumberish;
+  longSocialLossIndex: BigNumberish;
+  shortSocialLossIndex: BigNumberish;
+  longFundingIndex: BigNumberish;
+  shortFundingIndex: BigNumberish;
+  insuranceFund: BigNumberish;
+  settlementPrice: BigNumberish;
 };
 
 export type AmmStructOutput = [
@@ -239,42 +275,33 @@ export type AmmStructOutput = [
 };
 
 export type AssembledInstrumentDataStruct = {
-  instrumentAddr: PromiseOrValue<string>;
-  symbol: PromiseOrValue<string>;
-  market: PromiseOrValue<string>;
+  instrumentAddr: string;
+  handler: string;
+  setting: SettingStruct;
   dexV2Feeder: DexV2FeederStruct;
   priceFeeder: PriceFeederStruct;
-  initialMarginRatio: PromiseOrValue<BigNumberish>;
-  maintenanceMarginRatio: PromiseOrValue<BigNumberish>;
-  param: QuoteParamStruct;
-  spotPrice: PromiseOrValue<BigNumberish>;
-  condition: PromiseOrValue<BigNumberish>;
+  spotPrice: BigNumberish;
+  condition: BigNumberish;
   amms: AmmStruct[];
-  markPrices: PromiseOrValue<BigNumberish>[];
+  markPrices: BigNumberish[];
 };
 
 export type AssembledInstrumentDataStructOutput = [
   string,
   string,
-  string,
+  SettingStructOutput,
   DexV2FeederStructOutput,
   PriceFeederStructOutput,
-  number,
-  number,
-  QuoteParamStructOutput,
   BigNumber,
   number,
   AmmStructOutput[],
   BigNumber[]
 ] & {
   instrumentAddr: string;
-  symbol: string;
-  market: string;
+  handler: string;
+  setting: SettingStructOutput;
   dexV2Feeder: DexV2FeederStructOutput;
   priceFeeder: PriceFeederStructOutput;
-  initialMarginRatio: number;
-  maintenanceMarginRatio: number;
-  param: QuoteParamStructOutput;
   spotPrice: BigNumber;
   condition: number;
   amms: AmmStructOutput[];
@@ -282,8 +309,8 @@ export type AssembledInstrumentDataStructOutput = [
 };
 
 export type FetchInstrumentParamStruct = {
-  instrument: PromiseOrValue<string>;
-  expiries: PromiseOrValue<BigNumberish>[];
+  instrument: string;
+  expiries: BigNumberish[];
 };
 
 export type FetchInstrumentParamStructOutput = [string, number[]] & {
@@ -292,14 +319,14 @@ export type FetchInstrumentParamStructOutput = [string, number[]] & {
 };
 
 export type PearlStruct = {
-  liquidityGross: PromiseOrValue<BigNumberish>;
-  liquidityNet: PromiseOrValue<BigNumberish>;
-  nonce: PromiseOrValue<BigNumberish>;
-  left: PromiseOrValue<BigNumberish>;
-  taken: PromiseOrValue<BigNumberish>;
-  fee: PromiseOrValue<BigNumberish>;
-  entrySocialLossIndex: PromiseOrValue<BigNumberish>;
-  entryFundingIndex: PromiseOrValue<BigNumberish>;
+  liquidityGross: BigNumberish;
+  liquidityNet: BigNumberish;
+  nonce: BigNumberish;
+  left: BigNumberish;
+  taken: BigNumberish;
+  fee: BigNumberish;
+  entrySocialLossIndex: BigNumberish;
+  entryFundingIndex: BigNumberish;
 };
 
 export type PearlStructOutput = [
@@ -323,10 +350,10 @@ export type PearlStructOutput = [
 };
 
 export type PendingStruct = {
-  timestamp: PromiseOrValue<BigNumberish>;
-  native: PromiseOrValue<boolean>;
-  amount: PromiseOrValue<BigNumberish>;
-  exemption: PromiseOrValue<BigNumberish>;
+  timestamp: BigNumberish;
+  native: boolean;
+  amount: BigNumberish;
+  exemption: BigNumberish;
 };
 
 export type PendingStructOutput = [number, boolean, BigNumber, BigNumber] & {
@@ -337,10 +364,10 @@ export type PendingStructOutput = [number, boolean, BigNumber, BigNumber] & {
 };
 
 export type RecordStruct = {
-  taken: PromiseOrValue<BigNumberish>;
-  fee: PromiseOrValue<BigNumberish>;
-  entrySocialLossIndex: PromiseOrValue<BigNumberish>;
-  entryFundingIndex: PromiseOrValue<BigNumberish>;
+  taken: BigNumberish;
+  fee: BigNumberish;
+  entrySocialLossIndex: BigNumberish;
+  entryFundingIndex: BigNumberish;
 };
 
 export type RecordStructOutput = [
@@ -355,59 +382,16 @@ export type RecordStructOutput = [
   entryFundingIndex: BigNumber;
 };
 
-export type SettingStruct = {
-  symbol: PromiseOrValue<string>;
-  config: PromiseOrValue<string>;
-  gate: PromiseOrValue<string>;
-  market: PromiseOrValue<string>;
-  quote: PromiseOrValue<string>;
-  decimals: PromiseOrValue<BigNumberish>;
-  initialMarginRatio: PromiseOrValue<BigNumberish>;
-  maintenanceMarginRatio: PromiseOrValue<BigNumberish>;
-  param: QuoteParamStruct;
-  placePaused: PromiseOrValue<boolean>;
-  fundingHour: PromiseOrValue<BigNumberish>;
-  disableOrderRebate: PromiseOrValue<boolean>;
-};
-
-export type SettingStructOutput = [
-  string,
-  string,
-  string,
-  string,
-  string,
-  number,
-  number,
-  number,
-  boolean,
-  BigNumber,
-  boolean,
-  QuoteParamStructOutput
-] & {
-  symbol: string;
-  config: string;
-  gate: string;
-  market: string;
-  quote: string;
-  decimals: number;
-  initialMarginRatio: number;
-  maintenanceMarginRatio: number;
-  placePaused: boolean;
-  fundingHour: BigNumber;
-  disableOrderRebate: boolean;
-  param: QuoteParamStructOutput;
-};
-
 export type QuotationStruct = {
-  benchmark: PromiseOrValue<BigNumberish>;
-  sqrtFairPX96: PromiseOrValue<BigNumberish>;
-  tick: PromiseOrValue<BigNumberish>;
-  mark: PromiseOrValue<BigNumberish>;
-  entryNotional: PromiseOrValue<BigNumberish>;
-  fee: PromiseOrValue<BigNumberish>;
-  minAmount: PromiseOrValue<BigNumberish>;
-  sqrtPostFairPX96: PromiseOrValue<BigNumberish>;
-  postTick: PromiseOrValue<BigNumberish>;
+  benchmark: BigNumberish;
+  sqrtFairPX96: BigNumberish;
+  tick: BigNumberish;
+  mark: BigNumberish;
+  entryNotional: BigNumberish;
+  fee: BigNumberish;
+  minAmount: BigNumberish;
+  sqrtPostFairPX96: BigNumberish;
+  postTick: BigNumberish;
 };
 
 export type QuotationStructOutput = [
@@ -433,9 +417,9 @@ export type QuotationStructOutput = [
 };
 
 export type CurveStateStruct = {
-  sqrtPX96: PromiseOrValue<BigNumberish>;
-  tick: PromiseOrValue<BigNumberish>;
-  liquidity: PromiseOrValue<BigNumberish>;
+  sqrtPX96: BigNumberish;
+  tick: BigNumberish;
+  liquidity: BigNumberish;
 };
 
 export type CurveStateStructOutput = [BigNumber, number, BigNumber] & {
@@ -445,8 +429,8 @@ export type CurveStateStructOutput = [BigNumber, number, BigNumber] & {
 };
 
 export type MinimalPearlStruct = {
-  liquidityNet: PromiseOrValue<BigNumberish>;
-  left: PromiseOrValue<BigNumberish>;
+  liquidityNet: BigNumberish;
+  left: BigNumberish;
 };
 
 export type MinimalPearlStructOutput = [BigNumber, BigNumber] & {
@@ -519,19 +503,11 @@ export interface ObserverInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "gate", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getAcc",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getAccMeta",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getAllInstruments",
@@ -539,7 +515,7 @@ export interface ObserverInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAmm",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getInstrumentBatch",
@@ -547,149 +523,84 @@ export interface ObserverInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getInstrumentByAddressList",
-    values: [PromiseOrValue<string>[]]
+    values: [string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getNextInitializedTickOutside",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<boolean>
-    ]
+    values: [string, BigNumberish, BigNumberish, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "getOrderIndexes",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getOrders",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>[]
-    ]
+    values: [string, BigNumberish, string, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getPearls",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>[]
-    ]
+    values: [string, BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getPendings",
-    values: [PromiseOrValue<string>[], PromiseOrValue<string>]
+    values: [string[], string]
   ): string;
   encodeFunctionData(
     functionFragment: "getPortfolios",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getPosition",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getQuoteParam",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getRangeIndexes",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getRanges",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>[]
-    ]
+    values: [string, BigNumberish, string, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getRecords",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>[]
-    ]
+    values: [string, BigNumberish, BigNumberish[], BigNumberish[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "getSetting",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "getSetting", values: [string]): string;
   encodeFunctionData(
     functionFragment: "getTickBitmaps",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>[]
-    ]
+    values: [string, BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getVaultBalances",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>[]]
+    values: [string, string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "inquireByNotional",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<boolean>
-    ]
+    values: [string, BigNumberish, BigNumberish, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "inquireByTick",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "inspectMaxReserveDexV2Pair",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "liquidityDetails",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "sizeByNotional",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<boolean>
-    ]
+    values: [string, BigNumberish, BigNumberish, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "sizeToTick",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [string, BigNumberish, BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "gate", data: BytesLike): Result;
@@ -804,9 +715,9 @@ export interface Observer extends BaseContract {
     gate(overrides?: CallOverrides): Promise<[string]>;
 
     getAcc(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<
       [PortfolioStructOutput, BlockInfoStructOutput] & {
@@ -816,9 +727,9 @@ export interface Observer extends BaseContract {
     >;
 
     getAccMeta(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { onumber: BigNumber; rnumber: BigNumber }
@@ -829,8 +740,8 @@ export interface Observer extends BaseContract {
     ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
     getAmm(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[AmmStructOutput]>;
 
@@ -840,43 +751,43 @@ export interface Observer extends BaseContract {
     ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
     getInstrumentByAddressList(
-      instrumentList: PromiseOrValue<string>[],
+      instrumentList: string[],
       overrides?: CallOverrides
     ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
     getNextInitializedTickOutside(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
-      right: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
+      right: boolean,
       overrides?: CallOverrides
     ): Promise<[number]>;
 
     getOrderIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<[number[]]>;
 
     getOrders(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      oids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      oids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<[OrderStructOutput[]]>;
 
     getPearls(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<[PearlStructOutput[]]>;
 
     getPendings(
-      quotes: PromiseOrValue<string>[],
-      trader: PromiseOrValue<string>,
+      quotes: string[],
+      trader: string,
       overrides?: CallOverrides
     ): Promise<
       [PendingStructOutput[], BlockInfoStructOutput] & {
@@ -886,8 +797,8 @@ export interface Observer extends BaseContract {
     >;
 
     getPortfolios(
-      target: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
+      target: string,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<
       [number[], PortfolioStructOutput[], BlockInfoStructOutput] & {
@@ -898,63 +809,63 @@ export interface Observer extends BaseContract {
     >;
 
     getPosition(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<[PositionStructOutput]>;
 
     getQuoteParam(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<[QuoteParamStructOutput]>;
 
     getRangeIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<[number[]]>;
 
     getRanges(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      rids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      rids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<[RangeStructOutput[]]>;
 
     getRecords(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
-      nonces: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
+      nonces: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<[RecordStructOutput[]]>;
 
     getSetting(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<[SettingStructOutput]>;
 
     getTickBitmaps(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tbids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tbids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
 
     getVaultBalances(
-      target: PromiseOrValue<string>,
-      quotes: PromiseOrValue<string>[],
+      target: string,
+      quotes: string[],
       overrides?: CallOverrides
     ): Promise<[BigNumber[], BlockInfoStructOutput]>;
 
     inquireByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, QuotationStructOutput] & {
@@ -964,9 +875,9 @@ export interface Observer extends BaseContract {
     >;
 
     inquireByTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, QuotationStructOutput] & {
@@ -976,8 +887,8 @@ export interface Observer extends BaseContract {
     >;
 
     inspectMaxReserveDexV2Pair(
-      base: PromiseOrValue<string>,
-      quote: PromiseOrValue<string>,
+      base: string,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<
       [string, BigNumber, BigNumber] & {
@@ -988,9 +899,9 @@ export interface Observer extends BaseContract {
     >;
 
     liquidityDetails(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tickDelta: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tickDelta: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -1007,17 +918,17 @@ export interface Observer extends BaseContract {
     >;
 
     sizeByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     sizeToTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      destTick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      destTick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
   };
@@ -1025,9 +936,9 @@ export interface Observer extends BaseContract {
   gate(overrides?: CallOverrides): Promise<string>;
 
   getAcc(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
+    instrument: string,
+    expiry: BigNumberish,
+    target: string,
     overrides?: CallOverrides
   ): Promise<
     [PortfolioStructOutput, BlockInfoStructOutput] & {
@@ -1037,9 +948,9 @@ export interface Observer extends BaseContract {
   >;
 
   getAccMeta(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
+    instrument: string,
+    expiry: BigNumberish,
+    target: string,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, BigNumber] & { onumber: BigNumber; rnumber: BigNumber }
@@ -1050,8 +961,8 @@ export interface Observer extends BaseContract {
   ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
   getAmm(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
+    instrument: string,
+    expiry: BigNumberish,
     overrides?: CallOverrides
   ): Promise<AmmStructOutput>;
 
@@ -1061,43 +972,43 @@ export interface Observer extends BaseContract {
   ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
   getInstrumentByAddressList(
-    instrumentList: PromiseOrValue<string>[],
+    instrumentList: string[],
     overrides?: CallOverrides
   ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
   getNextInitializedTickOutside(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    tick: PromiseOrValue<BigNumberish>,
-    right: PromiseOrValue<boolean>,
+    instrument: string,
+    expiry: BigNumberish,
+    tick: BigNumberish,
+    right: boolean,
     overrides?: CallOverrides
   ): Promise<number>;
 
   getOrderIndexes(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
+    instrument: string,
+    expiry: BigNumberish,
+    target: string,
     overrides?: CallOverrides
   ): Promise<number[]>;
 
   getOrders(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
-    oids: PromiseOrValue<BigNumberish>[],
+    instrument: string,
+    expiry: BigNumberish,
+    target: string,
+    oids: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<OrderStructOutput[]>;
 
   getPearls(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    tids: PromiseOrValue<BigNumberish>[],
+    instrument: string,
+    expiry: BigNumberish,
+    tids: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<PearlStructOutput[]>;
 
   getPendings(
-    quotes: PromiseOrValue<string>[],
-    trader: PromiseOrValue<string>,
+    quotes: string[],
+    trader: string,
     overrides?: CallOverrides
   ): Promise<
     [PendingStructOutput[], BlockInfoStructOutput] & {
@@ -1107,8 +1018,8 @@ export interface Observer extends BaseContract {
   >;
 
   getPortfolios(
-    target: PromiseOrValue<string>,
-    instrument: PromiseOrValue<string>,
+    target: string,
+    instrument: string,
     overrides?: CallOverrides
   ): Promise<
     [number[], PortfolioStructOutput[], BlockInfoStructOutput] & {
@@ -1119,63 +1030,63 @@ export interface Observer extends BaseContract {
   >;
 
   getPosition(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
+    instrument: string,
+    expiry: BigNumberish,
+    target: string,
     overrides?: CallOverrides
   ): Promise<PositionStructOutput>;
 
   getQuoteParam(
-    instrument: PromiseOrValue<string>,
+    instrument: string,
     overrides?: CallOverrides
   ): Promise<QuoteParamStructOutput>;
 
   getRangeIndexes(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
+    instrument: string,
+    expiry: BigNumberish,
+    target: string,
     overrides?: CallOverrides
   ): Promise<number[]>;
 
   getRanges(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    target: PromiseOrValue<string>,
-    rids: PromiseOrValue<BigNumberish>[],
+    instrument: string,
+    expiry: BigNumberish,
+    target: string,
+    rids: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<RangeStructOutput[]>;
 
   getRecords(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    tids: PromiseOrValue<BigNumberish>[],
-    nonces: PromiseOrValue<BigNumberish>[],
+    instrument: string,
+    expiry: BigNumberish,
+    tids: BigNumberish[],
+    nonces: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<RecordStructOutput[]>;
 
   getSetting(
-    instrument: PromiseOrValue<string>,
+    instrument: string,
     overrides?: CallOverrides
   ): Promise<SettingStructOutput>;
 
   getTickBitmaps(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    tbids: PromiseOrValue<BigNumberish>[],
+    instrument: string,
+    expiry: BigNumberish,
+    tbids: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
 
   getVaultBalances(
-    target: PromiseOrValue<string>,
-    quotes: PromiseOrValue<string>[],
+    target: string,
+    quotes: string[],
     overrides?: CallOverrides
   ): Promise<[BigNumber[], BlockInfoStructOutput]>;
 
   inquireByNotional(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    notional: PromiseOrValue<BigNumberish>,
-    long: PromiseOrValue<boolean>,
+    instrument: string,
+    expiry: BigNumberish,
+    notional: BigNumberish,
+    long: boolean,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, QuotationStructOutput] & {
@@ -1185,9 +1096,9 @@ export interface Observer extends BaseContract {
   >;
 
   inquireByTick(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    tick: PromiseOrValue<BigNumberish>,
+    instrument: string,
+    expiry: BigNumberish,
+    tick: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, QuotationStructOutput] & {
@@ -1197,8 +1108,8 @@ export interface Observer extends BaseContract {
   >;
 
   inspectMaxReserveDexV2Pair(
-    base: PromiseOrValue<string>,
-    quote: PromiseOrValue<string>,
+    base: string,
+    quote: string,
     overrides?: CallOverrides
   ): Promise<
     [string, BigNumber, BigNumber] & {
@@ -1209,9 +1120,9 @@ export interface Observer extends BaseContract {
   >;
 
   liquidityDetails(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    tickDelta: PromiseOrValue<BigNumberish>,
+    instrument: string,
+    expiry: BigNumberish,
+    tickDelta: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
     [
@@ -1228,17 +1139,17 @@ export interface Observer extends BaseContract {
   >;
 
   sizeByNotional(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    notional: PromiseOrValue<BigNumberish>,
-    long: PromiseOrValue<boolean>,
+    instrument: string,
+    expiry: BigNumberish,
+    notional: BigNumberish,
+    long: boolean,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   sizeToTick(
-    instrument: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    destTick: PromiseOrValue<BigNumberish>,
+    instrument: string,
+    expiry: BigNumberish,
+    destTick: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -1246,9 +1157,9 @@ export interface Observer extends BaseContract {
     gate(overrides?: CallOverrides): Promise<string>;
 
     getAcc(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<
       [PortfolioStructOutput, BlockInfoStructOutput] & {
@@ -1258,9 +1169,9 @@ export interface Observer extends BaseContract {
     >;
 
     getAccMeta(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { onumber: BigNumber; rnumber: BigNumber }
@@ -1271,8 +1182,8 @@ export interface Observer extends BaseContract {
     ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
     getAmm(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
       overrides?: CallOverrides
     ): Promise<AmmStructOutput>;
 
@@ -1282,43 +1193,43 @@ export interface Observer extends BaseContract {
     ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
     getInstrumentByAddressList(
-      instrumentList: PromiseOrValue<string>[],
+      instrumentList: string[],
       overrides?: CallOverrides
     ): Promise<[AssembledInstrumentDataStructOutput[], BlockInfoStructOutput]>;
 
     getNextInitializedTickOutside(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
-      right: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
+      right: boolean,
       overrides?: CallOverrides
     ): Promise<number>;
 
     getOrderIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<number[]>;
 
     getOrders(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      oids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      oids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<OrderStructOutput[]>;
 
     getPearls(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PearlStructOutput[]>;
 
     getPendings(
-      quotes: PromiseOrValue<string>[],
-      trader: PromiseOrValue<string>,
+      quotes: string[],
+      trader: string,
       overrides?: CallOverrides
     ): Promise<
       [PendingStructOutput[], BlockInfoStructOutput] & {
@@ -1328,8 +1239,8 @@ export interface Observer extends BaseContract {
     >;
 
     getPortfolios(
-      target: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
+      target: string,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<
       [number[], PortfolioStructOutput[], BlockInfoStructOutput] & {
@@ -1340,63 +1251,63 @@ export interface Observer extends BaseContract {
     >;
 
     getPosition(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<PositionStructOutput>;
 
     getQuoteParam(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<QuoteParamStructOutput>;
 
     getRangeIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<number[]>;
 
     getRanges(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      rids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      rids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<RangeStructOutput[]>;
 
     getRecords(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
-      nonces: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
+      nonces: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<RecordStructOutput[]>;
 
     getSetting(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<SettingStructOutput>;
 
     getTickBitmaps(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tbids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tbids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
 
     getVaultBalances(
-      target: PromiseOrValue<string>,
-      quotes: PromiseOrValue<string>[],
+      target: string,
+      quotes: string[],
       overrides?: CallOverrides
     ): Promise<[BigNumber[], BlockInfoStructOutput]>;
 
     inquireByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, QuotationStructOutput] & {
@@ -1406,9 +1317,9 @@ export interface Observer extends BaseContract {
     >;
 
     inquireByTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, QuotationStructOutput] & {
@@ -1418,8 +1329,8 @@ export interface Observer extends BaseContract {
     >;
 
     inspectMaxReserveDexV2Pair(
-      base: PromiseOrValue<string>,
-      quote: PromiseOrValue<string>,
+      base: string,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<
       [string, BigNumber, BigNumber] & {
@@ -1430,9 +1341,9 @@ export interface Observer extends BaseContract {
     >;
 
     liquidityDetails(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tickDelta: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tickDelta: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -1449,17 +1360,17 @@ export interface Observer extends BaseContract {
     >;
 
     sizeByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     sizeToTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      destTick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      destTick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -1470,24 +1381,24 @@ export interface Observer extends BaseContract {
     gate(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAcc(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getAccMeta(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getAllInstruments(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAmm(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1497,145 +1408,145 @@ export interface Observer extends BaseContract {
     ): Promise<BigNumber>;
 
     getInstrumentByAddressList(
-      instrumentList: PromiseOrValue<string>[],
+      instrumentList: string[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getNextInitializedTickOutside(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
-      right: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
+      right: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getOrderIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getOrders(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      oids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      oids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getPearls(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getPendings(
-      quotes: PromiseOrValue<string>[],
-      trader: PromiseOrValue<string>,
+      quotes: string[],
+      trader: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getPortfolios(
-      target: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
+      target: string,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getPosition(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getQuoteParam(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getRangeIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getRanges(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      rids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      rids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getRecords(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
-      nonces: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
+      nonces: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getSetting(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getTickBitmaps(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tbids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tbids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVaultBalances(
-      target: PromiseOrValue<string>,
-      quotes: PromiseOrValue<string>[],
+      target: string,
+      quotes: string[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     inquireByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     inquireByTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     inspectMaxReserveDexV2Pair(
-      base: PromiseOrValue<string>,
-      quote: PromiseOrValue<string>,
+      base: string,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidityDetails(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tickDelta: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tickDelta: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     sizeByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     sizeToTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      destTick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      destTick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -1644,24 +1555,24 @@ export interface Observer extends BaseContract {
     gate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAcc(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getAccMeta(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getAllInstruments(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAmm(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1671,145 +1582,145 @@ export interface Observer extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getInstrumentByAddressList(
-      instrumentList: PromiseOrValue<string>[],
+      instrumentList: string[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getNextInitializedTickOutside(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
-      right: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
+      right: boolean,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getOrderIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getOrders(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      oids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      oids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getPearls(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getPendings(
-      quotes: PromiseOrValue<string>[],
-      trader: PromiseOrValue<string>,
+      quotes: string[],
+      trader: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getPortfolios(
-      target: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
+      target: string,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getPosition(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getQuoteParam(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getRangeIndexes(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getRanges(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      target: PromiseOrValue<string>,
-      rids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      target: string,
+      rids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getRecords(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tids: PromiseOrValue<BigNumberish>[],
-      nonces: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tids: BigNumberish[],
+      nonces: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getSetting(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getTickBitmaps(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tbids: PromiseOrValue<BigNumberish>[],
+      instrument: string,
+      expiry: BigNumberish,
+      tbids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVaultBalances(
-      target: PromiseOrValue<string>,
-      quotes: PromiseOrValue<string>[],
+      target: string,
+      quotes: string[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     inquireByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     inquireByTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     inspectMaxReserveDexV2Pair(
-      base: PromiseOrValue<string>,
-      quote: PromiseOrValue<string>,
+      base: string,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidityDetails(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      tickDelta: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      tickDelta: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     sizeByNotional(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      notional: PromiseOrValue<BigNumberish>,
-      long: PromiseOrValue<boolean>,
+      instrument: string,
+      expiry: BigNumberish,
+      notional: BigNumberish,
+      long: boolean,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     sizeToTick(
-      instrument: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      destTick: PromiseOrValue<BigNumberish>,
+      instrument: string,
+      expiry: BigNumberish,
+      destTick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
