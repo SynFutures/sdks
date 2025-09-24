@@ -19,6 +19,11 @@ const _abi = [
         name: "_config",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "_handler",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -89,6 +94,11 @@ const _abi = [
   {
     inputs: [],
     name: "NoDirectDeposit",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotHandler",
     type: "error",
   },
   {
@@ -201,6 +211,19 @@ const _abi = [
       },
     ],
     name: "Gather",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "version",
+        type: "uint8",
+      },
+    ],
+    name: "Initialized",
     type: "event",
   },
   {
@@ -449,6 +472,24 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "trader",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
+        name: "arg",
+        type: "bytes32",
+      },
+    ],
+    name: "depositFor",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "quote",
         type: "address",
       },
@@ -523,6 +564,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "handler",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -539,6 +593,13 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -858,6 +919,24 @@ const _abi = [
       },
     ],
     name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "trader",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
+        name: "arg",
+        type: "bytes32",
+      },
+    ],
+    name: "withdrawFor",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

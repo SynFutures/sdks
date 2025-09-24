@@ -25,14 +25,13 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "./common";
 
 export type PendingStruct = {
-  timestamp: PromiseOrValue<BigNumberish>;
-  native: PromiseOrValue<boolean>;
-  amount: PromiseOrValue<BigNumberish>;
-  exemption: PromiseOrValue<BigNumberish>;
+  timestamp: BigNumberish;
+  native: boolean;
+  amount: BigNumberish;
+  exemption: BigNumberish;
 };
 
 export type PendingStructOutput = [number, boolean, BigNumber, BigNumber] & {
@@ -42,10 +41,7 @@ export type PendingStructOutput = [number, boolean, BigNumber, BigNumber] & {
   exemption: BigNumber;
 };
 
-export type FundFlowStruct = {
-  totalIn: PromiseOrValue<BigNumberish>;
-  totalOut: PromiseOrValue<BigNumberish>;
-};
+export type FundFlowStruct = { totalIn: BigNumberish; totalOut: BigNumberish };
 
 export type FundFlowStructOutput = [BigNumber, BigNumber] & {
   totalIn: BigNumber;
@@ -53,10 +49,10 @@ export type FundFlowStructOutput = [BigNumber, BigNumber] & {
 };
 
 export type RangeStruct = {
-  liquidity: PromiseOrValue<BigNumberish>;
-  entryFeeIndex: PromiseOrValue<BigNumberish>;
-  balance: PromiseOrValue<BigNumberish>;
-  sqrtEntryPX96: PromiseOrValue<BigNumberish>;
+  liquidity: BigNumberish;
+  entryFeeIndex: BigNumberish;
+  balance: BigNumberish;
+  sqrtEntryPX96: BigNumberish;
 };
 
 export type RangeStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
@@ -72,10 +68,13 @@ export interface GateInterface extends utils.Interface {
     "allInstrumentsLength()": FunctionFragment;
     "config()": FunctionFragment;
     "deposit(bytes32)": FunctionFragment;
+    "depositFor(address,bytes32)": FunctionFragment;
     "fundFlowOf(address,address)": FunctionFragment;
     "gather(address,address,uint32,uint256)": FunctionFragment;
     "getAllInstruments()": FunctionFragment;
+    "handler()": FunctionFragment;
     "indexOf(address)": FunctionFragment;
+    "initialize()": FunctionFragment;
     "instrumentInitData()": FunctionFragment;
     "isBlacklisted(address)": FunctionFragment;
     "launch(string,address,bytes,bytes32[2])": FunctionFragment;
@@ -90,6 +89,7 @@ export interface GateInterface extends utils.Interface {
     "thresholdOf(address)": FunctionFragment;
     "weth()": FunctionFragment;
     "withdraw(bytes32)": FunctionFragment;
+    "withdrawFor(address,bytes32)": FunctionFragment;
   };
 
   getFunction(
@@ -98,10 +98,13 @@ export interface GateInterface extends utils.Interface {
       | "allInstrumentsLength"
       | "config"
       | "deposit"
+      | "depositFor"
       | "fundFlowOf"
       | "gather"
       | "getAllInstruments"
+      | "handler"
       | "indexOf"
+      | "initialize"
       | "instrumentInitData"
       | "isBlacklisted"
       | "launch"
@@ -116,41 +119,40 @@ export interface GateInterface extends utils.Interface {
       | "thresholdOf"
       | "weth"
       | "withdraw"
+      | "withdrawFor"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "allInstruments",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "allInstrumentsLength",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "config", values?: undefined): string;
+  encodeFunctionData(functionFragment: "deposit", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "deposit",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "depositFor",
+    values: [string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "fundFlowOf",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "gather",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getAllInstruments",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "handler", values?: undefined): string;
+  encodeFunctionData(functionFragment: "indexOf", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "indexOf",
-    values: [PromiseOrValue<string>]
+    functionFragment: "initialize",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "instrumentInitData",
@@ -158,16 +160,11 @@ export interface GateInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isBlacklisted",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "launch",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-    ]
+    values: [string, string, BytesLike, [BytesLike, BytesLike]]
   ): string;
   encodeFunctionData(
     functionFragment: "pendingDuration",
@@ -175,45 +172,38 @@ export interface GateInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "pendingOf",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "release",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "reserveOf",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "scatter",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setBlacklist",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+    values: [string, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setPendingDuration",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setThreshold",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "thresholdOf",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "thresholdOf", values: [string]): string;
   encodeFunctionData(functionFragment: "weth", values?: undefined): string;
+  encodeFunctionData(functionFragment: "withdraw", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "withdrawFor",
+    values: [string, BytesLike]
   ): string;
 
   decodeFunctionResult(
@@ -226,13 +216,16 @@ export interface GateInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "config", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "depositFor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fundFlowOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gather", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAllInstruments",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "handler", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "indexOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "instrumentInitData",
     data: BytesLike
@@ -268,22 +261,28 @@ export interface GateInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFor",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Blacklist(address,bool)": EventFragment;
     "Deposit(address,address,uint256)": EventFragment;
     "Gather(address,address,address,uint32,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NewInstrument(bytes32,address,address,address,string,uint256)": EventFragment;
     "Scatter(address,address,address,uint32,uint256)": EventFragment;
     "SetPendingDuration(uint256)": EventFragment;
     "SetThreshold(address,uint256)": EventFragment;
-    "UpdatePending(address,address,tuple)": EventFragment;
+    "UpdatePending(address,address,(uint32,bool,uint96,uint120))": EventFragment;
     "Withdraw(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Blacklist"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Gather"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewInstrument"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Scatter"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetPendingDuration"): EventFragment;
@@ -328,6 +327,13 @@ export type GatherEvent = TypedEvent<
 >;
 
 export type GatherEventFilter = TypedEventFilter<GatherEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface NewInstrumentEventObject {
   index: string;
@@ -432,7 +438,7 @@ export interface Gate extends BaseContract {
 
   functions: {
     allInstruments(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -441,106 +447,121 @@ export interface Gate extends BaseContract {
     config(overrides?: CallOverrides): Promise<[string]>;
 
     deposit(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: PayableOverrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    depositFor(
+      trader: string,
+      arg: BytesLike,
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     fundFlowOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<[FundFlowStructOutput] & { fundFlow: FundFlowStructOutput }>;
 
     gather(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     getAllInstruments(overrides?: CallOverrides): Promise<[string[]]>;
 
+    handler(overrides?: CallOverrides): Promise<[string]>;
+
     indexOf(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
     ): Promise<[string] & { index: string }>;
 
+    initialize(
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
     instrumentInitData(overrides?: CallOverrides): Promise<[string]>;
 
-    isBlacklisted(
-      user: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    isBlacklisted(user: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     launch(
-      mtype: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      addArgs: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      mtype: string,
+      instrument: string,
+      data: BytesLike,
+      addArgs: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     pendingDuration(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     pendingOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<[PendingStructOutput] & { pending: PendingStructOutput }>;
 
     release(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     reserveOf(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { balance: BigNumber }>;
 
     scatter(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setBlacklist(
-      trader: PromiseOrValue<string>,
-      banned: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      trader: string,
+      banned: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setPendingDuration(
-      duration: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      duration: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setThreshold(
-      quote: PromiseOrValue<string>,
-      threshold: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      threshold: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     thresholdOf(
-      quote: PromiseOrValue<string>,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { threshold: BigNumber }>;
 
     weth(overrides?: CallOverrides): Promise<[string]>;
 
     withdraw(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    withdrawFor(
+      trader: string,
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
   allInstruments(
-    arg0: PromiseOrValue<BigNumberish>,
+    arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -549,106 +570,115 @@ export interface Gate extends BaseContract {
   config(overrides?: CallOverrides): Promise<string>;
 
   deposit(
-    arg: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    arg: BytesLike,
+    overrides?: PayableOverrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  depositFor(
+    trader: string,
+    arg: BytesLike,
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   fundFlowOf(
-    quote: PromiseOrValue<string>,
-    trader: PromiseOrValue<string>,
+    quote: string,
+    trader: string,
     overrides?: CallOverrides
   ): Promise<FundFlowStructOutput>;
 
   gather(
-    quote: PromiseOrValue<string>,
-    trader: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    quantity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    quote: string,
+    trader: string,
+    expiry: BigNumberish,
+    quantity: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   getAllInstruments(overrides?: CallOverrides): Promise<string[]>;
 
-  indexOf(
-    instrument: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  handler(overrides?: CallOverrides): Promise<string>;
+
+  indexOf(instrument: string, overrides?: CallOverrides): Promise<string>;
+
+  initialize(
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
 
   instrumentInitData(overrides?: CallOverrides): Promise<string>;
 
-  isBlacklisted(
-    user: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isBlacklisted(user: string, overrides?: CallOverrides): Promise<boolean>;
 
   launch(
-    mtype: PromiseOrValue<string>,
-    instrument: PromiseOrValue<string>,
-    data: PromiseOrValue<BytesLike>,
-    addArgs: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    mtype: string,
+    instrument: string,
+    data: BytesLike,
+    addArgs: [BytesLike, BytesLike],
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   pendingDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
   pendingOf(
-    quote: PromiseOrValue<string>,
-    trader: PromiseOrValue<string>,
+    quote: string,
+    trader: string,
     overrides?: CallOverrides
   ): Promise<PendingStructOutput>;
 
   release(
-    quote: PromiseOrValue<string>,
-    trader: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    quote: string,
+    trader: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   reserveOf(
-    quote: PromiseOrValue<string>,
-    user: PromiseOrValue<string>,
+    quote: string,
+    user: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   scatter(
-    quote: PromiseOrValue<string>,
-    trader: PromiseOrValue<string>,
-    expiry: PromiseOrValue<BigNumberish>,
-    quantity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    quote: string,
+    trader: string,
+    expiry: BigNumberish,
+    quantity: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setBlacklist(
-    trader: PromiseOrValue<string>,
-    banned: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    trader: string,
+    banned: boolean,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setPendingDuration(
-    duration: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    duration: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setThreshold(
-    quote: PromiseOrValue<string>,
-    threshold: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    quote: string,
+    threshold: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  thresholdOf(
-    quote: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  thresholdOf(quote: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   weth(overrides?: CallOverrides): Promise<string>;
 
   withdraw(
-    arg: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    arg: BytesLike,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  withdrawFor(
+    trader: string,
+    arg: BytesLike,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     allInstruments(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -656,44 +686,45 @@ export interface Gate extends BaseContract {
 
     config(overrides?: CallOverrides): Promise<string>;
 
-    deposit(
-      arg: PromiseOrValue<BytesLike>,
+    deposit(arg: BytesLike, overrides?: CallOverrides): Promise<void>;
+
+    depositFor(
+      trader: string,
+      arg: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
     fundFlowOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<FundFlowStructOutput>;
 
     gather(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     getAllInstruments(overrides?: CallOverrides): Promise<string[]>;
 
-    indexOf(
-      instrument: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    handler(overrides?: CallOverrides): Promise<string>;
+
+    indexOf(instrument: string, overrides?: CallOverrides): Promise<string>;
+
+    initialize(overrides?: CallOverrides): Promise<void>;
 
     instrumentInitData(overrides?: CallOverrides): Promise<string>;
 
-    isBlacklisted(
-      user: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isBlacklisted(user: string, overrides?: CallOverrides): Promise<boolean>;
 
     launch(
-      mtype: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      addArgs: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+      mtype: string,
+      instrument: string,
+      data: BytesLike,
+      addArgs: [BytesLike, BytesLike],
       overrides?: CallOverrides
     ): Promise<
       [number, number, RangeStructOutput] & {
@@ -706,96 +737,96 @@ export interface Gate extends BaseContract {
     pendingDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     pendingOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<PendingStructOutput>;
 
     release(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     reserveOf(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     scatter(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setBlacklist(
-      trader: PromiseOrValue<string>,
-      banned: PromiseOrValue<boolean>,
+      trader: string,
+      banned: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setPendingDuration(
-      duration: PromiseOrValue<BigNumberish>,
+      duration: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setThreshold(
-      quote: PromiseOrValue<string>,
-      threshold: PromiseOrValue<BigNumberish>,
+      quote: string,
+      threshold: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    thresholdOf(
-      quote: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    thresholdOf(quote: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     weth(overrides?: CallOverrides): Promise<string>;
 
-    withdraw(
-      arg: PromiseOrValue<BytesLike>,
+    withdraw(arg: BytesLike, overrides?: CallOverrides): Promise<void>;
+
+    withdrawFor(
+      trader: string,
+      arg: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
   filters: {
     "Blacklist(address,bool)"(
-      trader?: PromiseOrValue<string> | null,
+      trader?: string | null,
       banned?: null
     ): BlacklistEventFilter;
-    Blacklist(
-      trader?: PromiseOrValue<string> | null,
-      banned?: null
-    ): BlacklistEventFilter;
+    Blacklist(trader?: string | null, banned?: null): BlacklistEventFilter;
 
     "Deposit(address,address,uint256)"(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
       quantity?: null
     ): DepositEventFilter;
     Deposit(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
       quantity?: null
     ): DepositEventFilter;
 
     "Gather(address,address,address,uint32,uint256)"(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
-      instrument?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
+      instrument?: string | null,
       expiry?: null,
       quantity?: null
     ): GatherEventFilter;
     Gather(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
-      instrument?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
+      instrument?: string | null,
       expiry?: null,
       quantity?: null
     ): GatherEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NewInstrument(bytes32,address,address,address,string,uint256)"(
       index?: null,
@@ -815,16 +846,16 @@ export interface Gate extends BaseContract {
     ): NewInstrumentEventFilter;
 
     "Scatter(address,address,address,uint32,uint256)"(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
-      instrument?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
+      instrument?: string | null,
       expiry?: null,
       quantity?: null
     ): ScatterEventFilter;
     Scatter(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
-      instrument?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
+      instrument?: string | null,
       expiry?: null,
       quantity?: null
     ): ScatterEventFilter;
@@ -835,40 +866,40 @@ export interface Gate extends BaseContract {
     SetPendingDuration(duration?: null): SetPendingDurationEventFilter;
 
     "SetThreshold(address,uint256)"(
-      quote?: PromiseOrValue<string> | null,
+      quote?: string | null,
       threshold?: null
     ): SetThresholdEventFilter;
     SetThreshold(
-      quote?: PromiseOrValue<string> | null,
+      quote?: string | null,
       threshold?: null
     ): SetThresholdEventFilter;
 
-    "UpdatePending(address,address,tuple)"(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
+    "UpdatePending(address,address,(uint32,bool,uint96,uint120))"(
+      quote?: string | null,
+      trader?: string | null,
       pending?: null
     ): UpdatePendingEventFilter;
     UpdatePending(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
       pending?: null
     ): UpdatePendingEventFilter;
 
     "Withdraw(address,address,uint256)"(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
       quantity?: null
     ): WithdrawEventFilter;
     Withdraw(
-      quote?: PromiseOrValue<string> | null,
-      trader?: PromiseOrValue<string> | null,
+      quote?: string | null,
+      trader?: string | null,
       quantity?: null
     ): WithdrawEventFilter;
   };
 
   estimateGas: {
     allInstruments(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -877,107 +908,114 @@ export interface Gate extends BaseContract {
     config(overrides?: CallOverrides): Promise<BigNumber>;
 
     deposit(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: PayableOverrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    depositFor(
+      trader: string,
+      arg: BytesLike,
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     fundFlowOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     gather(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     getAllInstruments(overrides?: CallOverrides): Promise<BigNumber>;
 
-    indexOf(
-      instrument: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    handler(overrides?: CallOverrides): Promise<BigNumber>;
+
+    indexOf(instrument: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     instrumentInitData(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isBlacklisted(
-      user: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isBlacklisted(user: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     launch(
-      mtype: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      addArgs: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      mtype: string,
+      instrument: string,
+      data: BytesLike,
+      addArgs: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     pendingDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     pendingOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     release(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     reserveOf(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     scatter(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setBlacklist(
-      trader: PromiseOrValue<string>,
-      banned: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      trader: string,
+      banned: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setPendingDuration(
-      duration: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      duration: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setThreshold(
-      quote: PromiseOrValue<string>,
-      threshold: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      threshold: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    thresholdOf(
-      quote: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    thresholdOf(quote: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     weth(overrides?: CallOverrides): Promise<BigNumber>;
 
     withdraw(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    withdrawFor(
+      trader: string,
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     allInstruments(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -988,29 +1026,41 @@ export interface Gate extends BaseContract {
     config(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     deposit(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: PayableOverrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    depositFor(
+      trader: string,
+      arg: BytesLike,
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     fundFlowOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     gather(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     getAllInstruments(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    handler(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     indexOf(
-      instrument: PromiseOrValue<string>,
+      instrument: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initialize(
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     instrumentInitData(
@@ -1018,73 +1068,79 @@ export interface Gate extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     isBlacklisted(
-      user: PromiseOrValue<string>,
+      user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     launch(
-      mtype: PromiseOrValue<string>,
-      instrument: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      addArgs: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      mtype: string,
+      instrument: string,
+      data: BytesLike,
+      addArgs: [BytesLike, BytesLike],
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     pendingDuration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pendingOf(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
+      quote: string,
+      trader: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     release(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     reserveOf(
-      quote: PromiseOrValue<string>,
-      user: PromiseOrValue<string>,
+      quote: string,
+      user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     scatter(
-      quote: PromiseOrValue<string>,
-      trader: PromiseOrValue<string>,
-      expiry: PromiseOrValue<BigNumberish>,
-      quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      trader: string,
+      expiry: BigNumberish,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setBlacklist(
-      trader: PromiseOrValue<string>,
-      banned: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      trader: string,
+      banned: boolean,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setPendingDuration(
-      duration: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      duration: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setThreshold(
-      quote: PromiseOrValue<string>,
-      threshold: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      quote: string,
+      threshold: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     thresholdOf(
-      quote: PromiseOrValue<string>,
+      quote: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     withdraw(
-      arg: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFor(
+      trader: string,
+      arg: BytesLike,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

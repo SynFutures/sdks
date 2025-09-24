@@ -10,6 +10,11 @@
                 "internalType": "address",
                 "name": "_config",
                 "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_handler",
+                "type": "address"
             }
         ],
         "stateMutability": "nonpayable",
@@ -81,6 +86,11 @@
     {
         "inputs": [],
         "name": "NoDirectDeposit",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotHandler",
         "type": "error"
     },
     {
@@ -193,6 +203,19 @@
             }
         ],
         "name": "Gather",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint8",
+                "name": "version",
+                "type": "uint8"
+            }
+        ],
+        "name": "Initialized",
         "type": "event"
     },
     {
@@ -441,6 +464,24 @@
         "inputs": [
             {
                 "internalType": "address",
+                "name": "trader",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "arg",
+                "type": "bytes32"
+            }
+        ],
+        "name": "depositFor",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "quote",
                 "type": "address"
             },
@@ -515,6 +556,19 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "handler",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -531,6 +585,13 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -850,6 +911,24 @@
             }
         ],
         "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "trader",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "arg",
+                "type": "bytes32"
+            }
+        ],
+        "name": "withdrawFor",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

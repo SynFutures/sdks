@@ -52,7 +52,12 @@ export interface ObserverInterface {
      * @param instrumentAddr the instrument
      * @param overrides {@link CallOverrides}
      */
-    getQuoteTokenInfo(quoteSymbol: string, instrumentAddr: string, overrides?: CallOverrides): Promise<TokenInfo>;
+    getQuoteTokenInfo(
+        quoteSymbol: string,
+        instrumentAddr: string,
+        overrides?: CallOverrides,
+        quoteAddr?: string,
+    ): Promise<TokenInfo>;
 
     /**
      * Inspect dex v2 market benchmark price
