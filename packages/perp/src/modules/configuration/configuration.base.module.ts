@@ -132,12 +132,14 @@ export abstract class ConfigurationModuleBase implements ConfigurationInterface 
         // For legacy chains (Base, Blast), use contracts with stabilityFeeRatioParam
         // For current chains, use contracts without stabilityFeeRatioParam
         const useLegacy = isLegacyChain(this.context.chainId);
+        const observerContract = this.context.perp._observer.isLegacyObserver() ?
+            LegacyObserver__factory.connect(this.config.contractAddress.observer, provider) : CurrentObserver__factory.connect(this.config.contractAddress.observer, provider);
 
         if (useLegacy) {
             // Use legacy factories for Base and Blast networks (with stabilityFeeRatioParam)
             return {
                 gate: LegacyGate__factory.connect(this.config.contractAddress.gate, provider),
-                observer: LegacyObserver__factory.connect(this.config.contractAddress.observer, provider),
+                observer: observerContract,
                 config: LegacyConfig__factory.connect(this.config.contractAddress.config, provider),
                 guardian: this.config.contractAddress.guardian
                     ? Guardian__factory.connect(this.config.contractAddress.guardian, provider)
@@ -149,7 +151,7 @@ export abstract class ConfigurationModuleBase implements ConfigurationInterface 
             // Use current factories for new networks (without stabilityFeeRatioParam)
             return {
                 gate: CurrentGate__factory.connect(this.config.contractAddress.gate, provider),
-                observer: CurrentObserver__factory.connect(this.config.contractAddress.observer, provider),
+                observer: observerContract,
                 config: CurrentConfig__factory.connect(this.config.contractAddress.config, provider),
                 guardian: this.config.contractAddress.guardian
                     ? Guardian__factory.connect(this.config.contractAddress.guardian, provider)

@@ -44,7 +44,9 @@ import {
     isLegacyChain,
 } from '../utils';
 import { calcBenchmarkPrice, cancelOrderToPosition, combine, fillOrderToPosition } from '../utils/lowLevel';
-import { InstrumentParser } from '../parser';
+import { InstrumentParser as LegacyInstrumentParser } from '../parser';
+import { InstrumentParser as CurrentInstrumentParser } from '../parser/current/instrument';
+
 import { SynfError } from '../errors';
 import { ObserverInterface } from './observer.interface';
 import { Observer as LegacyObserver } from 'src/typechain';
@@ -88,9 +90,11 @@ export class ObserverModule implements ObserverInterface {
 
     //Symbol -> Instrument address
     cache: Map<string, string> = new Map<string, string>();
+    legacyObserver: boolean = false;
 
-    constructor(context: Context) {
+    constructor(context: Context, legacyObserver?: boolean) {
         this.context = context;
+        this.legacyObserver = legacyObserver ?? isLegacyChain(this.context.chainId);
     }
 
     private async getMiscInfo(
@@ -299,7 +303,6 @@ export class ObserverModule implements ObserverInterface {
               }[]
             | undefined
         )[] = [];
-        const useLegacy = isLegacyChain(this.context.chainId);
 
         for (let i = 0; i < totalPage; i++) {
             const queryList = instrumentLists.slice(
@@ -308,7 +311,7 @@ export class ObserverModule implements ObserverInterface {
             );
 
             let rawResult;
-            if (isLegacyChain(this.context.chainId)) {
+            if (this.legacyObserver) {
                 rawResult = await quickRetry(() =>
                     (this.context.perp.contracts.observer as LegacyObserver).getInstrumentByAddressList(
                         queryList,
@@ -326,14 +329,14 @@ export class ObserverModule implements ObserverInterface {
             rawList.push(rawResult);
 
             miscInfoList.push(
-                useLegacy ? await quickRetry(async () => this.getMiscInfo(queryList, overrides ?? {})) : undefined,
+                this.legacyObserver ? await quickRetry(async () => this.getMiscInfo(queryList, overrides ?? {})) : undefined,
             );
         }
 
         let assembledInstrumentDatas: Instrument[] = [];
         for (let i = 0; i < rawList.length; i++) {
             const [rawInstrument, rawBlockInfo] = trimObj(rawList[i]);
-            const normalizedInstrument = this.normalizeAssembledInstrumentData(rawInstrument, useLegacy);
+            const normalizedInstrument = this.normalizeAssembledInstrumentData(rawInstrument, this.legacyObserver);
             const miscInfo = miscInfoList[i];
             assembledInstrumentDatas = assembledInstrumentDatas.concat(
                 await this.parseInstrumentData(normalizedInstrument, rawBlockInfo, overrides ?? {}, miscInfo),
@@ -383,10 +386,9 @@ export class ObserverModule implements ObserverInterface {
             await this.context.perp.contracts.observer.getInstrumentBatch(formattedParams, overrides ?? {}),
         );
 
-        const useLegacy = isLegacyChain(this.context.chainId);
-        const normalizedRawList = this.normalizeAssembledInstrumentData(rawList, useLegacy);
+        const normalizedRawList = this.normalizeAssembledInstrumentData(rawList, this.legacyObserver);
 
-        const miscInfoList = useLegacy
+        const miscInfoList = this.legacyObserver
             ? await this.getMiscInfo(
                   formattedParams.map((p) => p.instrument),
                   overrides ?? {},
@@ -524,7 +526,12 @@ export class ObserverModule implements ObserverInterface {
             this.cache.set(instrumentInfo.symbol, assembledInstrumentData.instrumentAddr);
 
             this.context.registerAddress(instrumentInfo.addr, instrumentInfo.symbol);
-            this.context.registerContractParser(instrumentInfo.addr, new InstrumentParser());
+            if (isLegacyChain(this.context.chainId)) {
+                this.context.registerContractParser(instrumentInfo.addr, new LegacyInstrumentParser());
+            } else {
+                this.context.registerContractParser(instrumentInfo.addr, new CurrentInstrumentParser());
+
+            }
             assembledInstrumentDatas.push(assembledInstrumentData);
         }
         return assembledInstrumentDatas;
@@ -1021,5 +1028,9 @@ export class ObserverModule implements ObserverInterface {
             ...trimObj(liquidityDetails),
             tick2Pearl,
         };
+    }
+
+    isLegacyObserver(): boolean {
+        return this.legacyObserver;
     }
 }
