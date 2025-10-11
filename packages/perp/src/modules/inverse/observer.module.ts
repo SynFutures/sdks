@@ -1,4 +1,4 @@
-import { CallOverrides, BigNumber } from 'ethers';
+import { CallOverrides } from 'ethers';
 import {
     Portfolio,
     Instrument,
@@ -95,10 +95,10 @@ export class InverseObserverModule extends ObserverModule {
         instrumentAddr: string,
         expiry: number,
         side: Side,
-        baseAmount: BigNumber,
+        baseAmount: bigint,
         overrides?: CallOverrides,
         isInverse?: boolean,
-    ): Promise<{ quoteAmount: BigNumber; quotation: Quotation }> {
+    ): Promise<{ quoteAmount: bigint; quotation: Quotation }> {
          isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         return await super.inquireByBase(
@@ -114,10 +114,10 @@ export class InverseObserverModule extends ObserverModule {
         instrumentAddr: string,
         expiry: number,
         side: Side,
-        quoteAmount: BigNumber,
+        quoteAmount: bigint,
         overrides?: CallOverrides,
         isInverse?: boolean,
-    ): Promise<{ baseAmount: BigNumber; quotation: Quotation }> {
+    ): Promise<{ baseAmount: bigint; quotation: Quotation }> {
          isInverse =  isInverse ?? await this.context.perp.configuration.isInverse(instrumentAddr);
 
         return await super.inquireByQuote(
@@ -129,7 +129,7 @@ export class InverseObserverModule extends ObserverModule {
         );
     }
 
-    async getRawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<BigNumber> {
+    async getRawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<bigint> {
         const isInverse = await this.context.perp.configuration.isInverseByIdentifier(identifier);
 
         const result = await super.getRawSpotPrice(identifier, overrides);

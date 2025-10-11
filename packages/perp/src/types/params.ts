@@ -1,4 +1,4 @@
-import type { BigNumber } from 'ethers';
+// BigNumber replaced with bigint
 import type { TokenInfo } from '@derivation-tech/context';
 import type { BatchOrderSizeDistribution, MarketType, QuoteType, Side } from '../enum';
 import type { Portfolio, Instrument, Position, Quotation } from './types';
@@ -10,13 +10,13 @@ export interface InstrumentSetting {
 }
 
 export interface QuoteParam {
-    minMarginAmount: BigNumber;
+    minMarginAmount: bigint;
 
     tradingFeeRatio: number;
     protocolFeeRatio: number;
-    stabilityFeeRatioParam: BigNumber;
+    stabilityFeeRatioParam: bigint;
 
-    tip: BigNumber;
+    tip: bigint;
     qtype: QuoteType;
 }
 
@@ -28,7 +28,7 @@ export interface InstrumentIdentifier {
 
 export interface AdjustParam {
     expiry: number;
-    net: BigNumber;
+    net: bigint;
     deadline: number;
     referralCode?: string;
 }
@@ -37,8 +37,8 @@ export interface AddParam {
     expiry: number;
     tickDeltaLower: number;
     tickDeltaUpper: number;
-    amount: BigNumber;
-    limitTicks: BigNumber;
+    amount: bigint;
+    limitTicks: bigint;
     deadline: number;
     referralCode?: string;
 }
@@ -48,14 +48,14 @@ export interface RemoveParam {
     traderAddr: string;
     tickLower: number;
     tickUpper: number;
-    limitTicks: BigNumber;
+    limitTicks: bigint;
     deadline: number;
 }
 
 export interface TradeParam {
     expiry: number;
-    size: BigNumber;
-    amount: BigNumber;
+    size: bigint;
+    amount: bigint;
     limitTick: number;
     deadline: number;
     referralCode?: string;
@@ -83,15 +83,15 @@ export interface BatchCancelParam {
 export interface LiquidateParam {
     expiry: number;
     target: string;
-    size: BigNumber;
-    amount: BigNumber;
+    size: bigint;
+    amount: bigint;
 }
 
 export interface PlaceParam {
     expiry: number;
     tick: number;
-    size: BigNumber;
-    amount: BigNumber;
+    size: bigint;
+    amount: bigint;
     deadline: number;
     referralCode?: string;
 }
@@ -100,8 +100,8 @@ export interface BatchPlaceParam {
     expiry: number;
     ticks: number[];
     ratios: number[];
-    size: BigNumber;
-    leverage: BigNumber;
+    size: bigint;
+    leverage: bigint;
     deadline: number;
 }
 
@@ -126,7 +126,7 @@ export interface AdjustMarginParam {
     instrumentAddr: string;
     expiry: number;
     transferIn: boolean;
-    margin: BigNumber;
+    margin: bigint;
     deadline: number;
     referralCode?: string;
 }
@@ -136,8 +136,8 @@ export interface AddLiquidityParam {
     expiry: number;
     tickDeltaLower: number;
     tickDeltaUpper: number;
-    margin: BigNumber;
-    limitTicks: BigNumber;
+    margin: bigint;
+    limitTicks: bigint;
     deadline: number;
     referralCode?: string;
     isInverse?: boolean;
@@ -152,8 +152,8 @@ export interface PlaceLimitOrderParam {
     instrumentAddr: string;
     expiry: number;
     tick: number;
-    baseSize: BigNumber;
-    margin: BigNumber;
+    baseSize: bigint;
+    margin: bigint;
     side: Side;
     deadline: number;
     referralCode?: string;
@@ -165,9 +165,9 @@ export interface BatchPlaceLimitOrderParam {
     expiry: number;
     ticks: number[];
     ratios: number[];
-    baseSize: BigNumber;
+    baseSize: bigint;
     side: Side;
-    leverage: BigNumber;
+    leverage: bigint;
     deadline: number;
     referralCode?: string;
     isInverse?: boolean;
@@ -177,8 +177,8 @@ export interface PlaceMarketOrderParam {
     instrumentAddr: string;
     expiry: number;
     side: Side;
-    baseSize: BigNumber;
-    margin: BigNumber;
+    baseSize: bigint;
+    margin: bigint;
     limitTick: number;
     deadline: number;
     referralCode?: string;
@@ -202,12 +202,12 @@ export interface PlaceCrossMarketOrderParam {
     instrumentAddr: string;
     expiry: number;
     side: Side;
-    tradeSize: BigNumber;
-    tradeMargin: BigNumber;
+    tradeSize: bigint;
+    tradeMargin: bigint;
     tradeLimitTick: number;
     orderTick: number;
-    orderSize: BigNumber;
-    orderMargin: BigNumber;
+    orderSize: bigint;
+    orderMargin: bigint;
     deadline: number;
     referralCode?: string;
     isInverse?: boolean;
@@ -219,9 +219,9 @@ export interface SettleParam {
     target: string;
 }
 
-export type ByBase = { base: BigNumber };
+export type ByBase = { base: bigint };
 
-export type ByQuote = { quote: BigNumber };
+export type ByQuote = { quote: bigint };
 
 export type TradeInfo = {
     instrumentAddr: string;
@@ -240,17 +240,17 @@ export interface SimulateTradeParamsBase {
     instrument?: Instrument;
     isInverse?: boolean;
     inquireResult?: {
-        size?: BigNumber;
+        size?: bigint;
         quotation: Quotation;
     };
 }
 
 export interface SimulateMarketOrderByMarginParams extends SimulateTradeParamsBase {
-    margin: BigNumber;
+    margin: bigint;
 }
 
 export interface SimulateMarketOrderByLeverageParams extends SimulateTradeParamsBase {
-    leverage: BigNumber;
+    leverage: bigint;
 }
 
 export interface SimulateCloseParams {
@@ -261,21 +261,21 @@ export interface SimulateCloseParams {
     instrument?: Instrument;
     isInverse?: boolean;
     inquireResult?: {
-        size?: BigNumber;
+        size?: bigint;
         quotation: Quotation;
     };
 }
 
 export interface SimulateTradeResult {
-    tradePrice: BigNumber;
-    tradeValue: BigNumber;
-    tradingFee: BigNumber;
-    stabilityFee: BigNumber;
-    margin: BigNumber;
-    marginChanged: BigNumber;
-    leverage: BigNumber;
-    priceImpact: BigNumber;
-    realized: BigNumber;
+    tradePrice: bigint;
+    tradeValue: bigint;
+    tradingFee: bigint;
+    stabilityFee: bigint;
+    margin: bigint;
+    marginChanged: bigint;
+    leverage: bigint;
+    priceImpact: bigint;
+    realized: bigint;
     postPosition: Position;
     limitTick: number;
     exceedMaxLeverage: boolean;
@@ -291,76 +291,76 @@ export interface SimulateAdjustMarginParamsBase {
 
 export interface SimulateAdjustMarginByMarginParams extends SimulateAdjustMarginParamsBase {
     transferIn: boolean;
-    margin: BigNumber;
+    margin: bigint;
 }
 
 export interface SimulateAdjustMarginByLeverageParams extends SimulateAdjustMarginParamsBase {
-    leverage: BigNumber;
+    leverage: bigint;
 }
 
 export interface SimulateAdjustMarginByMarginResult {
-    leverage: BigNumber;
+    leverage: bigint;
     postPosition: Position;
 }
 
 export interface SimulateAdjustMarginByLeverageResult {
     transferIn: boolean;
-    margin: BigNumber;
+    margin: bigint;
     postPosition: Position;
 }
 
 export interface SimulateAddLiquidityParams {
     expiry: number;
     instrument: Instrument | InstrumentIdentifier;
-    alphaWad: BigNumber;
-    margin: BigNumber;
+    alphaWad: bigint;
+    margin: bigint;
     slippage: number;
-    currentSqrtPX96?: BigNumber;
+    currentSqrtPX96?: bigint;
     isInverse?: boolean;
 }
 
 export interface SimulateAddLiquidityResult {
     tickDelta: number;
-    liquidity: BigNumber;
-    upperPrice: BigNumber;
-    lowerPrice: BigNumber;
+    liquidity: bigint;
+    upperPrice: bigint;
+    lowerPrice: bigint;
     lowerPosition: Position;
-    lowerLeverage: BigNumber;
+    lowerLeverage: bigint;
     upperPosition: Position;
-    upperLeverage: BigNumber;
-    limitTicks: BigNumber;
-    minMargin: BigNumber;
-    minEffectiveQuoteAmount: BigNumber;
-    equivalentAlpha: BigNumber;
+    upperLeverage: bigint;
+    limitTicks: bigint;
+    minMargin: bigint;
+    minEffectiveQuoteAmount: bigint;
+    equivalentAlpha: bigint;
     capitalEfficiencyBoost: number;
 }
 
 export interface SimulateAddLiquidityWithAsymmetricRangeParams {
     expiry: number;
     instrument: Instrument | InstrumentIdentifier;
-    alphaWadLower: BigNumber;
-    alphaWadUpper: BigNumber;
-    margin: BigNumber;
+    alphaWadLower: bigint;
+    alphaWadUpper: bigint;
+    margin: bigint;
     slippage: number;
-    currentSqrtPX96?: BigNumber;
+    currentSqrtPX96?: bigint;
     isInverse?: boolean;
 }
 
 export interface SimulateAddLiquidityWithAsymmetricRangeResult {
     tickDeltaLower: number;
     tickDeltaUpper: number;
-    liquidity: BigNumber;
-    upperPrice: BigNumber;
-    lowerPrice: BigNumber;
+    liquidity: bigint;
+    upperPrice: bigint;
+    lowerPrice: bigint;
     lowerPosition: Position;
-    lowerLeverage: BigNumber;
+    lowerLeverage: bigint;
     upperPosition: Position;
-    upperLeverage: BigNumber;
-    limitTicks: BigNumber;
-    minMargin: BigNumber;
-    minEffectiveQuoteAmount: BigNumber;
-    equivalentAlphaLower: BigNumber;
-    equivalentAlphaUpper: BigNumber;
+    upperLeverage: bigint;
+    limitTicks: bigint;
+    minMargin: bigint;
+    minEffectiveQuoteAmount: bigint;
+    equivalentAlphaLower: bigint;
+    equivalentAlphaUpper: bigint;
     capitalEfficiencyBoost: number;
 }
 
@@ -376,27 +376,27 @@ export interface SimulateRemoveLiquidityParams {
 export interface SimulateRemoveLiquidityResult {
     removedPosition: Position;
     postPosition: Position;
-    limitTicks: BigNumber;
-    removedPositionEntryPrice: BigNumber;
+    limitTicks: bigint;
+    removedPositionEntryPrice: bigint;
 }
 
 export interface SimulateCrossMarketOrderParams {
     tradeInfo: TradeInfo | Position;
-    priceInfo: BigNumber | number;
+    priceInfo: bigint | number;
     size: ByBase | ByQuote;
     side: Side;
-    leverage: BigNumber;
+    leverage: bigint;
     slippage: number;
     strictMode?: boolean;
     instrument?: Instrument;
     isInverse?: boolean;
     inquireResult?: {
         firstQuote: {
-            size: BigNumber;
+            size: bigint;
             quotation: Quotation;
         };
         secondQuote: {
-            size: BigNumber;
+            size: bigint;
             quotation: Quotation;
         };
     };
@@ -404,38 +404,38 @@ export interface SimulateCrossMarketOrderParams {
 
 export interface SimulateCrossMarketOrderResult {
     canPlaceOrder: boolean;
-    minOrderSize: BigNumber;
+    minOrderSize: bigint;
     tradeSimulation: SimulateTradeResult;
     orderSimulation: SimulateLimitOrderResult;
 }
 
 export interface SimulateLimitOrderParams {
     tradeInfo: TradeInfo;
-    priceInfo: BigNumber | number;
+    priceInfo: bigint | number;
     size: ByBase | ByQuote;
     side: Side;
-    leverage: BigNumber;
+    leverage: bigint;
     instrument?: Instrument;
     isInverse?: boolean;
 }
 
 export interface SimulateLimitOrderResult {
     tick: number;
-    margin: BigNumber;
-    leverage: BigNumber;
+    margin: bigint;
+    leverage: bigint;
     size: ByBase & ByQuote;
-    minFeeRebate: BigNumber;
-    limitPrice: BigNumber;
-    tradeValue: BigNumber;
+    minFeeRebate: bigint;
+    limitPrice: bigint;
+    tradeValue: bigint;
 }
 
 export interface SimulateBatchPlaceParams {
     tradeInfo: TradeInfo;
     targetTicks: number[];
     ratios: number[];
-    baseSize: BigNumber;
+    baseSize: bigint;
     side: Side;
-    leverage: BigNumber;
+    leverage: bigint;
     instrument?: Instrument;
 }
 
@@ -443,11 +443,11 @@ export type SimulateBatchPlaceResult = (SimulateLimitOrderResult | null)[];
 
 export interface SimulateScaledLimitOrderParams {
     tradeInfo: TradeInfo;
-    priceInfo: (BigNumber | number)[];
+    priceInfo: (bigint | number)[];
     sizeDistribution: BatchOrderSizeDistribution;
     size: ByBase | ByQuote;
     side: Side;
-    leverage: BigNumber;
+    leverage: bigint;
     instrument?: Instrument;
     isInverse?: boolean;
 }
@@ -456,11 +456,11 @@ export interface SimulateScaledLimitOrderResult {
     orders: (
         | (SimulateLimitOrderResult & {
               ratio: number;
-              minOrderSize: BigNumber;
+              minOrderSize: bigint;
           })
         | null
     )[];
-    totalMinSize: BigNumber;
+    totalMinSize: bigint;
     size: ByBase & ByQuote;
 }
 
@@ -468,8 +468,8 @@ export interface SimulateImpermenantLossParams {
     expiry: number;
     instrument: Instrument | InstrumentIdentifier;
     isInverse: boolean;
-    alphaWadLower: BigNumber;
-    alphaWadUpper: BigNumber;
+    alphaWadLower: bigint;
+    alphaWadUpper: bigint;
 }
 
 export interface SimulateImpermenantLossResult {

@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { safeWDiv, WAD } from '../math';
 import { Side } from '../enum';
 import { Portfolio, Instrument, Amm, Order, Position, Range } from '../types';
@@ -7,14 +6,14 @@ export function reverseSide(side: Side): Side {
     return side === Side.LONG ? Side.SHORT : side === Side.SHORT ? Side.LONG : Side.FLAT;
 }
 
-export function reversePrice(price: BigNumber) {
+export function reversePrice(price: bigint): bigint {
     return safeWDiv(WAD, price);
 }
 
 export function reverseOrder(order: Order): Order {
     return {
         ...order,
-        size: order.size.mul(-1),
+        size: order.size * BigInt(-1),
         side: reverseSide(order.side),
         limitPrice: reversePrice(order.limitPrice),
         isInverse: !order.isInverse,
@@ -24,7 +23,7 @@ export function reverseOrder(order: Order): Order {
 export function reversePosition(position: Position): Position {
     return {
         ...position,
-        size: position.size.mul(-1),
+        size: position.size * BigInt(-1),
         side: reverseSide(position.side),
         entryPrice: reversePrice(position.entryPrice),
         isInverse: !position.isInverse,
@@ -86,6 +85,6 @@ export function reverseInstrument(instrument: Instrument): Instrument {
     };
 }
 
-export function reversePriceInfo(priceInfo: BigNumber | number): BigNumber | number {
+export function reversePriceInfo(priceInfo: bigint | number): bigint | number {
     return typeof priceInfo === 'number' ? priceInfo : reversePrice(priceInfo);
 }

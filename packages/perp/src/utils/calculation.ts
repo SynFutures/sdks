@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { fromWad } from '@derivation-tech/context';
 import { PERP_EXPIRY, ONE_RATIO, ORDER_SPACING, EMPTY_AMM, PEARL_SPACING } from '../constants';
 import { ONE, ZERO, Q96, r2w, sqrtX96ToWad, TickMath, SqrtPriceMath, WAD, wdiv, wmul, wmulDown, wmulUp } from '../math';
@@ -75,14 +74,13 @@ export function positionLiquidationPrice(
     position: RawPosition | Position,
     amm: RawAmm | Amm = EMPTY_AMM,
     maintenanceMarginRatio = 500,
-): BigNumber {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): bigint {
     const _position: any = position;
 
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    if (position.size.isZero() || position.balance.isZero()) {
+    if (position.size === 0n || position.balance === 0n) {
         return ZERO;
     }
 
@@ -91,7 +89,7 @@ export function positionLiquidationPrice(
     return _position.isInverse ? reversePrice(price) : price;
 }
 
-export function positionUnrealizedSocialLoss(position: RawPosition | Position, amm: RawAmm | Amm): BigNumber {
+export function positionUnrealizedSocialLoss(position: RawPosition | Position, amm: RawAmm | Amm): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
@@ -100,21 +98,21 @@ export function positionUnrealizedSocialLoss(position: RawPosition | Position, a
     return socialLoss;
 }
 
-export function positionUnrealizedPnl(position: RawPosition | Position, amm: RawAmm | Amm): BigNumber {
+export function positionUnrealizedPnl(position: RawPosition | Position, amm: RawAmm | Amm): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
     return calcPnl(amm, position, amm.markPrice);
 }
 
-export function positionUnrealizedPnlByFairPrice(position: RawPosition | Position, amm: RawAmm | Amm): BigNumber {
+export function positionUnrealizedPnlByFairPrice(position: RawPosition | Position, amm: RawAmm | Amm): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
     return calcPnl(amm, position, sqrtX96ToWad(amm.sqrtPX96));
 }
 
-export function positionUnrealizedFundingFee(position: RawPosition | Position, amm: RawAmm | Amm): BigNumber {
+export function positionUnrealizedFundingFee(position: RawPosition | Position, amm: RawAmm | Amm): bigint {
     if (amm.expiry !== PERP_EXPIRY) {
         return ZERO;
     }
@@ -125,20 +123,20 @@ export function positionUnrealizedFundingFee(position: RawPosition | Position, a
     return calcFundingFee(amm, position);
 }
 
-export function positionEquity(position: RawPosition | Position, amm: RawAmm | Amm): BigNumber {
+export function positionEquity(position: RawPosition | Position, amm: RawAmm | Amm): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    return position.balance.add(positionUnrealizedPnl(position, amm));
+    return position.balance + positionUnrealizedPnl(position, amm);
 }
 
-export function positionLeverage(position: RawPosition | Position, amm: RawAmm | Amm): BigNumber {
+export function positionLeverage(position: RawPosition | Position, amm: RawAmm | Amm): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    const value = wmul(amm.markPrice, position.size.abs());
+    const value = wmul(amm.markPrice, position.size < 0n ? -position.size : position.size);
     const equity = positionEquity(position, amm);
-    if (equity.isZero()) {
+    if (equity === 0n) {
         return ZERO;
     }
 
@@ -149,20 +147,20 @@ export function positionMaxWithdrawableMargin(
     position: RawPosition | Position,
     amm: RawAmm | Amm,
     initialMarginRatio: number,
-): BigNumber {
+): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
     const { pnl, socialLoss } = tally(amm, position, amm.markPrice);
     const funding = calcFundingFee(amm, position);
 
-    const purePnl = pnl.add(socialLoss).sub(funding);
-    const unrealizedLoss = (purePnl.gt(ZERO) ? ZERO : purePnl).sub(socialLoss);
+    const purePnl = pnl + socialLoss - funding;
+    const unrealizedLoss = (purePnl > 0n ? 0n : purePnl) - socialLoss;
 
-    const value = wmulUp(amm.markPrice, position.size.abs());
-    const imRequirement = wmulUp(value, r2w(initialMarginRatio));
-    const maxWithdrawableMargin = position.balance.add(unrealizedLoss).sub(imRequirement);
-    return maxWithdrawableMargin.gt(ZERO) ? maxWithdrawableMargin : ZERO;
+    const value = wmulUp(amm.markPrice, position.size < 0n ? -position.size : position.size);
+    const imRequirement = wmulUp(value, r2w(BigInt(initialMarginRatio)));
+    const maxWithdrawableMargin = position.balance + unrealizedLoss - imRequirement;
+    return maxWithdrawableMargin > 0n ? maxWithdrawableMargin : 0n;
 }
 
 export function positionAdditionMarginToIMRSafe(
@@ -171,25 +169,25 @@ export function positionAdditionMarginToIMRSafe(
     initialMarginRatio: number,
     increase: boolean,
     slippage?: number,
-): BigNumber {
+): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    const positionValue = wmul(amm.markPrice, position.size.abs());
-    let imrValue = wmulUp(positionValue, r2w(initialMarginRatio));
+    const positionValue = wmul(amm.markPrice, position.size < 0n ? -position.size : position.size);
+    let imrValue = wmulUp(positionValue, r2w(BigInt(initialMarginRatio)));
     if (slippage) {
-        imrValue = imrValue.mul(ONE_RATIO + slippage).div(ONE_RATIO);
+        imrValue = (imrValue * BigInt(ONE_RATIO + slippage)) / BigInt(ONE_RATIO);
     }
     let equity;
     if (increase) {
         const unrealizedPnl = positionUnrealizedPnl(position, amm);
-        const unrealizedLoss = unrealizedPnl.lt(ZERO) ? unrealizedPnl : ZERO;
-        equity = position.balance.add(unrealizedLoss);
+        const unrealizedLoss = unrealizedPnl < 0n ? unrealizedPnl : 0n;
+        equity = position.balance + unrealizedLoss;
     } else {
         equity = positionEquity(position, amm);
     }
-    const additionMargin = imrValue.sub(equity);
-    return additionMargin.gt(ZERO) ? additionMargin : ZERO;
+    const additionMargin = imrValue - equity;
+    return additionMargin > 0n ? additionMargin : 0n;
 }
 
 export function isPositionIMSafe(
@@ -201,21 +199,21 @@ export function isPositionIMSafe(
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    let equity: BigNumber;
+    let equity: bigint;
     if (increase) {
         const unrealizedPnl = positionUnrealizedPnl(position, amm);
-        const unrealizedLoss = unrealizedPnl.lt(ZERO) ? unrealizedPnl : ZERO;
-        equity = position.balance.add(unrealizedLoss);
+        const unrealizedLoss = unrealizedPnl < 0n ? unrealizedPnl : 0n;
+        equity = position.balance + unrealizedLoss;
     } else {
         equity = positionEquity(position, amm);
     }
 
-    if (equity.isNegative()) {
+    if (equity < 0n) {
         return false;
     }
 
-    const positionValue = wmulUp(amm.markPrice, position.size.abs());
-    return equity.gte(wmulUp(positionValue, r2w(initialMarginRatio)));
+    const positionValue = wmulUp(amm.markPrice, position.size < 0n ? -position.size : position.size);
+    return equity >= wmulUp(positionValue, r2w(BigInt(initialMarginRatio)));
 }
 
 export function isPositionMMSafe(position: RawPosition | Position, amm: RawAmm | Amm, maintenanceMarginRatio: number) {
@@ -224,26 +222,26 @@ export function isPositionMMSafe(position: RawPosition | Position, amm: RawAmm |
 
     const equity = positionEquity(position, amm);
 
-    if (equity.isNegative()) {
+    if (equity < 0n) {
         return false;
     }
 
-    const positionValue = wmulUp(amm.markPrice, position.size.abs());
-    return equity.gte(wmulUp(positionValue, r2w(maintenanceMarginRatio)));
+    const positionValue = wmulUp(amm.markPrice, position.size < 0n ? -position.size : position.size);
+    return equity >= wmulUp(positionValue, r2w(BigInt(maintenanceMarginRatio)));
 }
 
 //////////////////////////////////////////
 // RawRange Calculation Interface
 //////////////////////////////////////////
 
-export function rangeEntryDeltaBase(range: RawRange | Range): BigNumber {
+export function rangeEntryDeltaBase(range: RawRange | Range): bigint {
     range = toRawRange(range);
 
     const sqrtUpperPX96 = TickMath.getSqrtRatioAtTick(range.tickUpper);
     return SqrtPriceMath.getDeltaBaseAutoRoundUp(range.sqrtEntryPX96, sqrtUpperPX96, range.liquidity);
 }
 
-export function rangeEntryDeltaQuote(range: RawRange | Range): BigNumber {
+export function rangeEntryDeltaQuote(range: RawRange | Range): bigint {
     range = toRawRange(range);
 
     const sqrtLowerPX96 = TickMath.getSqrtRatioAtTick(range.tickLower);
@@ -285,17 +283,17 @@ export function rangeToPosition(range: RawRange | Range, amm: RawAmm | Amm): Raw
     }
 
     // cal pnl
-    const earnedByBase = wmul(removeDeltaBase.sub(entryDeltaBase), fair);
-    const earnedByQuote = removeDeltaQuote.sub(entryDeltaQuote);
-    const pnl = earnedByBase.add(earnedByQuote);
-    const fee = wmulDown(amm.feeIndex.sub(range.entryFeeIndex), range.liquidity);
-    const size = removeDeltaBase.sub(entryDeltaBase);
+    const earnedByBase = wmul(removeDeltaBase - entryDeltaBase, fair);
+    const earnedByQuote = removeDeltaQuote - entryDeltaQuote;
+    const pnl = earnedByBase + earnedByQuote;
+    const fee = wmulDown(amm.feeIndex - range.entryFeeIndex, range.liquidity);
+    const size = removeDeltaBase - entryDeltaBase;
     const rawPosition = {
-        balance: range.balance.add(fee).add(pnl).sub(ONE),
+        balance: range.balance + fee + pnl - ONE,
         size: size,
-        entryNotional: wmul(fair, size.abs()),
-        entrySocialLossIndex: size.gt(ZERO) ? amm.longSocialLossIndex : amm.shortSocialLossIndex,
-        entryFundingIndex: size.gt(ZERO) ? amm.longFundingIndex : amm.shortFundingIndex,
+        entryNotional: wmul(fair, size < 0n ? -size : size),
+        entrySocialLossIndex: size > 0n ? amm.longSocialLossIndex : amm.shortSocialLossIndex,
+        entryFundingIndex: size > 0n ? amm.longFundingIndex : amm.shortFundingIndex,
     };
 
     if ('instrumentAddr' in _range) {
@@ -314,7 +312,7 @@ export function rangeToPosition(range: RawRange | Range, amm: RawAmm | Amm): Raw
     }
 }
 
-export function rangeValueLocked(range: RawRange | Range, amm: RawAmm | Amm): BigNumber {
+export function rangeValueLocked(range: RawRange | Range, amm: RawAmm | Amm): bigint {
     range = toRawRange(range);
     amm = toRawAmm(amm);
 
@@ -323,11 +321,11 @@ export function rangeValueLocked(range: RawRange | Range, amm: RawAmm | Amm): Bi
     return total.equity;
 }
 
-export function rangeFeeEarned(range: RawRange | Range, amm: RawAmm | Amm): BigNumber {
+export function rangeFeeEarned(range: RawRange | Range, amm: RawAmm | Amm): bigint {
     range = toRawRange(range);
     amm = toRawAmm(amm);
 
-    return wmulDown(amm.feeIndex.sub(range.entryFeeIndex), range.liquidity);
+    return wmulDown(amm.feeIndex - range.entryFeeIndex, range.liquidity);
 }
 
 function customAmm(tick: number, input: RawAmm): RawAmm {
@@ -404,7 +402,7 @@ export function orderToPosition(order: RawOrder | Order): RawPosition | Position
     const rawPosition = {
         balance: order.balance,
         size: order.size,
-        entryNotional: wmul(TickMath.getWadAtTick(order.tick), order.size.abs()),
+        entryNotional: wmul(TickMath.getWadAtTick(order.tick), order.size < 0n ? -order.size : order.size),
         entrySocialLossIndex: ZERO,
         entryFundingIndex: ZERO,
     };
@@ -425,17 +423,17 @@ export function orderToPosition(order: RawOrder | Order): RawPosition | Position
     }
 }
 
-export function orderLeverage(order: RawOrder | Order, amm: RawAmm | Amm): BigNumber {
+export function orderLeverage(order: RawOrder | Order, amm: RawAmm | Amm): bigint {
     order = toRawOrder(order);
     amm = toRawAmm(amm);
 
     const limitPrice = TickMath.getWadAtTick(order.tick);
-    const px = order.taken.eq(ZERO) ? limitPrice : amm.markPrice;
-    const value = wmul(px, order.size.abs());
+    const px = order.taken === 0n ? limitPrice : amm.markPrice;
+    const value = wmul(px, order.size < 0n ? -order.size : order.size);
     return wdiv(value, order.balance);
 }
 
-export function orderEquity(order: RawOrder | Order, amm: RawAmm | Amm): BigNumber {
+export function orderEquity(order: RawOrder | Order, amm: RawAmm | Amm): bigint {
     order = toRawOrder(order);
     amm = toRawAmm(amm);
 
@@ -453,14 +451,13 @@ export function ammPlaceOrderLimit(
     upperTick: number;
     lowerTick: number;
 } {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const _amm: any = amm;
 
     amm = toRawAmm(amm);
 
-    const maxDiff = wmul(amm.markPrice, r2w(initialMarginRatio)).mul(2);
-    const rawUpperTick = TickMath.getTickAtPWad(amm.markPrice.add(maxDiff));
-    const rawLowerTick = TickMath.getTickAtPWad(amm.markPrice.sub(maxDiff));
+    const maxDiff = wmul(amm.markPrice, r2w(BigInt(initialMarginRatio))) * 2n;
+    const rawUpperTick = TickMath.getTickAtPWad(amm.markPrice + maxDiff);
+    const rawLowerTick = TickMath.getTickAtPWad(amm.markPrice - maxDiff);
     let upperTick = ORDER_SPACING * Math.floor(rawUpperTick / ORDER_SPACING);
     let lowerTick = ORDER_SPACING * Math.ceil(rawLowerTick / ORDER_SPACING);
     if (!withinOrderLimit(TickMath.getWadAtTick(rawUpperTick), amm.markPrice, initialMarginRatio)) {
@@ -489,13 +486,12 @@ export function ammPlaceCrossMarketOrderLimit(
     upperTick: number;
     lowerTick: number;
 } {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const _amm: any = amm;
 
     amm = toRawAmm(amm);
 
-    const priceLower = amm.markPrice.sub(wmul(amm.markPrice, r2w(maintenanceMarginRatio)));
-    const priceUpper = amm.markPrice.add(wmul(amm.markPrice, r2w(maintenanceMarginRatio)));
+    const priceLower = amm.markPrice - wmul(amm.markPrice, r2w(BigInt(maintenanceMarginRatio)));
+    const priceUpper = amm.markPrice + wmul(amm.markPrice, r2w(BigInt(maintenanceMarginRatio)));
     const upperTick = ORDER_SPACING * Math.floor(TickMath.getTickAtPWad(priceUpper) / ORDER_SPACING);
     const lowerTick = ORDER_SPACING * Math.ceil(TickMath.getTickAtPWad(priceLower) / ORDER_SPACING);
 
@@ -520,7 +516,7 @@ export function ammWithinDeviationLimit(amm: RawAmm | Amm, initialMarginRatio: n
 // Top Level Calculation Interface
 //////////////////////////////////////////
 
-export function getMinLiquidity(instrument: Instrument, expiry: number, px96?: BigNumber): BigNumber {
+export function getMinLiquidity(instrument: Instrument, expiry: number, px96?: bigint): bigint {
     instrument = instrument.isInverse ? reverseInstrument(instrument) : instrument;
 
     const amm = instrument.amms.get(expiry);
@@ -530,17 +526,16 @@ export function getMinLiquidity(instrument: Instrument, expiry: number, px96?: B
 
     const sqrtPX96 = px96 ? px96 : amm.sqrtPX96;
 
-    return instrument.minRangeValue.mul(Q96).div(sqrtPX96.mul(2));
+    return (instrument.minRangeValue * Q96) / (sqrtPX96 * 2n);
 }
 
 // calc pair funding rate: fairPrice / spotIndex - 1
-export function getFundingRate(instrument: Instrument, expiry: number): BigNumber {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getFundingRate(instrument: Instrument, expiry: number): bigint {
     const _instrument: any = instrument;
 
     instrument = instrument.isInverse ? reverseInstrument(instrument) : instrument;
 
-    if (instrument.spotPrice.eq(0)) {
+    if (instrument.spotPrice === 0n) {
         throw new SynfError('Spot price can not be zero');
     }
 
@@ -550,12 +545,12 @@ export function getFundingRate(instrument: Instrument, expiry: number): BigNumbe
     }
 
     const period = instrument.fundingHour * 3600;
-    const result = wdiv(sqrtX96ToWad(amm.sqrtPX96), instrument.spotPrice).sub(WAD).mul(86400).div(period);
+    const result = ((wdiv(sqrtX96ToWad(amm.sqrtPX96), instrument.spotPrice) - WAD) * 86400n) / BigInt(period);
 
-    return _instrument.isInverse ? result.mul(-1) : result;
+    return _instrument.isInverse ? -result : result;
 }
 
-export function getBenchmarkPrice(instrument: Instrument, expiry: number): BigNumber {
+export function getBenchmarkPrice(instrument: Instrument, expiry: number): bigint {
     instrument = instrument.isInverse ? reverseInstrument(instrument) : instrument;
 
     if (expiry === PERP_EXPIRY) {
@@ -567,13 +562,13 @@ export function getBenchmarkPrice(instrument: Instrument, expiry: number): BigNu
         if (instrumentType === FeederType.BOTH_STABLE || instrumentType === FeederType.NONE_STABLE) {
             return instrument.spotPrice;
         } else if (instrumentType === FeederType.QUOTE_STABLE) {
-            return wmulDown(rawSpotPrice, r2w(instrument.market.config.dailyInterestRate))
-                .mul(daysLeft)
-                .add(rawSpotPrice);
+            return wmulDown(rawSpotPrice, r2w(BigInt(instrument.market.config.dailyInterestRate)))
+                * BigInt(daysLeft)
+                + rawSpotPrice;
         } else {
             /* else if (this.rootInstrument.instrumentType === FeederType.BASE_STABLE)*/
-            const priceChange = wmulDown(rawSpotPrice, r2w(instrument.market.config.dailyInterestRate)).mul(daysLeft);
-            return rawSpotPrice.gt(priceChange) ? rawSpotPrice.sub(priceChange) : ZERO;
+            const priceChange = wmulDown(rawSpotPrice, r2w(BigInt(instrument.market.config.dailyInterestRate))) * BigInt(daysLeft);
+            return rawSpotPrice > priceChange ? rawSpotPrice - priceChange : 0n;
         }
     }
 }
@@ -581,13 +576,13 @@ export function getBenchmarkPrice(instrument: Instrument, expiry: number): BigNu
 export function estimateAPY(
     instrument: Instrument,
     expiry: number,
-    poolFee24h: BigNumber,
-    alphaWad: BigNumber,
+    poolFee24h: bigint,
+    alphaWad: bigint,
 ): number {
     instrument = instrument.isInverse ? reverseInstrument(instrument) : instrument;
 
     const amm = instrument.amms.get(expiry);
-    if (!amm || amm.liquidity.eq(ZERO)) {
+    if (!amm || amm.liquidity === 0n) {
         return 0;
     }
 
@@ -603,18 +598,18 @@ export function estimateAPY(
         assumeAddMargin,
         instrument.setting.initialMarginRatio,
     );
-    const assumed24HrFee: BigNumber = poolFee24h.mul(assumeAddLiquidity).div(amm.liquidity);
-    const apyWad: BigNumber = wdiv(assumed24HrFee.mul(365), assumeAddMargin);
+    const assumed24HrFee: bigint = (poolFee24h * assumeAddLiquidity) / amm.liquidity;
+    const apyWad: bigint = wdiv(assumed24HrFee * 365n, assumeAddMargin);
 
     return fromWad(apyWad);
 }
 
-export function estimateAdjustMarginLeverage(position: RawPosition | Position, amm: RawAmm | Amm, amount: BigNumber) {
+export function estimateAdjustMarginLeverage(position: RawPosition | Position, amm: RawAmm | Amm, amount: bigint) {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    const equity = positionEquity(position, amm).sub(amount);
-    const value = wmul(amm.markPrice, position.size.abs()).sub(amount);
+    const equity = positionEquity(position, amm) - amount;
+    const value = wmul(amm.markPrice, position.size < 0n ? -position.size : position.size) - amount;
     return wdiv(value, equity);
 }
 
@@ -625,16 +620,16 @@ export function inquireLeverageFromTransferAmount(
     position: RawPosition | Position,
     amm: RawAmm | Amm,
     transferIn: boolean,
-    transferAmount: BigNumber,
-): BigNumber {
+    transferAmount: bigint,
+): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    const sign: number = transferIn ? 1 : -1;
-    const value = wmul(amm.markPrice, position.size.abs());
+    const sign: bigint = transferIn ? 1n : -1n;
+    const value = wmul(amm.markPrice, position.size < 0n ? -position.size : position.size);
     const oldEquity = positionEquity(position, amm);
-    const Amount = transferAmount.mul(sign);
-    const newEquity = oldEquity.add(Amount);
+    const Amount = transferAmount * sign;
+    const newEquity = oldEquity + Amount;
     // leverage is 18 decimal
     return wdiv(value, newEquity);
 }
@@ -644,19 +639,18 @@ export function inquireLeverageFromTransferAmount(
 export function inquireTransferAmountFromTargetLeverage(
     position: RawPosition | Position,
     amm: RawAmm | Amm,
-    targetLeverage: BigNumber,
-): BigNumber {
+    targetLeverage: bigint,
+): bigint {
     position = toRawPosition(position);
     amm = toRawAmm(amm);
 
-    const value = wmul(amm.markPrice, position.size.abs());
+    const value = wmul(amm.markPrice, position.size < 0n ? -position.size : position.size);
     const targetEquity = wdiv(value, targetLeverage);
     const currentEquity = positionEquity(position, amm);
-    return targetEquity.sub(currentEquity);
+    return targetEquity - currentEquity;
 }
 
 export function calcLimitOrderTickBoundary(amm: RawAmm | Amm, initialMarginRatio: number, side: Side) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const _amm: any = amm;
 
     if (_amm.isInverse) {
@@ -708,7 +702,6 @@ export function calcCrossMarketOrderTickBoundary(
     maintenanceMarginRatio: number,
     side: Side,
 ) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const _amm: any = amm;
 
     if (_amm.isInverse) {

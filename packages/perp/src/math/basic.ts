@@ -1,5 +1,5 @@
 // basic math calculations
-import { BigNumber, BigNumberish } from 'ethers';
+// Removed BigNumber import, using native bigint
 import { solidityRequire } from '../utils';
 import { TickMath } from './tickMath';
 import { ONE_RATIO, PEARL_SPACING, RATIO_DECIMALS } from '../constants';
@@ -21,71 +21,80 @@ import {
 } from './constants';
 import { CalculationError } from '../errors/calculationError';
 
-export function mulDivRoundingUp(a: BigNumber, b: BigNumber, denominator: BigNumber): BigNumber {
-    const product = a.mul(b);
-    let result = product.div(denominator);
-    if (!product.mod(denominator).eq(ZERO)) result = result.add(ONE);
+// Helper functions for bigint operations
+export function bigIntAbs(x: bigint): bigint {
+    return x < 0n ? -x : x;
+}
+
+export function bigIntNeg(x: bigint): bigint {
+    return ZERO - x;
+}
+
+export function mulDivRoundingUp(a: bigint, b: bigint, denominator: bigint): bigint {
+    const product = a * b;
+    let result = product / denominator;
+    if (product % denominator !== ZERO) result = result + ONE;
     return result;
 }
 
-export function mulShift(val: BigNumber, mulBy: string): BigNumber {
-    return val.mul(BigNumber.from(mulBy)).shr(128);
+export function mulShift(val: bigint, mulBy: string): bigint {
+    return (val * BigInt(mulBy)) >> BigInt(128);
 }
 
-export function multiplyIn256(x: BigNumber, y: BigNumber): BigNumber {
-    return x.mul(y).and(MAX_UINT_256);
+export function multiplyIn256(x: bigint, y: bigint): bigint {
+    return (x * y) & MAX_UINT_256;
 }
 
-export function addIn256(x: BigNumber, y: BigNumber): BigNumber {
-    return x.add(y).and(MAX_UINT_256);
+export function addIn256(x: bigint, y: bigint): bigint {
+    return (x + y) & MAX_UINT_256;
 }
 
-export function oppositeSigns(x: BigNumber, y: BigNumber): boolean {
-    return x.mul(y).lt(ZERO) ? true : false;
+export function oppositeSigns(x: bigint, y: bigint): boolean {
+    return (x * y) < ZERO;
 }
 
-export function mostSignificantBit(x: BigNumber): number {
-    solidityRequire(x.gt(0), 'ZERO');
-    solidityRequire(x.lte(MAX_UINT_256), 'MAX');
+export function mostSignificantBit(x: bigint): number {
+    solidityRequire(x > 0n, 'ZERO');
+    solidityRequire(x <= MAX_UINT_256, 'MAX');
 
     let msb = 0;
     for (const [power, min] of POWERS_OF_2) {
-        if (x.gte(min)) {
-            x = x.shr(power);
+        if (x >= min) {
+            x = x >> BigInt(power);
             msb += power;
         }
     }
     return msb;
 }
 
-export function sqrt(value: BigNumber): BigNumber {
-    solidityRequire(value.gte(0), 'NEGATIVE');
+export function sqrt(value: bigint): bigint {
+    solidityRequire(value >= 0n, 'NEGATIVE');
 
     // rely on built in sqrt if possible
-    if (value.lt(MAX_SAFE_INTEGER)) {
-        return BigNumber.from(Math.floor(Math.sqrt(Number(value))));
+    if (value < MAX_SAFE_INTEGER) {
+        return BigInt(Math.floor(Math.sqrt(Number(value))));
     }
-    let z: BigNumber;
-    let x: BigNumber;
+    let z: bigint;
+    let x: bigint;
     z = value;
-    x = value.div(TWO).add(ONE);
-    while (x.lt(z)) {
+    x = (value / TWO) + ONE;
+    while (x < z) {
         z = x;
-        x = value.div(x).add(x).div(TWO);
+        x = ((value / x) + x) / TWO;
     }
     return z;
 }
 
-export function roundHalfUp(x: BigNumber, y: BigNumber): BigNumber {
-    const z = y.div(TWO);
-    if (x.gt(0)) {
-        return x.add(z);
+export function roundHalfUp(x: bigint, y: bigint): bigint {
+    const z = y / TWO;
+    if (x > 0n) {
+        return x + z;
     }
-    return x.sub(z);
+    return x - z;
 }
 
-export function neg(x: BigNumber): BigNumber {
-    return ZERO.sub(x);
+export function neg(x: bigint): bigint {
+    return ZERO - x;
 }
 
 // simulate the '/' operator for signed number in Solidity language.
@@ -102,189 +111,186 @@ export function signedDiv(x: number, y: number): number {
 }
 
 // division for unsigned WAD number, rounding to nearest
-export function wdiv(x: BigNumber, y: BigNumber): BigNumber {
+export function wdiv(x: bigint, y: bigint): bigint {
     return frac(x, WAD, y);
 }
 
 // division for unsigned WAD number, rounding to nearest
-export function safeWDiv(x: BigNumber, y: BigNumber): BigNumber {
-    if (y.eq(ZERO)) return ZERO;
+export function safeWDiv(x: bigint, y: bigint): bigint {
+    if (y === ZERO) return ZERO;
     return frac(x, WAD, y);
 }
 
 // division for unsigned WAD number, rounding up
-export function wdivUp(x: BigNumber, y: BigNumber): BigNumber {
+export function wdivUp(x: bigint, y: bigint): bigint {
     return fracUp(x, WAD, y);
 }
 
 // division for unsigned WAD number, rounding down
-export function wdivDown(x: BigNumber, y: BigNumber): BigNumber {
+export function wdivDown(x: bigint, y: bigint): bigint {
     return fracDown(x, WAD, y);
 }
 
 // multiplication for unsigned WAD number, rounding to nearest
-export function wmul(x: BigNumber, y: BigNumber): BigNumber {
+export function wmul(x: bigint, y: bigint): bigint {
     return frac(x, y, WAD);
 }
 
 // multiplication for signed WAD number, rounding to nearest
 // equivalent to LibMathSigned.wmul(int, int)
-export function wmulInt(x: BigNumber, y: BigNumber): BigNumber {
-    let product = x.mul(y);
-    if (product.isNegative()) {
-        product = product.sub(WAD.div(2));
+export function wmulInt(x: bigint, y: bigint): bigint {
+    let product = x * y;
+    if (product < 0n) {
+        product = product - (WAD / TWO);
     } else {
-        product = product.add(WAD.div(2));
+        product = product + (WAD / TWO);
     }
-    return product.div(WAD);
+    return product / WAD;
 }
 
 // multiplication for unsigned WAD number, rounding up
-export function wmulUp(x: BigNumber, y: BigNumber): BigNumber {
+export function wmulUp(x: bigint, y: bigint): bigint {
     return fracUp(x, y, WAD);
 }
 
 // multiplication for unsigned WAD number, rounding down
-export function wmulDown(x: BigNumber, y: BigNumber): BigNumber {
+export function wmulDown(x: bigint, y: bigint): bigint {
     return fracDown(x, y, WAD);
 }
 
 // multiplication & division
 // z = x * y / w, rounding up
-export function fracUp(x: BigNumber, y: BigNumber, w: BigNumber): BigNumber {
-    const prod = x.mul(y).add(w.sub(1)); // (x * y + w - 1)
-    return prod.div(w); // (x * y + w - 1) / w
+export function fracUp(x: bigint, y: bigint, w: bigint): bigint {
+    const prod = (x * y) + (w - ONE); // (x * y + w - 1)
+    return prod / w; // (x * y + w - 1) / w
 }
 
 // multiplication & division
 // z = x * y / w, rounding up
-export function fracDown(x: BigNumber, y: BigNumber, w: BigNumber): BigNumber {
-    return x.mul(y).div(w);
+export function fracDown(x: bigint, y: bigint, w: bigint): bigint {
+    return (x * y) / w;
 }
 
 // multiplication & division
 // z = x * y / w, rounding to nearest
-export function frac(x: BigNumber, y: BigNumber, w: BigNumber): BigNumber {
-    const prod = x.mul(y).add(w.div(2)); // (x * y + w / 2)
-    return prod.div(w); // (x * y + w / 2) / w
+export function frac(x: bigint, y: bigint, w: bigint): bigint {
+    const prod = (x * y) + (w / TWO); // (x * y + w / 2)
+    return prod / w; // (x * y + w / 2) / w
 }
 
-export function weightedAverage(w1: BigNumber, x1: BigNumber, w2: BigNumber, x2: BigNumber): BigNumber {
-    return x1.mul(w1).add(x2.mul(w2)).div(w1.add(w2));
+export function weightedAverage(w1: bigint, x1: bigint, w2: bigint, x2: bigint): bigint {
+    return ((x1 * w1) + (x2 * w2)) / (w1 + w2);
 }
 
 // convert config ratio(r) to Wad(w)
 // eg: 1000 => 1000 * 10 ** 18 / 10 ** 4
-export function r2w(x: BigNumberish): BigNumber {
-    x = BigNumber.from(x);
-    return x.mul(BigNumber.from(10).pow(14));
+export function r2w(x: bigint): bigint {
+    return x * BigInt(10) ** BigInt(14);
 }
 
-export function s2w(x: BigNumberish): BigNumber {
-    x = BigNumber.from(x);
-    return x.mul(BigNumber.from(10).pow(16));
+export function s2w(x: bigint): bigint {
+    return x * BigInt(10) ** BigInt(16);
 }
 
-export function d2w(x: BigNumber, decimals: number): BigNumber {
-    return x.mul(BigNumber.from(10).pow(18 - decimals));
+export function d2w(x: bigint, decimals: number): bigint {
+    return x * BigInt(10) ** BigInt(18 - decimals);
 }
 
-export function w2d(x: BigNumber, decimals: number): BigNumber {
-    return wmul(x, BigNumber.from(10).pow(decimals));
+export function w2d(x: bigint, decimals: number): bigint {
+    return wmul(x, BigInt(10) ** BigInt(decimals));
 }
 
-export function mulMod(x: BigNumber, y: BigNumber, d: BigNumber): BigNumber {
-    return x.mod(d).mul(y.mod(d)).mod(d);
+export function mulMod(x: bigint, y: bigint, d: bigint): bigint {
+    return ((x % d) * (y % d)) % d;
 }
 
-export function fullMul(x: BigNumber, y: BigNumber): { l: BigNumber; h: BigNumber } {
+export function fullMul(x: bigint, y: bigint): { l: bigint; h: bigint } {
     const mm = mulMod(x, y, MAX_UINT_256);
-    const l = x.mul(y);
-    let h = mm.sub(l);
-    if (mm.lt(l)) {
-        h = h.sub(1);
+    const l = x * y;
+    let h = mm - l;
+    if (mm < l) {
+        h = h - ONE;
     }
     return { l, h };
 }
 
-export function fullDiv(l: BigNumber, h: BigNumber, d: BigNumber): BigNumber {
-    const negd = MAX_UINT_256.sub(d).add(1);
-    const pow2 = d.and(negd);
-    d = d.div(pow2);
-    l = l.div(pow2);
-    const negPow2 = MAX_UINT_256.sub(pow2).add(1);
-    l = l.add(h.mul(negPow2.div(pow2).add(1)));
+export function fullDiv(l: bigint, h: bigint, d: bigint): bigint {
+    const negd = MAX_UINT_256 - d + ONE;
+    const pow2 = d & negd;
+    d = d / pow2;
+    l = l / pow2;
+    const negPow2 = MAX_UINT_256 - pow2 + ONE;
+    l = l + (h * (negPow2 / pow2 + ONE));
     let r = ONE;
     for (let i = 0; i < 8; i++) {
-        r = r.mul(TWO.sub(d.mul(r)));
+        r = r * (TWO - (d * r));
     }
-    return l.mul(r);
+    return l * r;
 }
 
-export function mulDiv(x: BigNumber, y: BigNumber, d: BigNumber): BigNumber {
+export function mulDiv(x: bigint, y: bigint, d: bigint): bigint {
     let { l: _l, h: _h } = fullMul(x, y);
     const mm = mulMod(x, y, d);
-    if (mm.gt(_l)) {
-        _h = _h.sub(1);
+    if (mm > _l) {
+        _h = _h - ONE;
     }
-    _l = _l.sub(mm);
+    _l = _l - mm;
     return fullDiv(_l, _h, d);
 }
 
-export function sqrtX96ToWad(sqrtPX96: BigNumberish): BigNumber {
-    sqrtPX96 = BigNumber.from(sqrtPX96);
+export function sqrtX96ToWad(sqrtPX96: bigint): bigint {
     const px96 = mulDiv(sqrtPX96, sqrtPX96, Q96);
     return mulDiv(px96, WAD, Q96);
 }
 
-export function wadToSqrtX96(price: BigNumber): BigNumber {
-    const x96 = price.mul(Q96).div(WAD);
-    return sqrt(x96.mul(Q96));
+export function wadToSqrtX96(price: bigint): bigint {
+    const x96 = (price * Q96) / WAD;
+    return sqrt(x96 * Q96);
 }
 
-export function wadToTick(price: BigNumber): number {
+export function wadToTick(price: bigint): number {
     const sqrtX96 = wadToSqrtX96(price);
     return TickMath.getTickAtSqrtRatio(sqrtX96);
 }
 
-export function leastSignificantBit(x: BigNumber): number {
+export function leastSignificantBit(x: bigint): number {
     let r = 255;
-    if (x.and(MAX_UINT_128).gt(ZERO)) {
+    if ((x & MAX_UINT_128) > ZERO) {
         r -= 128;
     } else {
-        x = x.shr(128);
+        x = x >> BigInt(128);
     }
-    if (x.and(MAX_UINT_64).gt(ZERO)) {
+    if ((x & MAX_UINT_64) > ZERO) {
         r -= 64;
     } else {
-        x = x.shr(64);
+        x = x >> BigInt(64);
     }
-    if (x.and(MAX_UINT_32).gt(ZERO)) {
+    if ((x & MAX_UINT_32) > ZERO) {
         r -= 32;
     } else {
-        x = x.shr(32);
+        x = x >> BigInt(32);
     }
-    if (x.and(MAX_UINT_16).gt(ZERO)) {
+    if ((x & MAX_UINT_16) > ZERO) {
         r -= 16;
     } else {
-        x = x.shr(16);
+        x = x >> BigInt(16);
     }
-    if (x.and(MAX_UINT_8).gt(ZERO)) {
+    if ((x & MAX_UINT_8) > ZERO) {
         r -= 8;
     } else {
-        x = x.shr(8);
+        x = x >> BigInt(8);
     }
-    if (x.and(BigNumber.from('0xf')).gt(ZERO)) {
+    if ((x & BigInt('0xf')) > ZERO) {
         r -= 4;
     } else {
-        x = x.shr(4);
+        x = x >> BigInt(4);
     }
-    if (x.and(BigNumber.from('0x3')).gt(ZERO)) {
+    if ((x & BigInt('0x3')) > ZERO) {
         r -= 2;
     } else {
-        x = x.shr(2);
+        x = x >> BigInt(2);
     }
-    if (x.and(BigNumber.from('0x1')).gt(ZERO)) r -= 1;
+    if ((x & BigInt('0x1')) > ZERO) r -= 1;
     return r;
 }
 
@@ -296,24 +302,24 @@ export function leastNonnegativeComplement(x: number, modulus: number): number {
     return (modulus - (x % modulus)) % modulus;
 }
 
-export function maxAmongThree(a: BigNumber, b: BigNumber, c: BigNumber): BigNumber {
-    return (a.gt(b) ? a : b).gt(c) ? (a.gt(b) ? a : b) : c;
+export function maxAmongThree(a: bigint, b: bigint, c: bigint): bigint {
+    return (a > b ? a : b) > c ? (a > b ? a : b) : c;
 }
 
-export function max(left: BigNumber, right: BigNumber): BigNumber {
-    return left.gt(right) ? left : right;
+export function max(left: bigint, right: bigint): bigint {
+    return left > right ? left : right;
 }
 
-export function min(left: BigNumber, right: BigNumber): BigNumber {
-    return left.gt(right) ? right : left;
+export function min(left: bigint, right: bigint): bigint {
+    return left > right ? right : left;
 }
 
-export function relativeDiffRatioWadAbs(wadA: BigNumber, wadB: BigNumber): BigNumber {
-    return wdivUp(wadA.sub(wadB).abs(), wadA.lt(wadB) ? wadA : wadB);
+export function relativeDiffRatioWadAbs(wadA: bigint, wadB: bigint): bigint {
+    return wdivUp(bigIntAbs(wadA - wadB), wadA < wadB ? wadA : wadB);
 }
 
-export function getOrderLeverageByMargin(targetTick: number, baseSize: BigNumber, margin: BigNumber): BigNumber {
-    return wdiv(wmul(TickMath.getWadAtTick(targetTick), baseSize.abs()), margin);
+export function getOrderLeverageByMargin(targetTick: number, baseSize: bigint, margin: bigint): bigint {
+    return wdiv(wmul(TickMath.getWadAtTick(targetTick), bigIntAbs(baseSize)), margin);
 }
 
 export function getMaxLeverage(imr: number): number {
@@ -321,19 +327,17 @@ export function getMaxLeverage(imr: number): number {
 }
 
 export function getMinOrderMargin(
-    targetPrice: BigNumber,
-    markPrice: BigNumber,
-    baseSize: BigNumber,
+    targetPrice: bigint,
+    markPrice: bigint,
+    baseSize: bigint,
     imr: number,
     slippage = 50,
 ) {
     const minMargin = wmulUp(
-        r2w(imr),
+        r2w(BigInt(imr)),
         wmulUp(
             max(
-                markPrice
-                    .mul(ONE_RATIO + slippage) // add slippage
-                    .div(ONE_RATIO),
+                (markPrice * BigInt(ONE_RATIO + slippage)) / BigInt(ONE_RATIO), // add slippage
                 targetPrice,
             ),
             baseSize,
@@ -344,26 +348,26 @@ export function getMinOrderMargin(
 }
 
 export function calcMaxWithdrawable(
-    threshold: BigNumber,
+    threshold: bigint,
     pending: Pending,
     fundFlow: FundFlow,
-    reserve: BigNumber,
-): BigNumber {
+    reserve: bigint,
+): bigint {
     // exceed threshold condition
     // totalOut - totalIn + amount + quantity > threshold + exemption
     // quantity = threshold + exemption - totalOut + totalIn - amount
     const maxWithdrawable = threshold
-        .add(pending.exemption)
-        .sub(fundFlow.totalOut)
-        .add(fundFlow.totalIn)
-        .sub(pending.amount);
+        + pending.exemption
+        - fundFlow.totalOut
+        + fundFlow.totalIn
+        - pending.amount;
     // should be capped by 0 and reserve
-    if (maxWithdrawable.lte(0)) return ZERO;
-    if (maxWithdrawable.gt(reserve)) return reserve;
+    if (maxWithdrawable <= 0n) return ZERO;
+    if (maxWithdrawable > reserve) return reserve;
     return maxWithdrawable;
 }
 
-export function alignPriceToTick(price: BigNumber): { tick: number; price: BigNumber } {
+export function alignPriceToTick(price: bigint): { tick: number; price: bigint } {
     let tick = wadToTick(price);
     tick = Math.round(tick / PEARL_SPACING) * PEARL_SPACING;
 

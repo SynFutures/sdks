@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { hexZeroPad } from 'ethers/lib/utils';
 import { INT24_MAX, MAX_CANCEL_ORDER_COUNT, RATIO_BASE } from '../constants';
 import { EMPTY_TICK, MAX_INT_24, ONE, ZERO, asUint128, asUint24, asUint48, asUint16, asInt24, asInt128 } from '../math';
@@ -27,24 +27,29 @@ const limitStabilityFeeRatioLength = 16;
 const ratioLength = 16;
 const leverageLength = 128;
 
-function bytes32ToBigNumber(str: string): BigNumber {
+function bytes32ToBigInt(str: string): bigint {
     str = str.startsWith('0x') ? str : '0x' + str;
     if (str.length !== 66) {
         throw new ParamsEncodeError('invalid bytes32 string', { str });
     }
-    return BigNumber.from(str);
+    return BigInt(str);
 }
 
-function pickNumber(value: BigNumber, from: number, to: number): number {
-    return pickBigNumber(value, from, to).toNumber();
+function pickNumber(value: bigint, from: number, to: number): number {
+    return Number(pickBigInt(value, from, to));
 }
 
-function pickAddress(value: BigNumber, from: number, to: number): string {
-    return hexZeroPad(pickBigNumber(value, from, to).toHexString(), 20);
+function pickAddress(value: bigint, from: number, to: number): string {
+    return hexZeroPad('0x' + pickBigInt(value, from, to).toString(16).padStart(40, '0'), 20);
 }
 
-function pickBigNumber(value: BigNumber, from: number, to: number): BigNumber {
-    return value.shr(from).and(ONE.shl(to - from).sub(1));
+function pickBigInt(value: bigint, from: number, to: number): bigint {
+    return (value >> BigInt(from)) & ((ONE << BigInt(to - from)) - ONE);
+}
+
+// Helper function to convert bigint to hex string with proper padding
+function bigIntToHex(value: bigint, padding: number = 32): string {
+    return hexZeroPad('0x' + value.toString(16), padding);
 }
 
 export function checkReferralCode(referral: string): void {
@@ -58,8 +63,8 @@ export function getHexReferral(referral: string): string {
     const wallet = referral.charCodeAt(1);
     const channel = referral.slice(2);
     return ethers.utils.hexConcat([
-        BigNumber.from(platform).toHexString(),
-        BigNumber.from(wallet).toHexString(),
+        '0x' + BigInt(platform).toString(16),
+        '0x' + BigInt(wallet).toString(16),
         ethers.utils.hexlify(ethers.utils.toUtf8Bytes(channel)),
     ]);
 }
@@ -69,17 +74,14 @@ function encodeParamForTradeAndPlace(param: TradeParam): [string, string] {
     const uAmount = asUint128(param.amount);
 
     const uTick = asUint24(param.limitTick);
-    const combinedTick = BigNumber.from(uTick).shl(32).add(BigNumber.from(param.expiry));
-    const combinedDeadline = BigNumber.from(param.deadline).shl(56).add(combinedTick);
-    const combinedSize = BigNumber.from(usize).shl(128).add(uAmount);
-    const page0Temp = hexZeroPad(combinedDeadline.toHexString(), 32);
-    const page1 = hexZeroPad(combinedSize.toHexString(), 32);
+    const combinedTick = (BigInt(uTick) << BigInt(32)) + BigInt(param.expiry);
+    const combinedDeadline = (BigInt(param.deadline) << BigInt(56)) + combinedTick;
+    const combinedSize = (BigInt(usize) << BigInt(128)) + BigInt(uAmount);
+    const page0Temp = bigIntToHex(combinedDeadline, 32);
+    const page1 = bigIntToHex(combinedSize, 32);
 
     const page0 = param.referralCode
-        ? hexZeroPad(
-              BigNumber.from(getHexReferral(param.referralCode)).shl(192).add(BigNumber.from(page0Temp)).toHexString(),
-              32,
-          )
+        ? bigIntToHex(BigInt(getHexReferral(param.referralCode)) << BigInt(192) + BigInt(page0Temp), 32)
         : page0Temp;
     return [page0, page1];
 }
@@ -96,17 +98,17 @@ export function encodePlaceParam(param: PlaceParam): [string, string] {
 }
 
 /// encode deposit param to contract input format (bytes32)
-export function encodeDepositParam(token: string, quantity: BigNumber): string {
+export function encodeDepositParam(token: string, quantity: bigint): string {
     return encodeParamForDepositAndWithdraw(token, quantity);
 }
 
 /// encode withdraw param to contract input format (bytes32)
-export function encodeWithdrawParam(token: string, quantity: BigNumber): string {
+export function encodeWithdrawParam(token: string, quantity: bigint): string {
     return encodeParamForDepositAndWithdraw(token, quantity);
 }
 
-function encodeParamForDepositAndWithdraw(token: string, quantity: BigNumber): string {
-    return hexZeroPad(BigNumber.from(quantity).shl(160).add(token).toHexString(), 32);
+function encodeParamForDepositAndWithdraw(token: string, quantity: bigint): string {
+    return bigIntToHex((BigInt(quantity) << BigInt(160)) + BigInt(token), 32);
 }
 
 export function encodeAdjustParam(param: AdjustParam): [string, string] {
@@ -121,44 +123,40 @@ export function encodeAdjustParam(param: AdjustParam): [string, string] {
 }
 
 export function encodeAddParam(addParam: AddParam): [string, string] {
-    const uTick = asUint48(addParam.limitTicks.toNumber());
-    const combinedTick = BigNumber.from(uTick).shl(32).add(BigNumber.from(addParam.expiry));
-    const combinedDeadline = BigNumber.from(addParam.deadline).shl(80).add(combinedTick);
-    const combinedAmount = BigNumber.from(addParam.tickDeltaLower)
-        .shl(152)
-        .add(BigNumber.from(addParam.tickDeltaUpper).shl(128))
-        .add(addParam.amount);
+    const uTick = asUint48(Number(addParam.limitTicks));
+    const combinedTick = (BigInt(uTick) << BigInt(32)) + BigInt(addParam.expiry);
+    const combinedDeadline = (BigInt(addParam.deadline) << BigInt(80)) + combinedTick;
+    const combinedAmount = (BigInt(addParam.tickDeltaLower) << BigInt(152)) + 
+        (BigInt(addParam.tickDeltaUpper) << BigInt(128)) + 
+        BigInt(addParam.amount);
 
     const page0 = addParam.referralCode
-        ? hexZeroPad(
-              BigNumber.from(getHexReferral(addParam.referralCode)).shl(192).add(combinedDeadline).toHexString(),
-              32,
-          )
-        : hexZeroPad(combinedDeadline.toHexString(), 32);
-    const page1 = hexZeroPad(combinedAmount.toHexString(), 32);
+        ? bigIntToHex((BigInt(getHexReferral(addParam.referralCode)) << BigInt(192)) + combinedDeadline, 32)
+        : bigIntToHex(combinedDeadline, 32);
+    const page1 = bigIntToHex(combinedAmount, 32);
     return [page0, page1];
 }
 
 /// encode remove param to contract input format (bytes32[2])
 export function encodeRemoveParam(removeParam: RemoveParam): [string, string] {
-    const uTick = asUint48(removeParam.limitTicks.toNumber());
-    const combinedTick = BigNumber.from(uTick).shl(32).add(BigNumber.from(removeParam.expiry));
-    const combinedDeadline = BigNumber.from(removeParam.deadline).shl(80).add(combinedTick);
+    const uTick = asUint48(Number(removeParam.limitTicks));
+    const combinedTick = (BigInt(uTick) << BigInt(32)) + BigInt(removeParam.expiry);
+    const combinedDeadline = (BigInt(removeParam.deadline) << BigInt(80)) + combinedTick;
 
     const uTickLower = asUint24(removeParam.tickLower);
     const uTickUpper = asUint24(removeParam.tickUpper);
-    const combinedTickLower = BigNumber.from(uTickLower).shl(160).add(removeParam.traderAddr);
-    const combinedTickUpper = BigNumber.from(uTickUpper).shl(184).add(combinedTickLower);
+    const combinedTickLower = (BigInt(uTickLower) << BigInt(160)) + BigInt(removeParam.traderAddr);
+    const combinedTickUpper = (BigInt(uTickUpper) << BigInt(184)) + combinedTickLower;
 
-    const page0 = hexZeroPad(combinedDeadline.toHexString(), 32);
-    const page1 = hexZeroPad(combinedTickUpper.toHexString(), 32);
+    const page0 = bigIntToHex(combinedDeadline, 32);
+    const page1 = bigIntToHex(combinedTickUpper, 32);
     return [page0, page1];
 }
 
 export function encodeBatchPlaceParam(
     expiry: number,
-    size: BigNumber,
-    leverage: BigNumber,
+    size: bigint,
+    leverage: bigint,
     ticks: number[],
     ratios: number[],
     deadline: number,
@@ -173,27 +171,27 @@ export function encodeBatchPlaceParam(
 
     const usize = asUint128(size);
     const uLeverage = asUint128(leverage);
-    const combinedSize = BigNumber.from(usize).shl(128).add(uLeverage);
-    const page2 = hexZeroPad(combinedSize.toHexString(), 32);
+    const combinedSize = (BigInt(usize) << BigInt(128)) + BigInt(uLeverage);
+    const page2 = bigIntToHex(combinedSize, 32);
 
-    let tmp0 = BigNumber.from(deadline).shl(32).add(BigNumber.from(expiry));
+    let tmp0 = (BigInt(deadline) << BigInt(32)) + BigInt(expiry);
     for (let i = 0; i < 3; i++) {
         const uTick = i < ticks.length ? asUint24(ticks[i]) : EMPTY_TICK;
         const uRatio = i < ratios.length ? asUint16(ratios[i]) : 0;
-        tmp0 = tmp0.add(BigNumber.from(uRatio).shl(64 + 40 * i)).add(BigNumber.from(uTick).shl(64 + 40 * i + 16));
+        tmp0 = tmp0 + (BigInt(uRatio) << BigInt(64 + 40 * i)) + (BigInt(uTick) << BigInt(64 + 40 * i + 16));
     }
-    const page0Temp = hexZeroPad(tmp0.toHexString(), 32);
+    const page0Temp = bigIntToHex(tmp0, 32);
 
     let tmp1 = ZERO;
     for (let i = 0; i < 6; i++) {
         const uTick = i + 3 < ticks.length ? asUint24(ticks[i + 3]) : EMPTY_TICK;
         const uRatio = i + 3 < ratios.length ? asUint16(ratios[i + 3]) : 0;
-        tmp1 = tmp1.add(BigNumber.from(uRatio).shl(40 * i)).add(BigNumber.from(uTick).shl(40 * i + 16));
+        tmp1 = tmp1 + (BigInt(uRatio) << BigInt(40 * i)) + (BigInt(uTick) << BigInt(40 * i + 16));
     }
-    const page1 = hexZeroPad(tmp1.toHexString(), 32);
+    const page1 = bigIntToHex(tmp1, 32);
 
     const page0 = referral
-        ? hexZeroPad(BigNumber.from(getHexReferral(referral)).shl(192).add(BigNumber.from(page0Temp)).toHexString(), 32)
+        ? bigIntToHex((BigInt(getHexReferral(referral)) << BigInt(192)) + BigInt(page0Temp), 32)
         : page0Temp;
     return [page0, page1, page2];
 }
@@ -201,9 +199,9 @@ export function encodeBatchPlaceParam(
 /// encode fill param to contract input format (bytes32)
 export function encodeFillParam(param: FillParam): string {
     const uTick = asUint24(param.tick);
-    const combinedTarget = BigNumber.from(param.target).shl(32).add(BigNumber.from(param.expiry));
-    const combinedTick = BigNumber.from(uTick).shl(192).add(combinedTarget);
-    return hexZeroPad(BigNumber.from(param.nonce).shl(216).add(combinedTick).toHexString(), 32);
+    const combinedTarget = (BigInt(param.target) << BigInt(32)) + BigInt(param.expiry);
+    const combinedTick = (BigInt(uTick) << BigInt(192)) + combinedTarget;
+    return bigIntToHex((BigInt(param.nonce) << BigInt(216)) + combinedTick, 32);
 }
 
 /// encode cancel param to contract input format (bytes32)
@@ -211,15 +209,15 @@ export function encodeCancelParam(param: BatchCancelParam): string {
     const { ticks, expiry, deadline } = param;
     if (ticks.length < 1 || ticks.length > MAX_CANCEL_ORDER_COUNT)
         throw new ParamsEncodeError(`ticks length must be between 1 and ${MAX_CANCEL_ORDER_COUNT}`, { ticks });
-    let encodedTicks = ZERO;
+    let encodedTicks = 0n;
     for (let i = 0; i < MAX_CANCEL_ORDER_COUNT; i++) {
         const tick = i < ticks.length ? ticks[i] : INT24_MAX;
-        encodedTicks = encodedTicks.add(BigNumber.from(asUint24(tick)).shl(24 * i));
+        encodedTicks = encodedTicks + (BigInt(asUint24(tick)) << BigInt(24 * i));
     }
 
-    const combinedTick = BigNumber.from(encodedTicks).shl(32).add(BigNumber.from(expiry));
-    const combinedDeadline = BigNumber.from(deadline).shl(224).add(combinedTick);
-    return hexZeroPad(combinedDeadline.toHexString(), 32);
+    const combinedTick = (encodedTicks << 32n) + BigInt(expiry);
+    const combinedDeadline = (BigInt(deadline) << 224n) + combinedTick;
+    return hexZeroPad(bigIntToHex(combinedDeadline, 32), 32);
 }
 
 export function decodeTradeParam(args: string[]): TradeParam {
@@ -228,7 +226,7 @@ export function decodeTradeParam(args: string[]): TradeParam {
 
 export function decodeTradeWithStabilityFeeParam(args: string[]): TradeParam & { limitStabilityFeeRatio: number } {
     const tradeParam = decodeTradeParam(args);
-    const value1 = bytes32ToBigNumber(args[0]);
+    const value1 = bytes32ToBigInt(args[0]);
     const offset = expiryLength + tickLength + deadlineLength;
     const limitStabilityFeeRatio = pickNumber(value1, offset, offset + limitStabilityFeeRatioLength);
     return { ...tradeParam, limitStabilityFeeRatio };
@@ -242,32 +240,32 @@ function decodeParamForTradeAndPlace(args: string[]): TradeParam {
     const [arg1, arg2] = args;
 
     let offset = 0;
-    const value1 = bytes32ToBigNumber(arg1);
+    const value1 = bytes32ToBigInt(arg1);
     const expiry = pickNumber(value1, offset, (offset += expiryLength));
     const limitTick = asInt24(pickNumber(value1, offset, (offset += tickLength)));
     const deadline = pickNumber(value1, offset, (offset += deadlineLength));
 
     offset = 0;
-    const value2 = bytes32ToBigNumber(arg2);
-    const amount = asInt128(pickBigNumber(value2, offset, (offset += amountLength)));
-    const size = asInt128(pickBigNumber(value2, offset, (offset += sizeLength)));
+    const value2 = bytes32ToBigInt(arg2);
+    const amount = asInt128(pickBigInt(value2, offset, (offset += amountLength)));
+    const size = asInt128(pickBigInt(value2, offset, (offset += sizeLength)));
 
     return { expiry, size, amount, limitTick, deadline, referralCode: '' };
 }
 
-export function decodeDepositParam(arg: string): { token: string; quantity: BigNumber } {
+export function decodeDepositParam(arg: string): { token: string; quantity: bigint } {
     return decodeParamForDepositAndWithdraw(arg);
 }
 
-export function decodeWithdrawParam(arg: string): { token: string; quantity: BigNumber } {
+export function decodeWithdrawParam(arg: string): { token: string; quantity: bigint } {
     return decodeParamForDepositAndWithdraw(arg);
 }
 
-export function decodeParamForDepositAndWithdraw(arg: string): { token: string; quantity: BigNumber } {
+export function decodeParamForDepositAndWithdraw(arg: string): { token: string; quantity: bigint } {
     let offset = 0;
-    const value = bytes32ToBigNumber(arg);
+    const value = bytes32ToBigInt(arg);
     const token = pickAddress(value, offset, (offset += addressLength));
-    const quantity = pickBigNumber(value, offset, (offset += quantityLength));
+    const quantity = pickBigInt(value, offset, (offset += quantityLength));
 
     return { quantity, token };
 }
@@ -280,14 +278,14 @@ export function decodeAddParam(args: string[]): AddParam {
     const [arg1, arg2] = args;
 
     let offset = 0;
-    const value1 = bytes32ToBigNumber(arg1);
+    const value1 = bytes32ToBigInt(arg1);
     const expiry = pickNumber(value1, offset, (offset += expiryLength));
-    const limitTicks = pickBigNumber(value1, offset, (offset += limitTicksLength));
+    const limitTicks = pickBigInt(value1, offset, (offset += limitTicksLength));
     const deadline = pickNumber(value1, offset, (offset += deadlineLength));
 
     offset = 0;
-    const value2 = bytes32ToBigNumber(arg2);
-    const amount = pickBigNumber(value2, offset, (offset += amountLength));
+    const value2 = bytes32ToBigInt(arg2);
+    const amount = pickBigInt(value2, offset, (offset += amountLength));
     const tickDeltaUpper = pickNumber(value2, offset, (offset += tickLength));
     const tickDeltaLower = pickNumber(value2, offset, (offset += tickLength));
 
@@ -302,13 +300,13 @@ export function decodeRemoveParam(args: string[]): RemoveParam {
     const [arg1, arg2] = args;
 
     let offset = 0;
-    const value1 = bytes32ToBigNumber(arg1);
+    const value1 = bytes32ToBigInt(arg1);
     const expiry = pickNumber(value1, offset, (offset += expiryLength));
-    const limitTicks = pickBigNumber(value1, offset, (offset += limitTicksLength));
+    const limitTicks = pickBigInt(value1, offset, (offset += limitTicksLength));
     const deadline = pickNumber(value1, offset, (offset += deadlineLength));
 
     offset = 0;
-    const value2 = bytes32ToBigNumber(arg2);
+    const value2 = bytes32ToBigInt(arg2);
     const target = pickAddress(value2, offset, (offset += addressLength));
     const tickLower = asInt24(pickNumber(value2, offset, (offset += tickLength)));
     const tickUpper = asInt24(pickNumber(value2, offset, (offset += tickLength)));
@@ -338,38 +336,38 @@ export function decodeBatchPlaceParam(args: string[]): BatchPlaceParam {
     const ratios: number[] = [];
 
     let offset = 0;
-    const value1 = bytes32ToBigNumber(arg1);
+    const value1 = bytes32ToBigInt(arg1);
     const expiry = pickNumber(value1, offset, (offset += expiryLength));
     const deadline = pickNumber(value1, offset, (offset += deadlineLength));
     for (let i = 0; i < 3; i++) {
         const ratio = pickNumber(value1, offset, (offset += ratioLength));
         const tick = asInt24(pickNumber(value1, offset, (offset += tickLength)));
-        if (BigNumber.from(tick).eq(EMPTY_TICK)) continue;
+        if (BigInt(tick) === EMPTY_TICK) continue;
         ticks.push(tick);
         ratios.push(ratio);
     }
 
     offset = 0;
-    const value2 = bytes32ToBigNumber(arg2);
+    const value2 = bytes32ToBigInt(arg2);
     for (let i = 0; i < 6; i++) {
         const ratio = pickNumber(value2, offset, (offset += ratioLength));
         const tick = asInt24(pickNumber(value2, offset, (offset += tickLength)));
-        if (BigNumber.from(tick).eq(EMPTY_TICK)) continue;
+        if (BigInt(tick) === EMPTY_TICK) continue;
         ticks.push(tick);
         ratios.push(ratio);
     }
 
     offset = 0;
-    const value3 = bytes32ToBigNumber(arg3);
-    const leverage = asInt128(pickBigNumber(value3, offset, (offset += leverageLength)));
-    const size = asInt128(pickBigNumber(value3, offset, (offset += sizeLength)));
+    const value3 = bytes32ToBigInt(arg3);
+    const leverage = asInt128(pickBigInt(value3, offset, (offset += leverageLength)));
+    const size = asInt128(pickBigInt(value3, offset, (offset += sizeLength)));
 
     return { expiry, ticks, ratios, size, leverage, deadline };
 }
 
 export function decodeFillParam(arg: string): FillParam {
     let offset = 0;
-    const value = bytes32ToBigNumber(arg);
+    const value = bytes32ToBigInt(arg);
     const expiry = pickNumber(value, offset, (offset += expiryLength));
     const target = pickAddress(value, offset, (offset += addressLength));
     const tick = asInt24(pickNumber(value, offset, (offset += tickLength)));
@@ -380,12 +378,12 @@ export function decodeFillParam(arg: string): FillParam {
 
 export function decodeCancelParam(arg: string): { expiry: number; ticks: number[]; deadline: number } {
     let offset = 0;
-    const value = bytes32ToBigNumber(arg);
+    const value = bytes32ToBigInt(arg);
     const expiry = pickNumber(value, offset, (offset += expiryLength));
     const ticks: number[] = [];
     for (let i = 0; i < MAX_CANCEL_ORDER_COUNT; i++) {
         const tick = asInt24(pickNumber(value, offset, (offset += tickLength)));
-        if (tick === MAX_INT_24.toNumber()) {
+        if (tick === Number(MAX_INT_24)) {
             continue;
         }
         ticks.push(tick);

@@ -19,12 +19,12 @@ export function createInstrument(
     >,
 ): Instrument {
     const minTradeValue = instrument.setting.quoteParam.minMarginAmount
-        .mul(RATIO_BASE)
-        .div(instrument.setting.initialMarginRatio);
+        * BigInt(RATIO_BASE)
+        / BigInt(instrument.setting.initialMarginRatio);
 
-    const minOrderValue = minTradeValue.mul(MIN_ORDER_MULTIPLIER);
+    const minOrderValue = minTradeValue * BigInt(MIN_ORDER_MULTIPLIER);
 
-    const minRangeValue = minTradeValue.mul(MIN_RANGE_MULTIPLIER);
+    const minRangeValue = minTradeValue * BigInt(MIN_RANGE_MULTIPLIER);
 
     return {
         ...instrument,
@@ -66,7 +66,7 @@ export function createPosition(position: Omit<Position, 'side' | 'entryPrice'>):
         instrumentAddr: position.instrumentAddr.toLowerCase(),
         traderAddr: position.traderAddr.toLowerCase(),
         side: sizeToSide(position.size),
-        entryPrice: position.size.eq(ZERO) ? ZERO : wdiv(position.entryNotional, position.size.abs()),
+        entryPrice: position.size === ZERO ? ZERO : wdiv(position.entryNotional, position.size < BigInt(0) ? -position.size : position.size),
     };
 }
 

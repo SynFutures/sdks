@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { MAX_INT_24, ONE } from './constants';
 
 export function asUint16(x: number): number {
@@ -30,48 +30,48 @@ export function asUint48(x: number): number {
     return x;
 }
 
-export function asUint96(x: BigNumber): BigNumber {
-    if (x.isNegative()) {
-        x = x.add(ONE.shl(96));
+export function asUint96(x: bigint): bigint {
+    if (x < 0n) {
+        x = x + (ONE << BigInt(96));
     }
     return x;
 }
 
-export function asUint128(x: BigNumber): BigNumber {
-    if (x.isNegative()) {
-        x = x.add(ONE.shl(128));
+export function asUint128(x: bigint): bigint {
+    if (x < 0n) {
+        x = x + (ONE << BigInt(128));
     }
     return x;
 }
 
-export function asUint256(x: BigNumber): BigNumber {
-    if (x.isNegative()) {
-        x = x.add(ONE.shl(256));
+export function asUint256(x: bigint): bigint {
+    if (x < 0n) {
+        x = x + (ONE << BigInt(256));
     }
     return x;
 }
 
 ///@dev force x to be int24
 /// x must be positive
-export function forceAsInt24(x: BigNumber): BigNumber {
-    x = x.and(ONE.shl(24).sub(ONE));
-    if (x.gt(MAX_INT_24)) {
-        x = x.sub(ONE.shl(24));
+export function forceAsInt24(x: bigint): bigint {
+    x = x & ((ONE << BigInt(24)) - ONE);
+    if (x > MAX_INT_24) {
+        x = x - (ONE << BigInt(24));
     }
     return x;
 }
 
-export function asInt256(x: BigNumber): BigNumber {
-    if (x.gt(ethers.constants.MaxInt256)) {
-        x = x.sub(ONE.shl(256));
+export function asInt256(x: bigint): bigint {
+    if (x > ethers.constants.MaxInt256.toBigInt()) {
+        x = x - (ONE << BigInt(256));
     }
     return x;
 }
 
-export function asInt128(x: BigNumber): BigNumber {
-    const MAX_INT_128 = ONE.shl(127).sub(ONE);
-    if (x.gt(MAX_INT_128)) {
-        x = x.sub(ONE.shl(128));
+export function asInt128(x: bigint): bigint {
+    const MAX_INT_128 = (ONE << BigInt(127)) - ONE;
+    if (x > MAX_INT_128) {
+        x = x - (ONE << BigInt(128));
     }
     return x;
 }
@@ -85,17 +85,17 @@ export function decompose(tick: number): { wordPos: number; bitPos: number } {
 }
 
 export abstract class NumericConverter {
-    static scaleQuoteAmount(amount: BigNumber, quoteDecimals: number): BigNumber {
-        const quoteAmountScaler = BigNumber.from(10).pow(18 - quoteDecimals);
-        return amount.mul(quoteAmountScaler);
+    static scaleQuoteAmount(amount: bigint, quoteDecimals: number): bigint {
+        const quoteAmountScaler = BigInt(10) ** BigInt(18 - quoteDecimals);
+        return amount * quoteAmountScaler;
     }
 
-    static toContractQuoteAmount(amount: BigNumber, quoteDecimals: number): BigNumber {
-        const quoteAmountScaler = BigNumber.from(10).pow(18 - quoteDecimals);
-        return amount.div(quoteAmountScaler);
+    static toContractQuoteAmount(amount: bigint, quoteDecimals: number): bigint {
+        const quoteAmountScaler = BigInt(10) ** BigInt(18 - quoteDecimals);
+        return amount / quoteAmountScaler;
     }
 
-    static toContractRatio(ratioWad: BigNumber): number {
-        return ratioWad.div(BigNumber.from(10).pow(14)).toNumber();
+    static toContractRatio(ratioWad: bigint): number {
+        return Number(ratioWad / (BigInt(10) ** BigInt(14)));
     }
 }

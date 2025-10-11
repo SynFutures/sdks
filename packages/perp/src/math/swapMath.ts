@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+// Removed bigint import, using native bigint
 import { RawAmm, Pearl } from '../types';
 import { ZERO } from './constants';
 import { SqrtPriceMath } from './sqrtPriceMath';
@@ -6,23 +6,23 @@ import { TickMath } from './tickMath';
 import { neg } from './basic';
 
 export interface SwapImpact {
-    sqrtPostPX96: BigNumber;
-    dx: BigNumber;
-    dy: BigNumber;
+    sqrtPostPX96: bigint;
+    dx: bigint;
+    dy: bigint;
 }
 
 export abstract class SwapMath {
     public static swapWithinRange(
-        sqrtCurrentPX96: BigNumber,
-        sqrtTargetPX96: BigNumber,
-        liquidity: BigNumber,
-        sizeLeft: BigNumber,
+        sqrtCurrentPX96: bigint,
+        sqrtTargetPX96: bigint,
+        liquidity: bigint,
+        sizeLeft: bigint,
     ): SwapImpact {
-        const long = sizeLeft.gt(ZERO);
+        const long = sizeLeft > ZERO;
         const dxMax = SqrtPriceMath.getDeltaBaseAutoRoundUp(sqrtTargetPX96, sqrtCurrentPX96, liquidity);
-        let dxAbs: BigNumber = sizeLeft.abs();
+        let dxAbs: bigint = sizeLeft < 0n ? -sizeLeft : sizeLeft;
         let sqrtPostPX96;
-        if (dxAbs.gte(dxMax)) {
+        if (dxAbs >= dxMax) {
             // if sizeLeft is adequate
             dxAbs = dxMax;
             sqrtPostPX96 = sqrtTargetPX96;
@@ -32,36 +32,38 @@ export abstract class SwapMath {
         }
 
         const dy = SqrtPriceMath.getDeltaQuote(sqrtPostPX96, sqrtCurrentPX96, liquidity, long);
-        const dx: BigNumber = long ? dxAbs : dxAbs.mul(-1);
+        const dx: bigint = long ? dxAbs : dxAbs * -1n;
         return { sqrtPostPX96, dx, dy };
     }
 
     public static swapCrossRange(
         pair: {
             amm: RawAmm;
-            tbitmap: Map<number, BigNumber>;
+            tbitmap: Map<number, bigint>;
             getPearl(tick: number): Pearl;
         },
-        size: BigNumber,
-    ): { liquidity: BigNumber; ticks: number[]; takens: BigNumber[] } {
+        size: bigint,
+    ): { liquidity: bigint; ticks: number[]; takens: bigint[] } {
         const amm = pair.amm;
         const ticks = [];
         const takens = [];
-        const long: boolean = size.gt(ZERO);
+        const long: boolean = size > ZERO;
 
         // update order at pearls
         let totalOrderValue = ZERO;
         let totalCurveValue = ZERO;
         let swapSize = size;
         const currTickLeft = pair.getPearl(amm.tick).left;
-        if (!swapSize.eq(0) && long && currTickLeft.lt(0)) {
-            const taken = swapSize.abs().gte(currTickLeft.abs()) ? currTickLeft : swapSize.mul(-1);
+        if (swapSize !== 0n && long && currTickLeft < 0n) {
+            const swapSizeAbs = swapSize < 0n ? -swapSize : swapSize;
+            const currTickLeftAbs = currTickLeft < 0n ? -currTickLeft : currTickLeft;
+            const taken = swapSizeAbs >= currTickLeftAbs ? currTickLeft : swapSize * -1n;
             ticks.push(amm.tick);
             takens.push(taken);
             const takenValue = TickMath.calcTakenNotional(amm.tick, taken);
-            swapSize = swapSize.add(taken);
-            totalOrderValue = totalOrderValue.add(takenValue);
-            if (swapSize.eq(0)) {
+            swapSize = swapSize + taken;
+            totalOrderValue = totalOrderValue + takenValue;
+            if (swapSize === 0n) {
                 return { liquidity: amm.liquidity, ticks, takens };
             }
         }
@@ -80,27 +82,29 @@ export abstract class SwapMath {
                 swapSize,
             );
             sqrtPX96State = sqrtPostPX96;
-            swapSize = swapSize.sub(dx);
-            totalCurveValue = totalCurveValue.add(dy);
+            swapSize = swapSize - dx;
+            totalCurveValue = totalCurveValue + dy;
 
             if (sqrtPostPX96 == targetPX96) {
                 const left = pair.getPearl(targetTick)!.left;
-                if (!swapSize.eq(0) && ((long && left.lt(0)) || (!long && left.gt(0)))) {
-                    const taken = swapSize.abs().gte(left.abs()) ? left : swapSize.mul(-1);
+                if (swapSize !== 0n && ((long && left < 0n) || (!long && left > 0n))) {
+                    const swapSizeAbs = swapSize < 0n ? -swapSize : swapSize;
+                    const leftAbs = left < 0n ? -left : left;
+                    const taken = swapSizeAbs >= leftAbs ? left : swapSize * -1n;
                     ticks.push(targetTick);
                     takens.push(taken);
                     const takenValue = TickMath.calcTakenNotional(targetTick, taken);
-                    swapSize = swapSize.add(taken);
-                    totalOrderValue = totalOrderValue.add(takenValue);
+                    swapSize = swapSize + taken;
+                    totalOrderValue = totalOrderValue + takenValue;
                 }
-                const isRangeEnd = pair.getPearl(targetTick)!.liquidityGross.gt(0);
+                const isRangeEnd = pair.getPearl(targetTick)!.liquidityGross > 0n;
                 const lastLiquidity = liquidityState;
                 if (isRangeEnd) {
                     let liqNet = pair.getPearl(targetTick).liquidityNet;
                     if (!long) liqNet = neg(liqNet);
-                    liquidityState = liquidityState.add(liqNet);
+                    liquidityState = liquidityState + liqNet;
                 }
-                if (swapSize.eq(ZERO)) {
+                if (swapSize === ZERO) {
                     if (!long) {
                         liquidityState = lastLiquidity;
                     }

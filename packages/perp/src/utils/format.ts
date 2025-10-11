@@ -49,7 +49,7 @@ export function groupBy<T, K>(arr: T[], fn: (item: T) => K): Map<K, T[]> {
 }
 
 export function calcPositionLiquidationPrice(amm: RawAmm, position: RawPosition, maintenanceMarginRatio?: number) {
-    if (position.size.isZero() || position.balance.isZero()) return ZERO;
+    if (position.size === ZERO || position.balance === ZERO) return ZERO;
     return positionLiquidationPrice(position, amm, maintenanceMarginRatio);
 }
 function _formatOrder(order: Order, amm: Amm) {
@@ -170,7 +170,7 @@ export function formatPortfolio(portfolio: Portfolio, instrument: Instrument) {
     const maintenanceMarginRatio = instrument.setting.maintenanceMarginRatio;
     const formattedPortfolio = {
         ...portfolio,
-        position: portfolio.position.size.isZero()
+        position: portfolio.position.size === ZERO
             ? null
             : formatPosition(
                   portfolio.position,

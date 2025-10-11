@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BigNumber, CallOverrides } from 'ethers';
 import moment from 'moment';
 import { Context } from '@derivation-tech/context';
@@ -67,8 +66,8 @@ export function getMaxTick(tickSpacing: number): number {
     return Math.floor(TickMath.MAX_TICK / tickSpacing) * tickSpacing;
 }
 
-export function getMaxLiquidityPerTick(tickSpacing: number): BigNumber {
-    return MAX_UINT_128.div((getMaxTick(tickSpacing) - getMinTick(tickSpacing)) / tickSpacing + 1);
+export function getMaxLiquidityPerTick(tickSpacing: number): bigint {
+    return MAX_UINT_128 / BigInt((getMaxTick(tickSpacing) - getMinTick(tickSpacing)) / tickSpacing + 1);
 }
 
 export function rangeKey(tickLower: number, tickUpper: number): number {
@@ -126,19 +125,19 @@ export function solidityRequire(condition: boolean, message?: string): void {
     }
 }
 
-export function tickDeltaToAlphaWad(tickDelta: number): BigNumber {
+export function tickDeltaToAlphaWad(tickDelta: number): bigint {
     return TickMath.getWadAtTick(tickDelta);
 }
 
-export function alphaWadToTickDelta(alphaWad: BigNumber): number {
+export function alphaWadToTickDelta(alphaWad: bigint): number {
     return TickMath.getTickAtPWad(alphaWad) + 1;
 }
 
 // e.g. 0b1101 => [0, 2, 3]
-export function decomposePbitmap(pbitmap: BigNumber): number[] {
+export function decomposePbitmap(pbitmap: bigint): number[] {
     const bits: number[] = [];
     for (let i = 0; i < MAX_POSITION_NUM; i++) {
-        if (!pbitmap.and(ONE.shl(i)).isZero()) {
+        if ((pbitmap & (ONE << BigInt(i))) !== 0n) {
             bits.push(i);
         }
     }
@@ -224,17 +223,17 @@ export async function getTokenInfo(
 }
 
 export function isEmptyPortfolio(portfolio: Portfolio): boolean {
-    return portfolio.orders.size === 0 && portfolio.ranges.size === 0 && portfolio.position.size.isZero();
+    return portfolio.orders.size === 0 && portfolio.ranges.size === 0 && portfolio.position.size === 0n;
 }
 
 export function isCexMarket(marketType: MarketType): boolean {
     return marketType === MarketType.LINK || marketType === MarketType.EMG || marketType === MarketType.PYTH;
 }
 
-export function sizeToSide(size: BigNumber): Side {
-    if (size.isNegative()) {
+export function sizeToSide(size: bigint): Side {
+    if (size < 0n) {
         return Side.SHORT;
-    } else if (size.isZero()) {
+    } else if (size === 0n) {
         return Side.FLAT;
     } else {
         return Side.LONG;
@@ -323,11 +322,16 @@ export function toPortfolio(
         blockInfo: BlockInfoStructOutput;
     },
 ) {
+    const positionData = trimObj(resp.portfolio.position);
     const position: Position = factory.createPosition({
         instrumentAddr,
         expiry,
         traderAddr,
-        ...trimObj(resp.portfolio.position),
+        balance: positionData.balance.toBigInt(),
+        size: positionData.size.toBigInt(),
+        entryNotional: positionData.entryNotional.toBigInt(),
+        entrySocialLossIndex: positionData.entrySocialLossIndex.toBigInt(),
+        entryFundingIndex: positionData.entryFundingIndex.toBigInt(),
     });
 
     const oids = resp.portfolio.oids;
@@ -342,11 +346,11 @@ export function toPortfolio(
     for (let i = 0; i < oids.length; i++) {
         const { tick, nonce } = parseOrderTickNonce(oids[i]);
         const order = factory.createOrder({
-            balance: rawOrdersFromContract[i].balance,
-            size: rawOrdersFromContract[i].size,
+            balance: rawOrdersFromContract[i].balance.toBigInt(),
+            size: rawOrdersFromContract[i].size.toBigInt(),
             instrumentAddr,
             expiry,
-            taken: ordersTaken[i] ?? ZERO,
+            taken: ordersTaken[i] ? ordersTaken[i].toBigInt() : ZERO,
             tick,
             nonce,
             traderAddr,
@@ -357,10 +361,10 @@ export function toPortfolio(
     for (let i = 0; i < rids.length; i++) {
         const { tickLower, tickUpper } = parseTicks(rids[i]);
         const range = factory.createRange({
-            liquidity: rawRangesFromContract[i].liquidity,
-            entryFeeIndex: rawRangesFromContract[i].entryFeeIndex,
-            balance: rawRangesFromContract[i].balance,
-            sqrtEntryPX96: rawRangesFromContract[i].sqrtEntryPX96,
+            liquidity: rawRangesFromContract[i].liquidity.toBigInt(),
+            entryFeeIndex: rawRangesFromContract[i].entryFeeIndex.toBigInt(),
+            balance: rawRangesFromContract[i].balance.toBigInt(),
+            sqrtEntryPX96: rawRangesFromContract[i].sqrtEntryPX96.toBigInt(),
             tickLower,
             tickUpper,
             instrumentAddr,
@@ -376,7 +380,7 @@ export function toPortfolio(
         expiry,
         ranges,
         orders,
-        isEmpty: position.size.eq(0) && ranges.size === 0 && orders.size === 0,
+        isEmpty: position.size === 0n && ranges.size === 0 && orders.size === 0,
         blockInfo: trimObj(resp.blockInfo),
         position,
     };
@@ -384,6 +388,29 @@ export function toPortfolio(
     return portfolio;
 }
 
-export function bnMax(a: BigNumber, b: BigNumber): BigNumber {
-    return a.gt(b) ? a : b;
+export function bnMax(a: bigint, b: bigint): bigint {
+    return a > b ? a : b;
+}
+
+/**
+ * Convert an object containing BigNumber properties to an object with bigint properties
+ * Only processes one level of structure, does not perform deep recursion
+ * 
+ * @param obj - Object containing BigNumber properties
+ * @returns Converted object with all BigNumber properties converted to bigint
+ */
+export function convertBigNumberObjectToBigInt<T extends Record<string, any>>(
+    obj: T
+): { [K in keyof T]: T[K] extends BigNumber ? bigint : T[K] } {
+    const result: any = {};
+    
+    for (const [key, value] of Object.entries(obj)) {
+        if (value instanceof BigNumber) {
+            result[key] = value.toBigInt();
+        } else {
+            result[key] = value;
+        }
+    }
+    
+    return result;
 }

@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { TxOptions, TxOptionsWithSigner } from '../types';
 
 export interface GateInterface {
@@ -10,13 +10,13 @@ export interface GateInterface {
      */
     deposit(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
-    deposit(quoteAddr: string, amount: BigNumber, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
+    deposit(quoteAddr: string, amount: bigint, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
     deposit(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction>;
 
@@ -28,13 +28,13 @@ export interface GateInterface {
      */
     depositWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
-    depositWad(quoteAddr: string, amount: BigNumber, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
+    depositWad(quoteAddr: string, amount: bigint, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
     depositWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction>;
 
@@ -46,13 +46,13 @@ export interface GateInterface {
      */
     withdraw(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
-    withdraw(quoteAddr: string, amount: BigNumber, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
+    withdraw(quoteAddr: string, amount: bigint, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
     withdraw(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction>;
 
@@ -64,13 +64,13 @@ export interface GateInterface {
      */
     withdrawWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
-    withdrawWad(quoteAddr: string, amount: BigNumber, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
+    withdrawWad(quoteAddr: string, amount: bigint, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
     withdrawWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction>;
 
@@ -82,7 +82,7 @@ export interface GateInterface {
     getPendingParams(
         quotes: string[],
         txOptions?: TxOptions,
-    ): Promise<{ pendingDuration: BigNumber; thresholds: BigNumber[] }>;
+    ): Promise<{ pendingDuration: bigint; thresholds: bigint[] }>;
 
     /**
      * Claim pending withdraw

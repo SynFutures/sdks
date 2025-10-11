@@ -39,7 +39,7 @@ function reverseSimulateTradeResult(result: SimulateTradeResult): SimulateTradeR
         ...result,
         tradePrice: reversePrice(result.tradePrice),
         postPosition: reversePosition(result.postPosition),
-        priceImpact: result.priceImpact.mul(-1),
+        priceImpact: result.priceImpact * BigInt(-1),
     };
 }
 

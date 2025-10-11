@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { RawAmm } from './types';
 
 export const WAD_DECIMALS = 18;
@@ -7,7 +6,7 @@ export const RATIO_DECIMALS = 4;
 export const MAX_POSITION_NUM = 128;
 export const NULL_RATIO = 0;
 export const ONE_RATIO = 10000; // 100%
-export const NULL_PRICE = BigNumber.from(0);
+export const NULL_PRICE = BigInt(0);
 
 export const MAX_TICK = 443636;
 export const MIN_TICK = -322517;
@@ -34,7 +33,7 @@ export const PERP_EXPIRY = NULL_DDL;
 export const INITIAL_MARGIN_RATIO = 1000; // default initial margin ratio
 export const MAINTENANCE_MARGIN_RATIO = 500; // default maintenance margin ratio
 
-export const COMPACT_EMA_PARAM = BigNumber.from(
+export const COMPACT_EMA_PARAM = BigInt(
     '1060108913112522979002928172012890034027465765885994002407459484512227426307',
 );
 export const NATIVE_TOKEN_ADDRESS = '0x1d6B1d2AD091bec4aAe6A131C92008701531FdaF';
@@ -54,20 +53,20 @@ export const EMPTY_AMM: RawAmm = {
     timestamp: 0,
     status: 0,
     tick: 0,
-    sqrtPX96: BigNumber.from(0),
-    liquidity: BigNumber.from(0),
-    totalLiquidity: BigNumber.from(0),
-    involvedFund: BigNumber.from(0),
-    openInterests: BigNumber.from(0),
-    feeIndex: BigNumber.from(0),
-    protocolFee: BigNumber.from(0),
-    totalLong: BigNumber.from(0),
-    totalShort: BigNumber.from(0),
-    longSocialLossIndex: BigNumber.from(0),
-    shortSocialLossIndex: BigNumber.from(0),
-    longFundingIndex: BigNumber.from(0),
-    shortFundingIndex: BigNumber.from(0),
-    insuranceFund: BigNumber.from(0),
-    settlementPrice: BigNumber.from(0),
-    markPrice: BigNumber.from(0),
+    sqrtPX96: BigInt(0),
+    liquidity: BigInt(0),
+    totalLiquidity: BigInt(0),
+    involvedFund: BigInt(0),
+    openInterests: BigInt(0),
+    feeIndex: BigInt(0),
+    protocolFee: BigInt(0),
+    totalLong: BigInt(0),
+    totalShort: BigInt(0),
+    longSocialLossIndex: BigInt(0),
+    shortSocialLossIndex: BigInt(0),
+    longFundingIndex: BigInt(0),
+    shortFundingIndex: BigInt(0),
+    insuranceFund: BigInt(0),
+    settlementPrice: BigInt(0),
+    markPrice: BigInt(0),
 };

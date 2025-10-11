@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { Context } from '@derivation-tech/context';
 import { NATIVE_TOKEN_ADDRESS } from '../constants';
 import { GateInterface } from './gate.interface';
@@ -15,13 +15,13 @@ export class GateModule implements GateInterface {
 
     async deposit(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
-    async deposit(quoteAddr: string, amount: BigNumber, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
+    async deposit(quoteAddr: string, amount: bigint, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
     async deposit(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
         const usingNative = quoteAddr.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
@@ -34,13 +34,13 @@ export class GateModule implements GateInterface {
 
     async depositWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
-    async depositWad(quoteAddr: string, amount: BigNumber, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
+    async depositWad(quoteAddr: string, amount: bigint, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
     async depositWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
         const usingNative = quoteAddr.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
@@ -52,13 +52,13 @@ export class GateModule implements GateInterface {
 
     async withdraw(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
-    async withdraw(quoteAddr: string, amount: BigNumber, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
+    async withdraw(quoteAddr: string, amount: bigint, txOptions?: TxOptions): Promise<ethers.PopulatedTransaction>;
     async withdraw(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
         const unsignedTx = await this.context.perp.contracts.gate.populateTransaction.withdraw(
@@ -70,17 +70,17 @@ export class GateModule implements GateInterface {
 
     async withdrawWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions: TxOptionsWithSigner,
     ): Promise<ethers.providers.TransactionReceipt>;
     async withdrawWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.PopulatedTransaction>;
     async withdrawWad(
         quoteAddr: string,
-        amount: BigNumber,
+        amount: bigint,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
         const usingNative = quoteAddr.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
@@ -94,8 +94,8 @@ export class GateModule implements GateInterface {
         quotes: string[],
         txOptions?: TxOptions,
     ): Promise<{
-        pendingDuration: BigNumber;
-        thresholds: BigNumber[];
+        pendingDuration: bigint;
+        thresholds: bigint[];
     }> {
         const gateInterface = this.context.perp.contracts.gate.interface;
         const calls = quotes.map((quote) => {
@@ -113,11 +113,11 @@ export class GateModule implements GateInterface {
         ).returnData;
         const thresholds = rawRet
             .slice(0, quotes.length)
-            .map((ret) => gateInterface.decodeFunctionResult('thresholdOf', ret)[0] as BigNumber);
-        const pendingDuration = gateInterface.decodeFunctionResult(
+            .map((ret) => BigInt(gateInterface.decodeFunctionResult('thresholdOf', ret)[0].toString()));
+        const pendingDuration = BigInt(gateInterface.decodeFunctionResult(
             'pendingDuration',
             rawRet[quotes.length],
-        )[0] as BigNumber;
+        )[0].toString());
         return { pendingDuration, thresholds };
     }
 

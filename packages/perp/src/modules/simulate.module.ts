@@ -60,6 +60,7 @@ import {
     calcAsymmetricBoost,
     getMinOrderMargin,
     wdivDown,
+    bigIntAbs,
 } from '../math';
 import {
     signOfSide,
@@ -114,6 +115,8 @@ import { SynfError } from '../errors/synfError';
 import { SimulationError } from '../errors/simulationError';
 import { Context } from '@derivation-tech/context';
 import { formatEther, parseEther } from 'ethers/lib/utils';
+import { QuotationStructOutput } from 'src/typechain/Observer';
+import { QuoteParamStructOutput } from 'src/typechain/current/Config';
 
 export class SimulateModule implements SimulateInterface {
     context: Context;
@@ -124,6 +127,37 @@ export class SimulateModule implements SimulateInterface {
 
     private get observer() {
         return this.context.perp._observer;
+    }
+
+    private convertQuotationToBigInt(quotation: QuotationStructOutput): Quotation {
+        return {
+            benchmark: quotation.benchmark.toBigInt(),
+            sqrtFairPX96: quotation.sqrtFairPX96.toBigInt(),
+            tick: quotation.tick,
+            mark: quotation.mark.toBigInt(),
+            entryNotional: quotation.entryNotional.toBigInt(),
+            fee: quotation.fee.toBigInt(),
+            minAmount: quotation.minAmount.toBigInt(),
+            sqrtPostFairPX96: quotation.sqrtPostFairPX96.toBigInt(),
+            postTick: quotation.postTick,
+        };
+    }
+
+    private convertQuoteParamToBigInt(quoteParam: {
+        minMarginAmount: BigNumber;
+        tradingFeeRatio: number;
+        protocolFeeRatio: number;
+        qtype: number;
+        tip: BigNumber;
+      }) {
+        return {
+            stabilityFeeRatioParam: ZERO,
+            minMarginAmount: quoteParam.minMarginAmount.toBigInt(),
+            tradingFeeRatio: quoteParam.tradingFeeRatio,
+            protocolFeeRatio: quoteParam.protocolFeeRatio,
+            tip: quoteParam.tip.toBigInt(),
+            qtype: quoteParam.qtype,
+        };
     }
 
     private async getPosition(tradeInfo: TradeInfo | Position, overrides?: CallOverrides) {
@@ -144,9 +178,9 @@ export class SimulateModule implements SimulateInterface {
         }
     }
 
-    private getPriceInfo(priceInfo: BigNumber | number) {
+    private getPriceInfo(priceInfo: bigint | number) {
         let targetTick: number;
-        let targetPrice: BigNumber;
+        let targetPrice: bigint;
 
         if (typeof priceInfo === 'number') {
             targetTick = priceInfo;
@@ -205,23 +239,23 @@ export class SimulateModule implements SimulateInterface {
 
     private inquireByBaseOrQuote(
         params: { tradeInfo: TradeInfo; size: ByBase | ByQuote; side: Side },
-        markPrice: BigNumber,
+        markPrice: bigint,
         overrides?: CallOverrides,
-    ): Promise<{ baseSize: BigNumber; quoteSize: BigNumber; quotation: Quotation | null }>;
+    ): Promise<{ baseSize: bigint; quoteSize: bigint; quotation: Quotation | null }>;
     private inquireByBaseOrQuote(
         params: { tradeInfo: TradeInfo; size: ByBase | ByQuote; side: Side },
-        markPrice: BigNumber,
+        markPrice: bigint,
         overrides: CallOverrides,
         expectQuotation: true,
-    ): Promise<{ baseSize: BigNumber; quoteSize: BigNumber; quotation: Quotation }>;
+    ): Promise<{ baseSize: bigint; quoteSize: bigint; quotation: Quotation }>;
     private async inquireByBaseOrQuote(
         params: { tradeInfo: TradeInfo; size: ByBase | ByQuote; side: Side },
-        markPrice: BigNumber,
+        markPrice: bigint,
         overrides?: CallOverrides,
         expectQuotation = false,
-    ): Promise<{ baseSize: BigNumber; quoteSize: BigNumber; quotation: Quotation | null }> {
-        let baseSize: BigNumber;
-        let quoteSize: BigNumber;
+    ): Promise<{ baseSize: bigint; quoteSize: bigint; quotation: Quotation | null }> {
+        let baseSize: bigint;
+        let quoteSize: bigint;
         let quotation: Quotation | null = null;
 
         if (isByBase(params.size)) {
@@ -295,7 +329,7 @@ export class SimulateModule implements SimulateInterface {
         }
 
         let swapToTick = long ? targetTick + 1 : targetTick - 1;
-        let swapSize: BigNumber;
+        let swapSize: bigint;
         let quotation: Quotation;
         if (params.inquireResult) {
             swapSize = params.inquireResult.firstQuote.size;
@@ -307,8 +341,8 @@ export class SimulateModule implements SimulateInterface {
                 swapToTick,
                 overrides ?? {},
             );
-            swapSize = res.size;
-            quotation = res.quotation;
+            swapSize = res.size.toBigInt();
+            quotation = this.convertQuotationToBigInt(res.quotation);
         }
 
         if ((long && quotation.postTick <= targetTick) || (!long && quotation.postTick >= targetTick)) {
@@ -323,12 +357,12 @@ export class SimulateModule implements SimulateInterface {
                     swapToTick,
                     overrides ?? {},
                 );
-                swapSize = retry.size;
-                quotation = retry.quotation;
+                swapSize = retry.size.toBigInt();
+                quotation = this.convertQuotationToBigInt(retry.quotation);
             }
         }
 
-        if ((long && swapSize.lt(0)) || (!long && swapSize.gt(0))) {
+        if ((long && swapSize < 0n) || (!long && swapSize > 0n)) {
             throw new SimulationError('Wrong Side');
         }
 
@@ -336,7 +370,7 @@ export class SimulateModule implements SimulateInterface {
             {
                 tradeInfo: params.tradeInfo,
                 side: params.side,
-                size: { base: swapSize.abs() },
+                size: { base: swapSize < 0n ? -swapSize : swapSize },
                 slippage: params.slippage,
                 strictMode: params.strictMode,
                 instrument: instrument,
@@ -350,7 +384,7 @@ export class SimulateModule implements SimulateInterface {
         );
 
         const position = await this.getPosition(params.tradeInfo, overrides ?? {});
-        if (position.size.isZero() && quotation.entryNotional.lt(instrument.minTradeValue)) {
+        if (position.size === 0n && quotation.entryNotional < instrument.minTradeValue) {
             throw new SimulationError('Size to tick is trivial');
         }
 
@@ -361,18 +395,18 @@ export class SimulateModule implements SimulateInterface {
         // For ByQuote, quote amount is the user's intent; base is derived at worst-of(mark, target)
         const worstPrice = bnMax(amm.markPrice, targetPrice);
 
-        let orderBaseSize: BigNumber;
-        let orderQuoteSize: BigNumber;
+        let orderBaseSize: bigint;
+        let orderQuoteSize: bigint;
         if (isByBase(params.size)) {
             const totalBase = params.size.base;
-            const remainingBase = totalBase.sub(swapSize.abs());
-            orderBaseSize = remainingBase.gt(ZERO) ? remainingBase : ZERO;
+            const remainingBase = totalBase - (swapSize < 0n ? -swapSize : swapSize);
+            orderBaseSize = remainingBase > 0n ? remainingBase : 0n;
             orderQuoteSize = wmulUp(orderBaseSize, worstPrice);
         } else {
             const totalQuote = params.size.quote;
             const spentQuote = tradeSimulation.size.quote;
-            const remainingQuote = totalQuote.sub(spentQuote);
-            orderQuoteSize = remainingQuote.gt(ZERO) ? remainingQuote : ZERO;
+            const remainingQuote = totalQuote - spentQuote;
+            orderQuoteSize = remainingQuote > 0n ? remainingQuote : 0n;
             // derive base conservatively at worstPrice to keep size.quote and base consistent
             orderBaseSize = wdivDown(orderQuoteSize, worstPrice);
         }
@@ -388,7 +422,7 @@ export class SimulateModule implements SimulateInterface {
         const minOrderSize = wdivUp(minOrderValue, targetTickPrice);
 
         // placeable only if remaining base meets min base requirement at target
-        if (orderBaseSize.lt(minOrderSize)) {
+        if (orderBaseSize < minOrderSize) {
             // in this case we can't place order since size is too small
             return {
                 canPlaceOrder: false,
@@ -429,7 +463,7 @@ export class SimulateModule implements SimulateInterface {
         }
 
         const maxLeverage = getMaxLeverage(instrument.setting.initialMarginRatio);
-        if (params.leverage.gt(ethers.utils.parseEther(maxLeverage + ''))) {
+        if (params.leverage > BigInt(ethers.utils.parseEther(maxLeverage + '').toString())) {
             throw new SimulationError('Insufficient margin to open position');
         }
 
@@ -441,8 +475,8 @@ export class SimulateModule implements SimulateInterface {
             throw new SimulationError('Fair price is too far away from mark price');
         }
 
-        let baseSize: BigNumber;
-        let quoteSize: BigNumber;
+        let baseSize: bigint;
+        let quoteSize: bigint;
 
         if (isByBase(params.size)) {
             baseSize = params.size.base;
@@ -502,7 +536,7 @@ export class SimulateModule implements SimulateInterface {
             const { targetTick, targetPrice } = this.getPriceInfo(params.targetTicks[index]);
 
             try {
-                const baseSize = wmul(params.baseSize, r2w(params.ratios[index]));
+                const baseSize = wmul(params.baseSize, r2w(BigInt(params.ratios[index])));
 
                 const quoteSize = wmulUp(baseSize, bnMax(amm.markPrice, targetPrice));
 
@@ -537,7 +571,7 @@ export class SimulateModule implements SimulateInterface {
 
         const { instrument } = await this.mustGetInstrumentAndAmm(params.tradeInfo, params.instrument, overrides ?? {});
 
-        let baseSize: BigNumber;
+        let baseSize: bigint;
         if (isByBase(params.size)) {
             baseSize = params.size.base;
         } else {
@@ -552,27 +586,27 @@ export class SimulateModule implements SimulateInterface {
         const minOrderValue = instrument.minOrderValue;
         const minSizes = targetTicks.map((tick) => wdivUp(minOrderValue, TickMath.getWadAtTick(tick)));
         if (params.sizeDistribution === BatchOrderSizeDistribution.RANDOM) {
-            // check if any baseSize * ratio is less than minSize
-            let needNewRatios = false;
-            for (let i = 0; i < minSizes.length; i++) {
-                if (baseSize.mul(ratios[i]).div(RATIO_BASE).lt(minSizes[i])) {
-                    needNewRatios = true;
-                    break;
-                }
+        // check if any baseSize * ratio is less than minSize
+        let needNewRatios = false;
+        for (let i = 0; i < minSizes.length; i++) {
+            if ((baseSize * BigInt(ratios[i])) / BigInt(RATIO_BASE) < minSizes[i]) {
+                needNewRatios = true;
+                break;
             }
-            // only adjust sizes if possible
-            if (needNewRatios && minSizes.reduce((acc, minSize) => acc.add(minSize), ZERO).lt(baseSize)) {
-                ratios = getBatchOrderRatios(BatchOrderSizeDistribution.FLAT, params.priceInfo.length);
-            }
+        }
+        // only adjust sizes if possible
+        if (needNewRatios && minSizes.reduce((acc, minSize) => acc + minSize, 0n) < baseSize) {
+            ratios = getBatchOrderRatios(BatchOrderSizeDistribution.FLAT, params.priceInfo.length);
+        }
         }
 
         // calculate totalMinSize
-        const sizes = ratios.map((ratio) => baseSize.mul(ratio).div(RATIO_BASE));
+        const sizes = ratios.map((ratio) => (baseSize * BigInt(ratio)) / BigInt(RATIO_BASE));
 
         // pick the max minSize/size ratio
         const minSizeToSizeRatio = minSizes
-            .map((minSize, i) => bnMax(wdivUp(minSize, sizes[i]), ZERO))
-            .reduce((acc, ratio) => bnMax(acc, ratio), ZERO);
+            .map((minSize, i) => bnMax(wdivUp(minSize, sizes[i]), 0n))
+            .reduce((acc, ratio) => bnMax(acc, ratio), 0n);
         const totalMinSize = wmulUp(baseSize, minSizeToSizeRatio);
 
         const res = await this.simulateBatchPlace(
@@ -601,7 +635,7 @@ export class SimulateModule implements SimulateInterface {
             totalMinSize,
             size: {
                 base: baseSize,
-                quote: res.reduce((acc, res) => acc.add(res?.size.quote ?? ZERO), ZERO),
+                quote: res.reduce((acc, res) => acc + (res?.size.quote ?? 0n), 0n),
             },
         };
     }
@@ -609,18 +643,18 @@ export class SimulateModule implements SimulateInterface {
     private _simulateOrder(
         instrument: Instrument,
         amm: Amm,
-        targetPrice: BigNumber,
-        baseSize: BigNumber,
-        leverage: BigNumber,
+        targetPrice: bigint,
+        baseSize: bigint,
+        leverage: bigint,
     ): Omit<SimulateLimitOrderResult, 'tick' | 'size' | 'quotation'> {
         const markPrice = amm.markPrice;
 
         const tradeValue = wmulUp(targetPrice, baseSize);
 
-        const bnMax = (a: BigNumber, b: BigNumber): BigNumber => (a.gt(b) ? a : b);
+        const bnMax = (a: bigint, b: bigint): bigint => (a > b ? a : b);
         let margin = wdivUp(wmulUp(bnMax(targetPrice, markPrice), baseSize), leverage);
         const minMargin = getMinOrderMargin(targetPrice, markPrice, baseSize, instrument.setting.initialMarginRatio);
-        if (margin.lt(minMargin)) {
+        if (margin < minMargin) {
             margin = minMargin;
         }
 
@@ -629,21 +663,21 @@ export class SimulateModule implements SimulateInterface {
             tradeValue,
             margin,
             leverage,
-            minFeeRebate: wmul(wmul(targetPrice, baseSize), r2w(instrument.setting.quoteParam.tradingFeeRatio)),
+            minFeeRebate: wmul(wmul(targetPrice, baseSize), r2w(BigInt(instrument.setting.quoteParam.tradingFeeRatio))),
         };
     }
 
     private async simulateTrade<T extends SimulateTradeParamsBase>(
         params: T,
         simulate: (
-            markPrice: BigNumber,
-            baseSize: BigNumber,
+            markPrice: bigint,
+            baseSize: bigint,
             sign: number,
             prePosition: Position,
-            preEquity: BigNumber,
-            tradeLoss: BigNumber,
+            preEquity: bigint,
+            tradeLoss: bigint,
             quotation: Quotation,
-        ) => { margin: BigNumber; leverage: BigNumber },
+        ) => { margin: bigint; leverage: bigint },
         overrides?: CallOverrides,
     ): Promise<SimulateTradeResult> {
         // eslint-disable-next-line prefer-const
@@ -654,8 +688,8 @@ export class SimulateModule implements SimulateInterface {
         );
         const prePosition = await this.getPosition(params.tradeInfo, overrides ?? {});
 
-        let baseSize: BigNumber;
-        let quoteSize: BigNumber;
+        let baseSize: bigint;
+        let quoteSize: bigint;
         let quotation: Quotation;
         // if inquireResult is provided, skip on-chain inquire or inquireByNotional rpc call
         if (params.inquireResult) {
@@ -675,13 +709,13 @@ export class SimulateModule implements SimulateInterface {
             quotation = res.quotation;
         }
 
-        if (baseSize.lte(0)) {
+        if (baseSize <= 0n) {
             // TODO: @samlior
             throw new SimulationError('Invalid trade size');
         }
 
         const sign = signOfSide(params.side);
-        const tradePrice = wdiv(quotation.entryNotional, baseSize.abs());
+        const tradePrice = wdiv(quotation.entryNotional, baseSize < 0n ? -baseSize : baseSize);
         const limitTick = TickMath.getLimitTick(tradePrice, params.slippage, params.side);
         const markPrice = amm.markPrice;
 
@@ -718,10 +752,10 @@ export class SimulateModule implements SimulateInterface {
         const limitPrice = TickMath.getWadAtTick(limitTick);
         const worstNotional = wmul(limitPrice, baseSize);
         const tradeLoss =
-            sign > 0 ? worstNotional.sub(wmul(markPrice, baseSize)) : wmul(markPrice, baseSize).sub(worstNotional);
+            sign > 0 ? worstNotional - wmul(markPrice, baseSize) : wmul(markPrice, baseSize) - worstNotional;
 
         const preEquity = positionEquity(prePosition, amm);
-        const rawSize = baseSize.mul(sign);
+        const rawSize = baseSize * BigInt(sign);
 
         // call different callback functions
         // to achieve different simulations
@@ -730,7 +764,7 @@ export class SimulateModule implements SimulateInterface {
         // combine a newly opened position with an existing position
         // to get the post position
         const { position: rawPosition, realized: realized } = combine(amm, prePosition, {
-            balance: margin.lt(0) ? quotation.fee.mul(-1) : margin.sub(quotation.fee),
+            balance: margin < 0n ? quotation.fee * BigInt(-1) : margin - quotation.fee,
             size: rawSize,
             entryNotional: quotation.entryNotional,
             entrySocialLossIndex: sign > 0 ? amm.longSocialLossIndex : amm.shortSocialLossIndex,
@@ -744,33 +778,33 @@ export class SimulateModule implements SimulateInterface {
         // if margin is less than 0, it means that the user can withdraw margin from the position.
         // in this case, it is necessary to check whether the amount of margin to be withdrawn is
         // greater than the maximum amount that can be withdrawn.
-        if (!postPosition.size.eq(ZERO) && margin.lt(ZERO)) {
+        if (postPosition.size !== 0n && margin < 0n) {
             const maxWithdrawableMargin = positionMaxWithdrawableMargin(
                 postPosition,
                 amm,
                 instrument.setting.initialMarginRatio,
             );
 
-            if (margin.abs().gt(maxWithdrawableMargin)) {
+            if ((margin < 0n ? -margin : margin) > maxWithdrawableMargin) {
                 if (params.strictMode) {
                     // TODO: @samlior
                     throw new SimulationError('Exceed max leverage');
                 }
 
-                margin = maxWithdrawableMargin.mul(-1);
+                margin = maxWithdrawableMargin * BigInt(-1);
                 exceedMaxLeverage = true;
             }
 
-            postPosition.balance = postPosition.balance.add(margin);
+            postPosition.balance = postPosition.balance + margin;
         }
 
         // as for creating new position or increasing a position: if leverage < 0 or leverage > 10, the position is not IMR safe
         // as for closing or decreasing a position: if leverage < 0 or leverage > 20, the position is not MMR safe
         if (
             // user closes position
-            postPosition.size.eq(ZERO) ||
+            postPosition.size === 0n ||
             // user changes the side of the position
-            (prePosition.size.mul(sign).lt(ZERO) && baseSize.abs().lt(prePosition.size.abs()))
+            (prePosition.size * BigInt(sign) < 0n && (baseSize < 0n ? -baseSize : baseSize) < (prePosition.size < 0n ? -prePosition.size : prePosition.size))
         ) {
             if (!isPositionMMSafe(postPosition, amm, instrument.setting.maintenanceMarginRatio)) {
                 // TODO: @samlior
@@ -790,8 +824,8 @@ export class SimulateModule implements SimulateInterface {
                     true,
                     params.slippage,
                 );
-                postPosition.balance = postPosition.balance.add(additionalMargin);
-                margin = margin.add(additionalMargin);
+                postPosition.balance = postPosition.balance + additionalMargin;
+                margin = margin + additionalMargin;
                 leverage = positionLeverage(postPosition, amm);
                 exceedMaxLeverage = true;
             }
@@ -799,7 +833,7 @@ export class SimulateModule implements SimulateInterface {
 
         // price impact = (postFair - preFair) / preFair
         const priceImpact = wdiv(
-            sqrtX96ToWad(quotation.sqrtPostFairPX96).sub(sqrtX96ToWad(quotation.sqrtFairPX96)),
+            sqrtX96ToWad(quotation.sqrtPostFairPX96) - sqrtX96ToWad(quotation.sqrtFairPX96),
             sqrtX96ToWad(quotation.sqrtFairPX96),
         );
 
@@ -808,12 +842,12 @@ export class SimulateModule implements SimulateInterface {
         return {
             tradePrice: tradePrice,
             tradeValue: quotation.entryNotional,
-            tradingFee: quotation.fee.sub(stabilityFee),
+            tradingFee: quotation.fee - stabilityFee,
             stabilityFee,
             margin,
             marginChanged:
-                postPosition.size.eq(ZERO) && postPosition.balance.gt(ZERO) ? postPosition.balance.mul(-1) : margin,
-            leverage: postPosition.size.eq(ZERO) ? ZERO : leverage,
+                postPosition.size === 0n && postPosition.balance > 0n ? postPosition.balance * BigInt(-1) : margin,
+            leverage: postPosition.size === 0n ? 0n : leverage,
             priceImpact,
             postPosition,
             realized,
@@ -833,16 +867,16 @@ export class SimulateModule implements SimulateInterface {
         return this.simulateTrade(
             params,
             (
-                markPrice: BigNumber,
-                baseSize: BigNumber,
+                markPrice: bigint,
+                baseSize: bigint,
                 sign: number,
                 prePosition: Position,
-                preEquity: BigNumber,
-                tradeLoss: BigNumber,
+                preEquity: bigint,
+                tradeLoss: bigint,
                 quotation: Quotation,
             ) => {
-                const postEquity = preEquity.add(params.margin).sub(tradeLoss).sub(quotation.fee);
-                const leverage = wdiv(wmul(markPrice, baseSize.mul(sign).add(prePosition.size)).abs(), postEquity);
+                const postEquity = preEquity + params.margin - tradeLoss - quotation.fee;
+                const leverage = wdiv((wmul(markPrice, baseSize * BigInt(sign) + prePosition.size) < 0n ? -wmul(markPrice, baseSize * BigInt(sign) + prePosition.size) : wmul(markPrice, baseSize * BigInt(sign) + prePosition.size)), postEquity);
                 return { leverage, margin: params.margin };
             },
             overrides ?? {},
@@ -856,22 +890,22 @@ export class SimulateModule implements SimulateInterface {
         return this.simulateTrade(
             params,
             (
-                markPrice: BigNumber,
-                baseSize: BigNumber,
+                markPrice: bigint,
+                baseSize: bigint,
                 sign: number,
                 prePosition: Position,
-                preEquity: BigNumber,
-                tradeLoss: BigNumber,
+                preEquity: bigint,
+                tradeLoss: bigint,
                 quotation: Quotation,
             ) => {
                 // calc margin required by fixed leverage
                 // postEquity = preEquity + margin - tradeLoss - fee
                 // margin = postEquity - preEquity + tradeLoss + fee
                 const postEquity = wdiv(
-                    wmul(markPrice, baseSize.mul(sign).add(prePosition.size)).abs(),
+                    (wmul(markPrice, baseSize * BigInt(sign) + prePosition.size) < 0n ? -wmul(markPrice, baseSize * BigInt(sign) + prePosition.size) : wmul(markPrice, baseSize * BigInt(sign) + prePosition.size)),
                     params.leverage,
                 );
-                const margin = postEquity.sub(preEquity).add(tradeLoss).add(quotation.fee);
+                const margin = postEquity - preEquity + tradeLoss + quotation.fee;
                 return { leverage: params.leverage, margin };
             },
             overrides ?? {},
@@ -895,17 +929,17 @@ export class SimulateModule implements SimulateInterface {
                 side: reverseSide(prePosition.side),
             },
             (
-                markPrice: BigNumber,
-                baseSize: BigNumber,
+                markPrice: bigint,
+                baseSize: bigint,
                 sign: number,
                 prePosition: Position,
-                preEquity: BigNumber,
-                tradeLoss: BigNumber,
+                preEquity: bigint,
+                tradeLoss: bigint,
                 quotation: Quotation,
             ) => {
-                const margin = ZERO;
-                const postEquity = preEquity.add(ZERO).sub(tradeLoss).sub(quotation.fee);
-                const leverage = wdiv(wmul(markPrice, baseSize.mul(sign).add(prePosition.size)).abs(), postEquity);
+                const margin = 0n;
+                const postEquity = preEquity + 0n - tradeLoss - quotation.fee;
+                const leverage = wdiv((wmul(markPrice, baseSize * BigInt(sign) + prePosition.size) < 0n ? -wmul(markPrice, baseSize * BigInt(sign) + prePosition.size) : wmul(markPrice, baseSize * BigInt(sign) + prePosition.size)), postEquity);
                 return { leverage, margin };
             },
             overrides ?? {},
@@ -914,7 +948,7 @@ export class SimulateModule implements SimulateInterface {
 
     private async simulateAdjustMargin<T extends SimulateAdjustMarginParamsBase>(
         params: T,
-        simulate: (position: Position, amm: Amm) => { margin: BigNumber; leverage: BigNumber },
+        simulate: (position: Position, amm: Amm) => { margin: bigint; leverage: bigint },
         overrides?: CallOverrides,
     ) {
         const { instrument, amm } = await this.mustGetInstrumentAndAmm(
@@ -932,20 +966,20 @@ export class SimulateModule implements SimulateInterface {
 
         const { margin, leverage } = simulate(postPosition, amm);
 
-        if (margin.lt(ZERO) && margin.abs().gt(maxWithdrawableMargin)) {
+        if (margin < 0n && (margin < 0n ? -margin : margin) > maxWithdrawableMargin) {
             throw new SimulationError('Invalid input');
         }
 
         // decrease balance
         postPosition = {
             ...postPosition,
-            balance: postPosition.balance.add(margin),
+            balance: postPosition.balance + margin,
         };
 
         return {
             postPosition,
-            transferIn: margin.gt(0),
-            margin: margin.abs(),
+            transferIn: margin > 0n,
+            margin: bigIntAbs(margin),
             leverage,
         };
     }
@@ -954,16 +988,16 @@ export class SimulateModule implements SimulateInterface {
         params: SimulateAdjustMarginByMarginParams,
         overrides?: CallOverrides,
     ): Promise<SimulateAdjustMarginByMarginResult> {
-        if (params.margin.lt(0)) {
+        if (params.margin < 0n) {
             throw new SimulationError('Invalid margin');
         }
 
         const result = await this.simulateAdjustMargin(
             params,
             (position, amm) => {
-                const margin = params.margin.mul(params.transferIn ? 1 : -1);
-                const value = wmul(amm.markPrice, position.size.abs());
-                const equity = positionEquity(position, amm).add(margin);
+                const margin = params.margin * BigInt(params.transferIn ? 1 : -1);
+                const value = wmul(amm.markPrice, (position.size < 0n ? -position.size : position.size));
+                const equity = positionEquity(position, amm) + margin;
                 const leverage = wdiv(value, equity);
                 return { leverage, margin };
             },
@@ -1000,7 +1034,7 @@ export class SimulateModule implements SimulateInterface {
         instrumentIdentifier: InstrumentIdentifier,
         expiry: number,
         overrides?: CallOverrides,
-    ): Promise<BigNumber> {
+    ): Promise<bigint> {
         let benchmarkPrice;
         if (isCexMarket(instrumentIdentifier.marketType)) {
             benchmarkPrice = await this.observer.inspectCexMarketBenchmarkPrice(
@@ -1045,12 +1079,12 @@ export class SimulateModule implements SimulateInterface {
     }
 
     private _getMinLiquidity(
-        instrumentAmmSqrtPX96: BigNumber,
-        instrumentMinRangeValue: BigNumber,
-        px96?: BigNumber,
-    ): BigNumber {
+        instrumentAmmSqrtPX96: bigint,
+        instrumentMinRangeValue: bigint,
+        px96?: bigint,
+    ): bigint {
         const sqrtPX96 = px96 ? px96 : instrumentAmmSqrtPX96;
-        return instrumentMinRangeValue.mul(Q96).div(sqrtPX96.mul(2));
+        return (instrumentMinRangeValue * Q96) / (sqrtPX96 * 2n);
     }
 
     protected async _simulateAddLiquidityWithAsymmetricRange(
@@ -1105,7 +1139,7 @@ export class SimulateModule implements SimulateInterface {
                 setting = {
                     initialMarginRatio: INITIAL_MARGIN_RATIO,
                     maintenanceMarginRatio: MAINTENANCE_MARGIN_RATIO,
-                    quoteParam: { stabilityFeeRatioParam: ZERO, ...quoteParam },
+                    quoteParam: this.convertQuoteParamToBigInt(quoteParam),
                 };
             }
             amm = factory.createAmm({
@@ -1137,9 +1171,9 @@ export class SimulateModule implements SimulateInterface {
             setting = instrument.setting;
         }
 
-        const minTradeValue = setting.quoteParam.minMarginAmount.mul(RATIO_BASE).div(setting.initialMarginRatio);
+        const minTradeValue = (setting.quoteParam.minMarginAmount * BigInt(RATIO_BASE)) / BigInt(setting.initialMarginRatio);
 
-        const instrumentMinRangeValue = minTradeValue.mul(MIN_RANGE_MULTIPLIER);
+        const instrumentMinRangeValue = minTradeValue * BigInt(MIN_RANGE_MULTIPLIER);
 
         const tickDeltaLower = alphaWadToTickDelta(params.alphaWadLower);
         const tickDeltaUpper = alphaWadToTickDelta(params.alphaWadUpper);
@@ -1178,8 +1212,8 @@ export class SimulateModule implements SimulateInterface {
         );
 
         const basedPX96 = params.currentSqrtPX96 ? params.currentSqrtPX96 : amm.sqrtPX96;
-        const sqrtStrikeLowerPX96 = basedPX96.sub(wmulDown(basedPX96, r2w(params.slippage)));
-        const sqrtStrikeUpperPX96 = basedPX96.add(wmulDown(basedPX96, r2w(params.slippage)));
+        const sqrtStrikeLowerPX96 = basedPX96 - wmulDown(basedPX96, r2w(BigInt(params.slippage)));
+        const sqrtStrikeUpperPX96 = basedPX96 + wmulDown(basedPX96, r2w(BigInt(params.slippage)));
 
         return {
             tickDeltaLower,
@@ -1193,14 +1227,14 @@ export class SimulateModule implements SimulateInterface {
                 traderAddr: ADDRESS_ZERO,
                 ...rawLowerPosition,
             }),
-            lowerLeverage: rawLowerPosition.size.mul(lowerPrice).div(rawLowerPosition.balance).abs(),
+            lowerLeverage: ((rawLowerPosition.size * lowerPrice) / rawLowerPosition.balance) < 0n ? -((rawLowerPosition.size * lowerPrice) / rawLowerPosition.balance) : ((rawLowerPosition.size * lowerPrice) / rawLowerPosition.balance),
             upperPosition: factory.createPosition({
                 instrumentAddr: instrumentAddress,
                 expiry: params.expiry,
                 traderAddr: ADDRESS_ZERO,
                 ...rawUpperPosition,
             }),
-            upperLeverage: rawUpperPosition.size.mul(upperPrice).div(rawUpperPosition.balance).abs(),
+            upperLeverage: ((rawUpperPosition.size * upperPrice) / rawUpperPosition.balance) < 0n ? -((rawUpperPosition.size * upperPrice) / rawUpperPosition.balance) : ((rawUpperPosition.size * upperPrice) / rawUpperPosition.balance),
             limitTicks: TickMath.encodeLimitTicks(sqrtStrikeLowerPX96, sqrtStrikeUpperPX96),
             minMargin,
             minEffectiveQuoteAmount: instrumentMinRangeValue,
@@ -1255,14 +1289,14 @@ export class SimulateModule implements SimulateInterface {
             traderAddr: position.traderAddr,
         });
 
-        const sqrtStrikeLowerPX96 = amm.sqrtPX96.sub(wmulDown(amm.sqrtPX96, r2w(params.slippage)));
-        const sqrtStrikeUpperPX96 = amm.sqrtPX96.add(wmulDown(amm.sqrtPX96, r2w(params.slippage)));
+        const sqrtStrikeLowerPX96 = amm.sqrtPX96 - wmulDown(amm.sqrtPX96, r2w(BigInt(params.slippage)));
+        const sqrtStrikeUpperPX96 = amm.sqrtPX96 + wmulDown(amm.sqrtPX96, r2w(BigInt(params.slippage)));
 
         return {
             removedPosition,
             postPosition,
             limitTicks: TickMath.encodeLimitTicks(sqrtStrikeLowerPX96, sqrtStrikeUpperPX96),
-            removedPositionEntryPrice: sqrt(sqrtX96ToWad(amm.sqrtPX96).mul(sqrtX96ToWad(range.sqrtEntryPX96))),
+            removedPositionEntryPrice: sqrt(sqrtX96ToWad(amm.sqrtPX96) * sqrtX96ToWad(range.sqrtEntryPX96)),
         };
     }
 
@@ -1318,7 +1352,7 @@ export class SimulateModule implements SimulateInterface {
                 setting = {
                     initialMarginRatio: INITIAL_MARGIN_RATIO,
                     maintenanceMarginRatio: MAINTENANCE_MARGIN_RATIO,
-                    quoteParam: { stabilityFeeRatioParam: ZERO, ...quoteParam },
+                    quoteParam: this.convertQuoteParamToBigInt(quoteParam),
                 };
             }
             amm = factory.createAmm({
@@ -1361,13 +1395,13 @@ export class SimulateModule implements SimulateInterface {
             amm.sqrtPX96,
             lowerTick,
             upperTick,
-            margin,
+            margin.toBigInt(),
             setting.initialMarginRatio,
         );
         const { tickLower, tickUpper } = parseTicks(rangeKey(lowerTick, upperTick));
         const simulationRange: RawRange = {
             liquidity,
-            balance: margin,
+            balance: margin.toBigInt(),
             sqrtEntryPX96: amm.sqrtPX96,
             entryFeeIndex: amm.feeIndex,
             tickLower,

@@ -1,4 +1,4 @@
-import { CallOverrides, BigNumber } from 'ethers';
+import { CallOverrides } from 'ethers';
 import {
     SimulateMarketOrderByMarginParams,
     SimulateMarketOrderByLeverageParams,
@@ -151,7 +151,7 @@ export interface SimulateInterface {
         instrumentIdentifier: InstrumentIdentifier,
         expiry: number,
         overrides?: CallOverrides,
-    ): Promise<BigNumber>;
+    ): Promise<bigint>;
 
     /**
      * Simulate impermanent loss

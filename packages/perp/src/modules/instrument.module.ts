@@ -170,7 +170,7 @@ export class InstrumentModule implements InstrumentInterface {
         const unsignedTx = await instrument.populateTransaction.trade(
             encodeAdjustParam({
                 expiry: param.expiry,
-                net: param.margin.mul(sign),
+                net: param.margin * BigInt(sign),
                 deadline: param.deadline,
                 referralCode: param.referralCode ?? DEFAULT_REFERRAL_CODE,
             }),
@@ -263,7 +263,7 @@ export class InstrumentModule implements InstrumentInterface {
         const sign = signOfSide(addLimitOrderParam.side);
         const param: PlaceParam = {
             expiry: addLimitOrderParam.expiry,
-            size: addLimitOrderParam.baseSize.mul(sign),
+            size: addLimitOrderParam.baseSize * BigInt(sign),
             amount: addLimitOrderParam.margin,
             tick: addLimitOrderParam.tick,
             deadline: addLimitOrderParam.deadline,
@@ -298,7 +298,7 @@ export class InstrumentModule implements InstrumentInterface {
         const sign = signOfSide(param.side);
         const tradeParam: PlaceParam = {
             expiry: param.expiry,
-            size: param.baseSize.mul(sign),
+            size: param.baseSize * BigInt(sign),
             amount: param.margin,
             tick: param.limitTick,
             deadline: param.deadline,
@@ -346,7 +346,7 @@ export class InstrumentModule implements InstrumentInterface {
         const unsignedTx = await instrument.populateTransaction.batchPlace(
             encodeBatchPlaceParam(
                 param.expiry,
-                param.baseSize.mul(sign),
+                param.baseSize * BigInt(sign),
                 param.leverage,
                 param.ticks,
                 param.ratios,
@@ -415,7 +415,7 @@ export class InstrumentModule implements InstrumentInterface {
             instrument.interface.encodeFunctionData('trade', [
                 encodeTradeParam({
                     expiry: param.expiry,
-                    size: param.tradeSize.mul(sign),
+                    size: param.tradeSize * BigInt(sign),
                     amount: param.tradeMargin,
                     limitTick: param.tradeLimitTick,
                     deadline: param.deadline,
@@ -428,7 +428,7 @@ export class InstrumentModule implements InstrumentInterface {
             instrument.interface.encodeFunctionData('place', [
                 encodePlaceParam({
                     expiry: param.expiry,
-                    size: param.orderSize.mul(sign),
+                    size: param.orderSize * BigInt(sign),
                     amount: param.orderMargin,
                     tick: param.orderTick,
                     deadline: param.deadline,

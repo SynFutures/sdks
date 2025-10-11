@@ -1,5 +1,5 @@
 import type { BlockInfo, CHAIN_ID } from '@derivation-tech/context';
-import type { BigNumber, CallOverrides, Signer } from 'ethers';
+import type { CallOverrides, Signer } from 'ethers';
 import { CexMarket, DexV2Market, Beacon, Guardian, EmergingFeederFactory, PythFeederFactory } from '../typechain';
 import { Config as LegacyConfig, Gate as LegacyGate, Observer as LegacyObserver } from '../typechain';
 import { Config as CurrentConfig, Gate as CurrentGate, Observer as CurrentObserver } from '../typechain/current';
@@ -26,15 +26,15 @@ export interface Portfolio {
 }
 
 export interface FundFlow {
-    totalIn: BigNumber;
-    totalOut: BigNumber;
+    totalIn: bigint;
+    totalOut: bigint;
 }
 
 export interface Pending {
     timestamp: number;
     native: boolean;
-    amount: BigNumber;
-    exemption: BigNumber;
+    amount: bigint;
+    exemption: bigint;
 }
 
 export interface Instrument {
@@ -47,7 +47,7 @@ export interface Instrument {
     market: InstrumentMarket;
     condition: InstrumentCondition;
     setting: InstrumentSetting;
-    spotPrice: BigNumber;
+    spotPrice: bigint;
     // expiry => amm
     amms: Map<number, Amm>;
     base: BaseInfo;
@@ -56,9 +56,9 @@ export interface Instrument {
     // additional fields
     instrumentType: FeederType;
     marketType: MarketType;
-    minTradeValue: BigNumber;
-    minOrderValue: BigNumber;
-    minRangeValue: BigNumber;
+    minTradeValue: bigint;
+    minOrderValue: bigint;
+    minRangeValue: bigint;
     minTickDelta: number;
 
     displayBase: BaseInfo;
@@ -122,10 +122,10 @@ export interface PythMarketConfig extends MarketConfig {
 
 export interface PriceFeeder {
     ftype: FeederType;
-    scaler0: BigNumber;
+    scaler0: bigint;
     aggregator0: string;
     heartBeat0: number;
-    scaler1: BigNumber;
+    scaler1: bigint;
     aggregator1: string;
     heartBeat1: number;
 }
@@ -134,15 +134,15 @@ export interface DexV2Feeder {
     ftype: FeederType;
     isToken0Quote: boolean;
     pair: string;
-    scaler0: BigNumber;
-    scaler1: BigNumber;
+    scaler0: bigint;
+    scaler1: bigint;
 }
 
 export interface RawOrder {
     // basic fields
-    balance: BigNumber;
-    size: BigNumber;
-    taken: BigNumber;
+    balance: bigint;
+    size: bigint;
+    taken: bigint;
     tick: number;
     nonce: number;
 }
@@ -156,7 +156,7 @@ export interface Order extends RawOrder {
     // additional fields
     oid: number;
     side: Side;
-    limitPrice: BigNumber;
+    limitPrice: bigint;
 
     isInverse?: boolean;
 
@@ -166,10 +166,10 @@ export interface Order extends RawOrder {
 // correspond Record in contract
 // "Record" is a reserved keyword in TypeScript, so we can't use it as a type name.
 export interface ContractRecord {
-    taken: BigNumber;
-    fee: BigNumber;
-    entrySocialLossIndex: BigNumber;
-    entryFundingIndex: BigNumber;
+    taken: bigint;
+    fee: bigint;
+    entrySocialLossIndex: bigint;
+    entryFundingIndex: bigint;
 }
 
 export interface RawAmm {
@@ -181,25 +181,25 @@ export interface RawAmm {
     timestamp: number;
     status: Status;
     tick: number; // current tick. tick = floor(log_{1.0001}(sqrtPX96))
-    sqrtPX96: BigNumber; // current price
-    liquidity: BigNumber;
-    totalLiquidity: BigNumber;
-    involvedFund: BigNumber;
-    openInterests: BigNumber;
-    feeIndex: BigNumber;
-    protocolFee: BigNumber;
-    totalLong: BigNumber;
-    totalShort: BigNumber;
-    longSocialLossIndex: BigNumber;
-    shortSocialLossIndex: BigNumber;
-    longFundingIndex: BigNumber;
-    shortFundingIndex: BigNumber;
-    insuranceFund: BigNumber;
-    settlementPrice: BigNumber;
+    sqrtPX96: bigint; // current price
+    liquidity: bigint;
+    totalLiquidity: bigint;
+    involvedFund: bigint;
+    openInterests: bigint;
+    feeIndex: bigint;
+    protocolFee: bigint;
+    totalLong: bigint;
+    totalShort: bigint;
+    longSocialLossIndex: bigint;
+    shortSocialLossIndex: bigint;
+    longFundingIndex: bigint;
+    shortFundingIndex: bigint;
+    insuranceFund: bigint;
+    settlementPrice: bigint;
     // the last updated block number of timestamp
     timestampUpdatedAt?: number;
     // mark price
-    markPrice: BigNumber;
+    markPrice: bigint;
 }
 
 export interface Amm extends RawAmm {
@@ -207,7 +207,7 @@ export interface Amm extends RawAmm {
     instrumentAddr: string;
 
     // additional fields
-    fairPrice: BigNumber;
+    fairPrice: bigint;
 
     isInverse?: boolean;
 
@@ -215,24 +215,24 @@ export interface Amm extends RawAmm {
 }
 
 export interface Pearl {
-    liquidityGross: BigNumber; // the total position liquidity that references this tick
-    liquidityNet: BigNumber; // amount of net liquidity added (subtracted) when tick is crossed from left to right (right to left)
+    liquidityGross: bigint; // the total position liquidity that references this tick
+    liquidityNet: bigint; // amount of net liquidity added (subtracted) when tick is crossed from left to right (right to left)
     nonce: number;
-    fee: BigNumber;
-    left: BigNumber;
-    taken: BigNumber;
-    entrySocialLossIndex: BigNumber; // social loss per contract borne by taken but unfilled order
-    entryFundingIndex: BigNumber; // funding income per contract owned by taken but unfilled order
+    fee: bigint;
+    left: bigint;
+    taken: bigint;
+    entrySocialLossIndex: bigint; // social loss per contract borne by taken but unfilled order
+    entryFundingIndex: bigint; // funding income per contract owned by taken but unfilled order
     blockInfo?: BlockInfo;
 }
 
 export interface RawPosition {
     // basic fields
-    balance: BigNumber;
-    size: BigNumber;
-    entryNotional: BigNumber;
-    entrySocialLossIndex: BigNumber;
-    entryFundingIndex: BigNumber;
+    balance: bigint;
+    size: bigint;
+    entryNotional: bigint;
+    entrySocialLossIndex: bigint;
+    entryFundingIndex: bigint;
 }
 
 export interface Position extends RawPosition {
@@ -243,7 +243,7 @@ export interface Position extends RawPosition {
 
     // additional fields
     side: Side;
-    entryPrice: BigNumber;
+    entryPrice: bigint;
 
     isInverse?: boolean;
 
@@ -251,23 +251,23 @@ export interface Position extends RawPosition {
 }
 
 export interface Quotation {
-    benchmark: BigNumber;
-    sqrtFairPX96: BigNumber;
+    benchmark: bigint;
+    sqrtFairPX96: bigint;
     tick: number;
-    mark: BigNumber;
-    entryNotional: BigNumber;
-    fee: BigNumber;
-    minAmount: BigNumber;
-    sqrtPostFairPX96: BigNumber;
+    mark: bigint;
+    entryNotional: bigint;
+    fee: bigint;
+    minAmount: bigint;
+    sqrtPostFairPX96: bigint;
     postTick: number;
 }
 
 export interface RawRange {
     // basic fields
-    liquidity: BigNumber;
-    balance: BigNumber;
-    sqrtEntryPX96: BigNumber;
-    entryFeeIndex: BigNumber;
+    liquidity: bigint;
+    balance: bigint;
+    sqrtEntryPX96: bigint;
+    entryFeeIndex: bigint;
     tickLower: number;
     tickUpper: number;
 }
@@ -280,9 +280,9 @@ export interface Range extends RawRange {
 
     // additional fields
     rid: number;
-    lowerPrice: BigNumber;
-    upperPrice: BigNumber;
-    entryPrice: BigNumber;
+    lowerPrice: bigint;
+    upperPrice: bigint;
+    entryPrice: bigint;
 
     isInverse?: boolean;
 
@@ -290,15 +290,15 @@ export interface Range extends RawRange {
 }
 
 export interface MinimalPearl {
-    liquidityNet: BigNumber;
-    left: BigNumber;
+    liquidityNet: bigint;
+    left: bigint;
 }
 
 export interface LiquidityDetails {
     amm: {
-        sqrtPX96: BigNumber;
+        sqrtPX96: bigint;
         tick: number;
-        liquidity: BigNumber;
+        liquidity: bigint;
     };
     tids: number[];
     pearls: MinimalPearl[];

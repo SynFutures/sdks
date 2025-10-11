@@ -1,4 +1,4 @@
-import { BigNumber, CallOverrides, ethers } from 'ethers';
+import { CallOverrides, ethers } from 'ethers';
 import { BlockInfo, TokenInfo, ZERO_ADDRESS, CHAIN_ID, Context } from '@derivation-tech/context';
 import { CexMarket, Instrument__factory } from '../typechain';
 import {
@@ -9,7 +9,6 @@ import { AssembledInstrumentDataStructOutput as CurrentAssembledInstrumentDataSt
 import {
     Amm,
     Instrument,
-    DexV2Feeder,
     FetchInstrumentParam,
     FundFlow,
     InstrumentIdentifier,
@@ -20,7 +19,6 @@ import {
     Pending,
     Portfolio,
     Position,
-    PriceFeeder,
     Quotation,
     InstrumentSetting,
     RawPosition,
@@ -68,16 +66,16 @@ type NormalizedAssembledInstrumentData = {
         fundingHour: number;
         disableOrderRebate: boolean;
         param: {
-            minMarginAmount: BigNumber;
+            minMarginAmount: bigint;
             tradingFeeRatio: number;
             protocolFeeRatio: number;
             qtype: number;
-            tip: BigNumber;
+            tip: bigint;
         };
     };
     dexV2Feeder: CurrentAssembledInstrumentDataStructOutput['dexV2Feeder'];
     priceFeeder: CurrentAssembledInstrumentDataStructOutput['priceFeeder'];
-    spotPrice: BigNumber;
+    spotPrice: bigint;
     condition: number;
     amms: CurrentAssembledInstrumentDataStructOutput['amms'];
     markPrices: CurrentAssembledInstrumentDataStructOutput['markPrices'];
@@ -184,16 +182,16 @@ export class ObserverModule implements ObserverInterface {
                     fundingHour: instrument.setting.fundingHour,
                     disableOrderRebate: instrument.setting.disableOrderRebate,
                     param: {
-                        minMarginAmount: instrument.setting.param.minMarginAmount,
+                        minMarginAmount: instrument.setting.param.minMarginAmount.toBigInt(),
                         tradingFeeRatio: instrument.setting.param.tradingFeeRatio,
                         protocolFeeRatio: instrument.setting.param.protocolFeeRatio,
                         qtype: instrument.setting.param.qtype,
-                        tip: instrument.setting.param.tip,
+                        tip: instrument.setting.param.tip.toBigInt(),
                     },
                 },
                 dexV2Feeder: instrument.dexV2Feeder,
                 priceFeeder: instrument.priceFeeder,
-                spotPrice: instrument.spotPrice,
+                spotPrice: instrument.spotPrice.toBigInt(),
                 condition: instrument.condition,
                 amms: instrument.amms,
                 markPrices: instrument.markPrices,
@@ -219,16 +217,16 @@ export class ObserverModule implements ObserverInterface {
                     fundingHour: 24,
                     disableOrderRebate: false,
                     param: {
-                        minMarginAmount: legacyParam.minMarginAmount,
+                        minMarginAmount: legacyParam.minMarginAmount.toBigInt(),
                         tradingFeeRatio: legacyParam.tradingFeeRatio,
                         protocolFeeRatio: legacyParam.protocolFeeRatio,
                         qtype: legacyParam.qtype,
-                        tip: legacyParam.tip,
+                        tip: legacyParam.tip.toBigInt(),
                     },
                 },
                 dexV2Feeder: instrument.dexV2Feeder,
                 priceFeeder: instrument.priceFeeder,
-                spotPrice: instrument.spotPrice,
+                spotPrice: instrument.spotPrice.toBigInt(),
                 condition: instrument.condition,
                 amms: instrument.amms,
                 markPrices: instrument.markPrices,
@@ -467,8 +465,16 @@ export class ObserverModule implements ObserverInterface {
             const marketConfig: MarketConfig =
                 this.context.perp.configuration.config.marketConfig[marketType as MarketType]!;
             const feeder = isCexMarket(marketType as MarketType)
-                ? (rawInstrument.priceFeeder as PriceFeeder)
-                : (rawInstrument.dexV2Feeder as DexV2Feeder);
+                ? ({
+                    ...rawInstrument.priceFeeder,
+                    scaler0: rawInstrument.priceFeeder.scaler0.toBigInt(),
+                    scaler1: rawInstrument.priceFeeder.scaler1.toBigInt(),
+                })
+                : ({
+                    ...rawInstrument.dexV2Feeder,
+                    scaler0: rawInstrument.dexV2Feeder.scaler0.toBigInt(),
+                    scaler1: rawInstrument.dexV2Feeder.scaler1.toBigInt(),
+                });
             // we assume that marketConfig is not null
             const market: InstrumentMarket = { info: marketInfo, config: marketConfig, feeder: feeder };
 
@@ -479,7 +485,7 @@ export class ObserverModule implements ObserverInterface {
                     minMarginAmount: setting.param.minMarginAmount,
                     tradingFeeRatio: setting.param.tradingFeeRatio,
                     protocolFeeRatio: setting.param.protocolFeeRatio,
-                    stabilityFeeRatioParam: BigNumber.from(0),
+                    stabilityFeeRatioParam: BigInt(0),
                     tip: setting.param.tip,
                     qtype: setting.param.qtype as QuoteType,
                 },
@@ -494,8 +500,23 @@ export class ObserverModule implements ObserverInterface {
                 }
                 const amm = factory.createAmm({
                     ...rawAmm,
+                    sqrtPX96: rawAmm.sqrtPX96.toBigInt(),
+                    liquidity: rawAmm.liquidity.toBigInt(),
+                    totalLiquidity: rawAmm.totalLiquidity.toBigInt(),
+                    involvedFund: rawAmm.involvedFund.toBigInt(),
+                    openInterests: rawAmm.openInterests.toBigInt(),
+                    feeIndex: rawAmm.feeIndex.toBigInt(),
+                    protocolFee: rawAmm.protocolFee.toBigInt(),
+                    totalLong: rawAmm.totalLong.toBigInt(),
+                    totalShort: rawAmm.totalShort.toBigInt(),
+                    longSocialLossIndex: rawAmm.longSocialLossIndex.toBigInt(),
+                    shortSocialLossIndex: rawAmm.shortSocialLossIndex.toBigInt(),
+                    longFundingIndex: rawAmm.longFundingIndex.toBigInt(),
+                    shortFundingIndex: rawAmm.shortFundingIndex.toBigInt(),
+                    insuranceFund: rawAmm.insuranceFund.toBigInt(),
+                    settlementPrice: rawAmm.settlementPrice.toBigInt(),
                     instrumentAddr: rawInstrument.instrumentAddr,
-                    markPrice: rawInstrument.markPrices[i],
+                    markPrice: rawInstrument.markPrices[i].toBigInt(),
                     blockInfo,
                 });
                 amms.set(rawAmm.expiry, amm);
@@ -556,7 +577,7 @@ export class ObserverModule implements ObserverInterface {
         instrumentIdentifier: InstrumentIdentifier,
         expiry: number,
         overrides?: CallOverrides,
-    ): Promise<BigNumber> {
+    ): Promise<bigint> {
         const { baseSymbol, quoteSymbol } = getTokenSymbol(
             instrumentIdentifier.baseSymbol,
             instrumentIdentifier.quoteSymbol,
@@ -582,7 +603,7 @@ export class ObserverModule implements ObserverInterface {
     async inspectCexMarketBenchmarkPrice(
         instrumentIdentifier: InstrumentIdentifier,
         expiry: number,
-    ): Promise<BigNumber> {
+    ): Promise<bigint> {
         const instrumentAddress = await this.context.perp.instrument.computeInstrumentAddress(instrumentIdentifier);
         const market = this.context.perp.contracts.marketContracts[instrumentIdentifier.marketType]
             ?.market as CexMarket;
@@ -597,7 +618,7 @@ export class ObserverModule implements ObserverInterface {
         return benchmarkPrice;
     }
 
-    async getRawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<BigNumber> {
+    async getRawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<bigint> {
         if (identifier.marketType === MarketType.DEXV2) {
             return await this.getDexV2RawSpotPrice(identifier, overrides ?? {});
         } else if (isCexMarket(identifier.marketType)) {
@@ -628,23 +649,23 @@ export class ObserverModule implements ObserverInterface {
         expiry: number,
         targetTick: number,
         overrides?: CallOverrides,
-    ): Promise<BigNumber> {
+    ): Promise<bigint> {
         const observer = this.context.perp.contracts.observer;
         const amm = await observer.getAmm(instrumentAddr, expiry, overrides ?? {});
         const targetPX96 = TickMath.getSqrtRatioAtTick(targetTick);
-        if (targetPX96.eq(amm.sqrtPX96)) {
+        if (targetPX96 === amm.sqrtPX96.toBigInt()) {
             return ZERO;
         }
         const long = targetTick > amm.tick;
-        let size = ZERO;
+        let size = 0n;
 
-        const currTickLeft = (await observer.getPearls(instrumentAddr, expiry, [amm.tick], overrides ?? {}))[0].left;
-        if (long && currTickLeft.isNegative()) {
-            size = size.sub(currTickLeft);
+        const currTickLeft = BigInt((await observer.getPearls(instrumentAddr, expiry, [amm.tick], overrides ?? {}))[0].left.toString());
+        if (long && currTickLeft < 0n) {
+            size = size - currTickLeft;
         }
 
-        let sqrtPX96 = amm.sqrtPX96;
-        let liquidity = amm.liquidity;
+        let sqrtPX96 = amm.sqrtPX96.toBigInt();
+        let liquidity = amm.liquidity.toBigInt();
 
         let nextTick = await this.getNextInitializedTickOutside(
             instrumentAddr,
@@ -660,24 +681,27 @@ export class ObserverModule implements ObserverInterface {
                 // tick has been found
                 const delta = SqrtPriceMath.getDeltaBaseAutoRoundUp(sqrtPX96, targetPX96, liquidity);
                 // for now, add extra 1 to cover precision loss
-                size = long ? size.add(delta).add(1) : size.sub(delta).sub(1);
+                size = long ? size + delta + 1n : size - delta - 1n;
                 break;
             }
             // continue search
             const nextPearl = (await observer.getPearls(instrumentAddr, expiry, [nextTick], overrides ?? {}))[0];
+            const nextPearlLeft = nextPearl.left.toBigInt();
+            const nextPearlLiquidityGross = nextPearl.liquidityGross.toBigInt();
+            const nextPearlLiquidityNet = nextPearl.liquidityNet.toBigInt();
             const delta = SqrtPriceMath.getDeltaBaseAutoRoundUp(sqrtPX96, nextPX96, liquidity);
-            size = long ? size.add(delta) : size.sub(delta);
+            size = long ? size + delta : size - delta;
             if (nextTick === targetTick) {
                 break;
             }
-            if ((long && nextPearl.left.isNegative()) || (!long && nextPearl.left.gt(0))) {
-                size = size.sub(nextPearl.left);
+            if ((long && nextPearlLeft < 0n) || (!long && nextPearlLeft > 0n)) {
+                size = size - nextPearlLeft;
             }
 
             // update
             sqrtPX96 = nextPX96;
-            if (nextPearl.liquidityGross.gt(ZERO)) {
-                liquidity = liquidity.add(long ? nextPearl.liquidityNet : nextPearl.liquidityNet.mul(-1));
+            if (nextPearlLiquidityGross > ZERO) {
+                liquidity = liquidity + (long ? nextPearlLiquidityNet : nextPearlLiquidityNet * -1n);
             }
 
             nextTick = await this.getNextInitializedTickOutside(
@@ -732,7 +756,7 @@ export class ObserverModule implements ObserverInterface {
         trader: string,
         overrides?: CallOverrides,
     ): Promise<{
-        pendings: { maxWithdrawable: BigNumber; pending: Pending }[];
+        pendings: { maxWithdrawable: bigint; pending: Pending }[];
         blockInfo: BlockInfo;
     }> {
         const gateInterface = this.context.perp.contracts.gate.interface;
@@ -772,10 +796,10 @@ export class ObserverModule implements ObserverInterface {
             .map((ret: string) => gateInterface.decodeFunctionResult('fundFlowOf', ret)[0] as FundFlow);
         const thresholds = rawRet
             .slice(quotes.length, quotes.length * 2)
-            .map((ret: string) => gateInterface.decodeFunctionResult('thresholdOf', ret)[0] as BigNumber);
+            .map((ret: string) => gateInterface.decodeFunctionResult('thresholdOf', ret)[0].toBigInt());
         const reserves = rawRet
             .slice(quotes.length * 2, quotes.length * 3)
-            .map((ret: string) => gateInterface.decodeFunctionResult('reserveOf', ret)[0] as BigNumber);
+            .map((ret: string) => gateInterface.decodeFunctionResult('reserveOf', ret)[0].toBigInt());
         const decoded = observerInterface.decodeFunctionResult('getPendings', rawRet[quotes.length * 3]);
         const pendings = decoded[0] as Pending[];
         const blockInfo = trimObj(decoded[1]) as BlockInfo;
@@ -794,20 +818,30 @@ export class ObserverModule implements ObserverInterface {
         instrumentAddr: string,
         expiry: number,
         side: Side,
-        baseAmount: BigNumber,
+        baseAmount: bigint,
         overrides?: CallOverrides,
     ): Promise<{
-        quoteAmount: BigNumber;
+        quoteAmount: bigint;
         quotation: Quotation;
     }> {
         const instrument = Instrument__factory.connect(instrumentAddr, this.context.provider);
         const sign = signOfSide(side);
-        const size = baseAmount.mul(sign);
+        const size = baseAmount * BigInt(sign);
         const quotation = await instrument.inquire(expiry, size, overrides ?? {});
         const entryNotional = quotation.entryNotional;
         return {
-            quoteAmount: entryNotional,
-            quotation: quotation,
+            quoteAmount: entryNotional.toBigInt(),
+            quotation: {
+                ...quotation,
+                benchmark: quotation.benchmark.toBigInt(),
+                sqrtFairPX96: quotation.sqrtFairPX96.toBigInt(),
+                tick: quotation.tick,
+                mark: quotation.mark.toBigInt(),
+                entryNotional: quotation.entryNotional.toBigInt(),
+                fee: quotation.fee.toBigInt(),
+                minAmount: quotation.minAmount.toBigInt(),
+                sqrtPostFairPX96: quotation.sqrtPostFairPX96.toBigInt(),
+            },
         };
     }
 
@@ -815,10 +849,10 @@ export class ObserverModule implements ObserverInterface {
         instrumentAddr: string,
         expiry: number,
         side: Side,
-        quoteAmount: BigNumber,
+        quoteAmount: bigint,
         overrides?: CallOverrides,
     ): Promise<{
-        baseAmount: BigNumber;
+        baseAmount: bigint;
         quotation: Quotation;
     }> {
         const long = side === Side.LONG;
@@ -830,8 +864,18 @@ export class ObserverModule implements ObserverInterface {
             overrides ?? {},
         );
         return {
-            baseAmount: size.abs(),
-            quotation: quotation,
+            baseAmount: (size.lt(0) ? -size.toBigInt() : size.toBigInt()),
+            quotation: {
+                ...quotation,
+                benchmark: quotation.benchmark.toBigInt(),
+                sqrtFairPX96: quotation.sqrtFairPX96.toBigInt(),
+                tick: quotation.tick,
+                mark: quotation.mark.toBigInt(),
+                entryNotional: quotation.entryNotional.toBigInt(),
+                fee: quotation.fee.toBigInt(),
+                minAmount: quotation.minAmount.toBigInt(),
+                sqrtPostFairPX96: quotation.sqrtPostFairPX96.toBigInt(),
+            },
         };
     }
 
@@ -876,29 +920,39 @@ export class ObserverModule implements ObserverInterface {
             let position: RawPosition;
             if (pearl.nonce === order.nonce) {
                 position = cancelOrderToPosition(
-                    pearl.left,
+                    pearl.left.toBigInt(),
                     pearl.nonce,
-                    pearl.taken,
-                    pearl.fee,
-                    pearl.entrySocialLossIndex,
-                    pearl.entryFundingIndex,
+                    pearl.taken.toBigInt(),
+                    pearl.fee.toBigInt(),
+                    pearl.entrySocialLossIndex.toBigInt(),
+                    pearl.entryFundingIndex.toBigInt(),
                     order,
                     order.tick,
                     order.nonce,
-                    record,
+                    {
+                        taken: record.taken.toBigInt(),
+                        fee: record.fee.toBigInt(),
+                        entrySocialLossIndex: record.entrySocialLossIndex.toBigInt(),
+                        entryFundingIndex: record.entryFundingIndex.toBigInt(),
+                    },
                 );
             } else {
                 position = fillOrderToPosition(
                     pearl.nonce,
-                    pearl.taken,
-                    pearl.fee,
-                    pearl.entrySocialLossIndex,
-                    pearl.entryFundingIndex,
+                    pearl.taken.toBigInt(),
+                    pearl.fee.toBigInt(),
+                    pearl.entrySocialLossIndex.toBigInt(),
+                    pearl.entryFundingIndex.toBigInt(),
                     order,
                     order.tick,
                     order.nonce,
                     order.size,
-                    record,
+                    {
+                        taken: record.taken.toBigInt(),
+                        fee: record.fee.toBigInt(),
+                        entrySocialLossIndex: record.entrySocialLossIndex.toBigInt(),
+                        entryFundingIndex: record.entryFundingIndex.toBigInt(),
+                    },
                 );
             }
             finalPic = combine(amm, finalPic, position).position;
@@ -913,13 +967,13 @@ export class ObserverModule implements ObserverInterface {
         });
     }
 
-    async getDexV2RawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<BigNumber> {
+    async getDexV2RawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<bigint> {
         const { baseTokenInfo, quoteTokenInfo } = await getTokenInfo(identifier, this.context);
 
-        const baseScaler = BigNumber.from(10).pow(18 - baseTokenInfo.decimals);
-        const quoteScaler = BigNumber.from(10).pow(18 - quoteTokenInfo.decimals);
+        const baseScaler = BigInt(10) ** BigInt(18 - baseTokenInfo.decimals);
+        const quoteScaler = BigInt(10) ** BigInt(18 - quoteTokenInfo.decimals);
 
-        const isToken0Quote = BigNumber.from(baseTokenInfo.address).gt(BigNumber.from(quoteTokenInfo.address));
+        const isToken0Quote = BigInt(baseTokenInfo.address) > BigInt(quoteTokenInfo.address);
 
         const dexV2PairInfo = await this.context.perp.contracts.observer.inspectMaxReserveDexV2Pair(
             baseTokenInfo.address,
@@ -928,22 +982,22 @@ export class ObserverModule implements ObserverInterface {
         );
         if (
             dexV2PairInfo.maxReservePair === ZERO_ADDRESS ||
-            dexV2PairInfo.reserve0.isZero() ||
-            dexV2PairInfo.reserve1.isZero()
+            dexV2PairInfo.reserve0.toBigInt() === 0n ||
+            dexV2PairInfo.reserve1.toBigInt() === 0n
         ) {
             // no liquidity
             return ZERO;
         }
 
         return isToken0Quote
-            ? wdiv(dexV2PairInfo.reserve0.mul(quoteScaler), dexV2PairInfo.reserve1.mul(baseScaler))
-            : wdiv(dexV2PairInfo.reserve1.mul(quoteScaler), dexV2PairInfo.reserve0.mul(baseScaler));
+            ? wdiv(dexV2PairInfo.reserve0.toBigInt() * quoteScaler, dexV2PairInfo.reserve1.toBigInt() * baseScaler)
+            : wdiv(dexV2PairInfo.reserve1.toBigInt() * quoteScaler, dexV2PairInfo.reserve0.toBigInt() * baseScaler);
     }
 
     async getCexRawSpotPrice(
         instrumentIdentifier: InstrumentIdentifier,
         overrides?: CallOverrides,
-    ): Promise<BigNumber> {
+    ): Promise<bigint> {
         const instrumentAddress = await this.context.perp.instrument.computeInstrumentAddress(instrumentIdentifier);
         const market = this.context.perp.contracts.marketContracts[instrumentIdentifier.marketType]
             ?.market as CexMarket;
@@ -961,16 +1015,16 @@ export class ObserverModule implements ObserverInterface {
         return rawSpotPrice;
     }
 
-    async getGateBalance(target: string, quoteAddrs: string[], overrides?: CallOverrides): Promise<BigNumber[]> {
+    async getGateBalance(target: string, quoteAddrs: string[], overrides?: CallOverrides): Promise<bigint[]> {
         const resp = await this.context.perp.contracts.observer.getVaultBalances(target, quoteAddrs, overrides ?? {});
-        const balance: BigNumber[] = [];
+        const balance: bigint[] = [];
         for (let i = 0; i < quoteAddrs.length; i++) {
-            balance.push(resp[0][i]);
+            balance.push(resp[0][i].toBigInt());
         }
         return balance;
     }
 
-    async getGateBalances(target: string, overrides?: CallOverrides): Promise<(TokenInfo & { balance: BigNumber })[]> {
+    async getGateBalances(target: string, overrides?: CallOverrides): Promise<(TokenInfo & { balance: bigint })[]> {
         const quotes = await Promise.all(
             Object.keys(this.context.perp.configuration.config.quotesParam).map((quote) =>
                 this.context.getTokenInfo(quote),
@@ -983,10 +1037,10 @@ export class ObserverModule implements ObserverInterface {
             overrides,
         );
 
-        const results: (TokenInfo & { balance: BigNumber })[] = [];
+        const results: (TokenInfo & { balance: bigint })[] = [];
 
         for (let i = 0; i < quotes.length; i++) {
-            if (gateBalances[i].eq(0)) {
+            if (gateBalances[i] === 0n) {
                 continue;
             }
 
@@ -1013,13 +1067,26 @@ export class ObserverModule implements ObserverInterface {
         );
 
         const tick2Pearl = new Map<number, MinimalPearl>();
+        const pearls: MinimalPearl[] = [];
         for (let i = 0; i < liquidityDetails.tids.length; i++) {
-            tick2Pearl.set(liquidityDetails.tids[i], liquidityDetails.pearls[i]);
+            const pearl = {
+                liquidityNet: liquidityDetails.pearls[i].liquidityNet.toBigInt(),
+                left: liquidityDetails.pearls[i].left.toBigInt(),                
+            };
+            tick2Pearl.set(liquidityDetails.tids[i], pearl);
+            pearls.push(pearl);
         }
 
         return {
-            ...trimObj(liquidityDetails),
+            amm : {
+                sqrtPX96: liquidityDetails.amm.sqrtPX96.toBigInt(),
+                tick: liquidityDetails.amm.tick,
+                liquidity: liquidityDetails.amm.liquidity.toBigInt(),
+            },
+            tids: liquidityDetails.tids,
+            pearls,
             tick2Pearl,
+            blockInfo: liquidityDetails.blockInfo,
         };
     }
 }

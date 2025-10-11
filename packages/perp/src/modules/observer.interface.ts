@@ -1,4 +1,4 @@
-import { BigNumber, CallOverrides } from 'ethers';
+import { CallOverrides } from 'ethers';
 import { BlockInfo, TokenInfo } from '@derivation-tech/context';
 import { Side } from '../enum';
 import {
@@ -69,7 +69,7 @@ export interface ObserverInterface {
         instrumentIdentifier: InstrumentIdentifier,
         expiry: number,
         overrides?: CallOverrides,
-    ): Promise<BigNumber>;
+    ): Promise<bigint>;
 
     /**
      * Inspect cex market benchmark price
@@ -81,14 +81,14 @@ export interface ObserverInterface {
         instrumentIdentifier: InstrumentIdentifier,
         expiry: number,
         overrides?: CallOverrides,
-    ): Promise<BigNumber>;
+    ): Promise<bigint>;
 
     /**
      * Get raw spot price by instrument marketType
      * @param identifier the instrument identifier
      * @param overrides {@link CallOverrides}
      */
-    getRawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<BigNumber>;
+    getRawSpotPrice(identifier: InstrumentIdentifier, overrides?: CallOverrides): Promise<bigint>;
 
     /**
      * Get next initialized tick outside
@@ -118,7 +118,7 @@ export interface ObserverInterface {
         expiry: number,
         targetTick: number,
         overrides?: CallOverrides,
-    ): Promise<BigNumber>;
+    ): Promise<bigint>;
 
     /**
      * Get fund flows
@@ -142,7 +142,7 @@ export interface ObserverInterface {
         quoteAddrs: string[],
         trader: string,
         overrides?: CallOverrides,
-    ): Promise<{ pendings: { maxWithdrawable: BigNumber; pending: Pending }[]; blockInfo: BlockInfo }>;
+    ): Promise<{ pendings: { maxWithdrawable: bigint; pending: Pending }[]; blockInfo: BlockInfo }>;
 
     /**
      * Inquire by base
@@ -156,9 +156,9 @@ export interface ObserverInterface {
         instrumentAddr: string,
         expiry: number,
         side: Side,
-        baseAmount: BigNumber,
+        baseAmount: bigint,
         overrides?: CallOverrides,
-    ): Promise<{ quoteAmount: BigNumber; quotation: Quotation }>;
+    ): Promise<{ quoteAmount: bigint; quotation: Quotation }>;
 
     /**
      * Inquire by quote
@@ -172,9 +172,9 @@ export interface ObserverInterface {
         instrumentAddr: string,
         expiry: number,
         side: Side,
-        quoteAmount: BigNumber,
+        quoteAmount: bigint,
         overrides?: CallOverrides,
-    ): Promise<{ baseAmount: BigNumber; quotation: Quotation }>;
+    ): Promise<{ baseAmount: bigint; quotation: Quotation }>;
 
     /**
      * Get position if settle
@@ -189,14 +189,14 @@ export interface ObserverInterface {
      * @param quoteAddrs the quote addresses
      * @param overrides {@link CallOverrides}
      */
-    getGateBalance(target: string, quoteAddrs: string[], overrides?: CallOverrides): Promise<BigNumber[]>;
+    getGateBalance(target: string, quoteAddrs: string[], overrides?: CallOverrides): Promise<bigint[]>;
 
     /**
      * Get address balances in gate
      * @param target target address
      * @param overrides {@link CallOverrides}
      */
-    getGateBalances(target: string, overrides?: CallOverrides): Promise<(TokenInfo & { balance: BigNumber })[]>;
+    getGateBalances(target: string, overrides?: CallOverrides): Promise<(TokenInfo & { balance: bigint })[]>;
 
     /**
      * Get liquidity detail information

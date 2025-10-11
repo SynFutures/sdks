@@ -1,13 +1,12 @@
-import { BigNumber } from 'ethers';
 import { CalcModule } from '../calc.module';
 import { reversePrice } from '../../utils';
 
 export class InverseCalcModule extends CalcModule {
     async alignPriceToTick(
         instrumentAddr: string,
-        price: BigNumber,
+        price: bigint,
         isInverse?: boolean,
-    ): Promise<{ tick: number; price: BigNumber }> {
+    ): Promise<{ tick: number; price: bigint }> {
         isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.alignPriceToTick(instrumentAddr, isInverse ? reversePrice(price) : price);
@@ -20,7 +19,7 @@ export class InverseCalcModule extends CalcModule {
             : result;
     }
 
-    async getWadAtTick(instrumentAddr: string, tick: number, isInverse?: boolean): Promise<BigNumber> {
+    async getWadAtTick(instrumentAddr: string, tick: number, isInverse?: boolean): Promise<bigint> {
         isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.getWadAtTick(instrumentAddr, tick);
@@ -28,7 +27,7 @@ export class InverseCalcModule extends CalcModule {
         return isInverse ? reversePrice(result) : result;
     }
 
-    async getTickAtPWad(instrumentAddr: string, price: BigNumber, isInverse?: boolean): Promise<number> {
+    async getTickAtPWad(instrumentAddr: string, price: bigint, isInverse?: boolean): Promise<number> {
         isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         return await super.getTickAtPWad(instrumentAddr, isInverse ? reversePrice(price) : price);
@@ -39,7 +38,7 @@ export class InverseCalcModule extends CalcModule {
         lowerTick: number,
         upperTick: number,
         isInverse?: boolean,
-    ): Promise<{ lowerPrice: BigNumber; upperPrice: BigNumber }> {
+    ): Promise<{ lowerPrice: bigint; upperPrice: bigint }> {
         isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.getWadAtTicks(instrumentAddr, lowerTick, upperTick);
@@ -52,7 +51,7 @@ export class InverseCalcModule extends CalcModule {
             : result;
     }
 
-    async sqrtX96ToWad(instrumentAddr: string, sqrtPX96: BigNumber, isInverse?: boolean): Promise<BigNumber> {
+    async sqrtX96ToWad(instrumentAddr: string, sqrtPX96: bigint, isInverse?: boolean): Promise<bigint> {
         isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.sqrtX96ToWad(instrumentAddr, sqrtPX96);

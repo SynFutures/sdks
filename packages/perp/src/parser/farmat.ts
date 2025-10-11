@@ -34,20 +34,20 @@ export function decodeEmaParam(encoded: BigNumber): EmaParamStruct {
 }
 
 export function formatTimestamp(value: BigNumberish): string {
-    return new Date(BigNumber.from(value).mul(1000).toNumber()).toISOString();
+    return new Date(Number(BigInt(value.toString()) * BigInt(1000))).toISOString();
 }
 
-export function extractFeeRatioParams(stabilityFeeRatioParam: BigNumber): BigNumber[] {
-    const ret: BigNumber[] = [];
-    ret.push(s2w(stabilityFeeRatioParam.and(MAX_UINT_24)));
-    ret.push(s2w(stabilityFeeRatioParam.shr(24).and(MAX_UINT_16)));
-    ret.push(s2w(stabilityFeeRatioParam.shr(40).and(MAX_UINT_16)));
-    ret.push(s2w(stabilityFeeRatioParam.shr(56)));
+export function extractFeeRatioParams(stabilityFeeRatioParam: bigint): bigint[] {
+    const ret: bigint[] = [];
+    ret.push(s2w(stabilityFeeRatioParam & BigInt(MAX_UINT_24)));
+    ret.push(s2w((stabilityFeeRatioParam >> BigInt(24)) & BigInt(MAX_UINT_16)));
+    ret.push(s2w((stabilityFeeRatioParam >> BigInt(40)) & BigInt(MAX_UINT_16)));
+    ret.push(s2w(stabilityFeeRatioParam >> BigInt(56)));
     return ret;
 }
 
 export function formatSqrtPX96(sqrtPX96: BigNumberish, fixedDecimals = 6): string {
-    return formatWad(sqrtX96ToWad(sqrtPX96), fixedDecimals);
+    return formatWad(sqrtX96ToWad(BigInt(sqrtPX96.toString())), fixedDecimals);
 }
 
 export function formatTick(tick: number): string {

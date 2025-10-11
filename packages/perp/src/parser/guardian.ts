@@ -24,7 +24,7 @@ export class GuardianParser extends ContractParser {
             case 'protocolFeeRatio':
                 return formatRatio(data);
             case 'stabilityFeeRatioParam':
-                return extractFeeRatioParams(BigNumber.from(data))
+                return extractFeeRatioParams(BigNumber.from(data).toBigInt())
                     .map((p) => formatWad(p))
                     .toString();
             case 'tip':
