@@ -3,7 +3,7 @@ import { RATIO_BASE, MIN_ORDER_MULTIPLIER, MIN_RANGE_MULTIPLIER } from '../const
 import { Instrument, Order, Position, Amm, Range } from '../types';
 import { sqrtX96ToWad, TickMath, ZERO, wdiv } from '../math';
 import { orderKey, rangeKey, sizeToSide } from './utils';
-import { calcMinTickDelta } from './lowLevel';
+import { calcMinTickDelta } from '../math/perpMath';
 
 export function createInstrument(
     instrument: Omit<

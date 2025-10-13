@@ -4,3 +4,4 @@ export * from './numeric';
 export * from './sqrtPriceMath';
 export * from './swapMath';
 export * from './tickMath';
+export * from './perpMath';

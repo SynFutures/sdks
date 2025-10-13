@@ -41,7 +41,7 @@ import {
     toPortfolio,
     isLegacyChain,
 } from '../utils';
-import { calcBenchmarkPrice, cancelOrderToPosition, combine, fillOrderToPosition } from '../utils/lowLevel';
+import { calcBenchmarkPrice, cancelOrderToPosition, combine, fillOrderToPosition } from '../math/perpMath';
 import { InstrumentParser } from '../parser';
 import { SynfError } from '../errors';
 import { ObserverInterface } from './observer.interface';

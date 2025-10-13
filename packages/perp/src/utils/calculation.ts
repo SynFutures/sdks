@@ -23,7 +23,7 @@ import {
     withinOrderLimit,
     withinDeviationLimit,
     entryDelta,
-} from './lowLevel';
+} from '../math/perpMath';
 import { SynfError } from '../errors/synfError';
 
 //////////////////////////////////////////

@@ -97,7 +97,7 @@ import {
     entryDelta,
     getMarginFromLiquidity,
     getBatchOrderRatios,
-} from '../utils/lowLevel';
+} from '../math/perpMath';
 import {
     INITIAL_MARGIN_RATIO,
     MAINTENANCE_MARGIN_RATIO,
@@ -116,7 +116,6 @@ import { SimulationError } from '../errors/simulationError';
 import { Context } from '@derivation-tech/context';
 import { formatEther, parseEther } from 'ethers/lib/utils';
 import { QuotationStructOutput } from 'src/typechain/Observer';
-import { QuoteParamStructOutput } from 'src/typechain/current/Config';
 
 export class SimulateModule implements SimulateInterface {
     context: Context;

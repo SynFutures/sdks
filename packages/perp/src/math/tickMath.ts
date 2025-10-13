@@ -17,7 +17,7 @@ import {
 } from './basic';
 import { asInt256, asUint256, decompose, forceAsInt24 } from './numeric';
 import { CalculationError } from '../errors/calculationError';
-import { lowLevel } from '../utils';
+import { alignRangeTick } from './perpMath';
 
 export abstract class TickMath {
     /**
@@ -236,8 +236,8 @@ export abstract class TickMath {
         let lowerTick = RANGE_SPACING * ~~((curTick - tickDelta) / RANGE_SPACING);
 
         // save check
-        upperTick = lowLevel.alignRangeTick(Math.min(upperTick, curTick + TICK_DELTA_MAX), false);
-        lowerTick = lowLevel.alignRangeTick(Math.max(lowerTick, curTick - TICK_DELTA_MAX), true);
+        upperTick = alignRangeTick(Math.min(upperTick, curTick + TICK_DELTA_MAX), false);
+        lowerTick = alignRangeTick(Math.max(lowerTick, curTick - TICK_DELTA_MAX), true);
 
         return [lowerTick, upperTick];
     }
