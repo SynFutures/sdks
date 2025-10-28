@@ -1,32 +1,13 @@
-import { Context, formatUnits, ONE, ZERO, ZERO_ADDRESS } from '@derivation-tech/context';
-import { ETH_ADDRESS } from './constants';
-import { Config } from './typechain';
-import { PoolCurve, PoolType } from './types';
-import { BigNumber } from 'ethers';
-import { parseUnits } from 'ethers/lib/utils';
-
-export function toWrappedETH(ctx: Context, tokenAddress: string): string {
-    return tokenAddress.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? ctx.wrappedNativeToken.address : tokenAddress;
-}
-
-export function zeroToETHForSwap(tokenAddress: string): string {
-    return tokenAddress.toLowerCase() == ZERO_ADDRESS.toLowerCase() ? ETH_ADDRESS : tokenAddress;
-}
-
-export function fromWei(amount: BigNumber, decimals = 18): number {
-    return Number(formatUnits(amount, decimals));
-}
-
-export function toWei(amount: number, decimals = 18): BigNumber {
-    return parseUnits(amount.toFixed(decimals), decimals);
-}
+import { ConfigClientInterface } from '../clients/config';
+import { PoolCurve, PoolType } from '../types/contract';
+import { fromWei, toWei } from './utils';
 
 export async function fitPoolCurves(
-    config: Config,
+    config: ConfigClientInterface,
     pool: string,
     poolType: PoolType,
-    token0Balance: BigNumber,
-    token1Balance: BigNumber,
+    token0Balance: bigint,
+    token1Balance: bigint,
     token0Decimal: number,
     token1Decimal: number,
     ratio = 0.5,
@@ -46,87 +27,80 @@ export async function fitPoolCurves(
     const token1Step = maxToken1In / steps;
 
     // Prepare arrays of input amounts starting with 0.01% of balance
-    let token0Inputs = [toWei(token0Bal * 0.0001, token0Decimal).toString()].concat(
-        Array.from({ length: steps }, (_, i) => toWei(token0Step * (i + 1), token0Decimal).toString()),
+    let token0Inputs: bigint[] = [toWei(token0Bal * 0.0001, token0Decimal)].concat(
+        Array.from({ length: steps }, (_, i) => toWei(token0Step * (i + 1), token0Decimal)),
     );
 
-    let token1Inputs = [toWei(token1Bal * 0.0001, token1Decimal).toString()].concat(
-        Array.from({ length: steps }, (_, i) => toWei(token1Step * (i + 1), token1Decimal).toString()),
+    let token1Inputs: bigint[] = [toWei(token1Bal * 0.0001, token1Decimal)].concat(
+        Array.from({ length: steps }, (_, i) => toWei(token1Step * (i + 1), token1Decimal)),
     );
 
     // Split inputs into batches and get amounts out for both directions
-    let sellAmountsOut: BigNumber[] = [];
-    let buyAmountsOut: BigNumber[] = [];
+    let sellAmountsOut: bigint[] = [];
+    let buyAmountsOut: bigint[] = [];
 
     // Process sell amounts in batches
     for (let i = 0; i < token0Inputs.length; i += batchSize) {
         const batchInputs = token0Inputs.slice(i, i + batchSize);
-        const batchResults = await config.callStatic
-            .getAmountsOut(
-                pool,
-                poolType,
-                true, // isToken0
-                batchInputs,
-                { blockTag },
-            )
-            .catch((err) => {
-                throw err;
-            });
+        const batchResults = await config.getAmountsOut(
+            pool,
+            poolType,
+            true,
+            batchInputs,
+            blockTag,
+        );
         sellAmountsOut = sellAmountsOut.concat(batchResults);
     }
 
     // Process buy amounts in batches
     for (let i = 0; i < token1Inputs.length; i += batchSize) {
         const batchInputs = token1Inputs.slice(i, i + batchSize);
-        const batchResults = await config.callStatic
-            .getAmountsOut(
-                pool,
-                poolType,
-                false, // isToken0
-                batchInputs,
-                { blockTag },
-            )
-            .catch((err) => {
-                throw err;
-            });
+        const batchResults = await config.getAmountsOut(
+            pool,
+            poolType,
+            false,
+            batchInputs,
+            blockTag,
+        );
         buyAmountsOut = buyAmountsOut.concat(batchResults);
     }
 
     // filter token0Inputs and sellAmountsOut, liquidity used out
-    const [filteredToken0Inputs, filteredSellAmountsOut] = (() => {
-        let cutoffIndex = token0Inputs.length;
-        for (let i = 1; i < token0Inputs.length; i++) {
-            if (BigNumber.from(sellAmountsOut[i]).eq(BigNumber.from(sellAmountsOut[i - 1]))) {
-                cutoffIndex = i;
-                break;
-            }
+    let cutoffIndex0 = token0Inputs.length;
+    for (let i = 1; i < token0Inputs.length; i++) {
+        if (sellAmountsOut[i] === sellAmountsOut[i - 1]) {
+            cutoffIndex0 = i;
+            break;
         }
-        return [token0Inputs.slice(0, cutoffIndex), sellAmountsOut.slice(0, cutoffIndex)];
-    })();
+    }
+    token0Inputs = token0Inputs.slice(0, cutoffIndex0);
+    sellAmountsOut = sellAmountsOut.slice(0, cutoffIndex0);
 
     // filter token1Inputs and buyAmountsOut, liquidity used out
-    const [filteredToken1Inputs, filteredBuyAmountsOut] = (() => {
-        let cutoffIndex = token1Inputs.length;
-        for (let i = 1; i < token1Inputs.length; i++) {
-            if (BigNumber.from(buyAmountsOut[i]).eq(BigNumber.from(buyAmountsOut[i - 1]))) {
-                cutoffIndex = i;
-                break;
-            }
+    let cutoffIndex1 = token1Inputs.length;
+    for (let i = 1; i < token1Inputs.length; i++) {
+        if (buyAmountsOut[i] === buyAmountsOut[i - 1]) {
+            cutoffIndex1 = i;
+            break;
         }
-        return [token1Inputs.slice(0, cutoffIndex), buyAmountsOut.slice(0, cutoffIndex)];
-    })();
+    }
+    token1Inputs = token1Inputs.slice(0, cutoffIndex1);
+    buyAmountsOut = buyAmountsOut.slice(0, cutoffIndex1);
 
-    // use filtered data
-    token0Inputs = filteredToken0Inputs;
-    token1Inputs = filteredToken1Inputs;
-    sellAmountsOut = filteredSellAmountsOut;
-    buyAmountsOut = filteredBuyAmountsOut;
+    // Ensure arrays remain aligned
+    const minLength = Math.min(token0Inputs.length, sellAmountsOut.length);
+    token0Inputs = token0Inputs.slice(0, minLength);
+    sellAmountsOut = sellAmountsOut.slice(0, minLength);
+
+    const minLengthBuy = Math.min(token1Inputs.length, buyAmountsOut.length);
+    token1Inputs = token1Inputs.slice(0, minLengthBuy);
+    buyAmountsOut = buyAmountsOut.slice(0, minLengthBuy);
 
     // Process points with decimal correction and mid price points
     const sellPoints = token0Inputs
         .map((amountInWei, i) => {
-            const amountIn = fromWei(BigNumber.from(amountInWei), token0Decimal);
-            const amountOut = fromWei(BigNumber.from(sellAmountsOut[i]), token1Decimal);
+            const amountIn = fromWei(amountInWei, token0Decimal);
+            const amountOut = fromWei(sellAmountsOut[i], token1Decimal);
             const price = amountOut / amountIn;
             return [price, amountOut];
         })
@@ -137,8 +111,8 @@ export async function fitPoolCurves(
 
     const buyPoints = token1Inputs
         .map((amountInWei, i) => {
-            const amountIn = fromWei(BigNumber.from(amountInWei), token1Decimal);
-            const amountOut = fromWei(BigNumber.from(buyAmountsOut[i]), token0Decimal);
+            const amountIn = fromWei(amountInWei, token1Decimal);
+            const amountOut = fromWei(buyAmountsOut[i], token0Decimal);
             const price = amountIn / amountOut;
             return [price, amountOut];
         })
@@ -379,16 +353,4 @@ export function adjustLiquidityResults(
     });
 
     return sortedResults;
-}
-
-export function getDexFlag(poolTypes: PoolType[]): BigNumber {
-    return poolTypes.reduce((acc, poolType) => acc.or(ONE.shl(poolType)), ZERO);
-}
-
-export function getDexFlagAndSplits(poolTypes: PoolType[], splitNumber = 0): BigNumber {
-    const maxSplitNumber = 127;
-    if (poolTypes.length > maxSplitNumber) {
-        throw new Error(`poolTypes length must be less than ${maxSplitNumber}`);
-    }
-    return getDexFlag(poolTypes).or(BigNumber.from(splitNumber).shl(maxSplitNumber));
 }

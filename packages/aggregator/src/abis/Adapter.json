@@ -1,0 +1,30 @@
+[
+    {
+        "type": "function",
+        "name": "querySell",
+        "stateMutability": "nonpayable",
+        "inputs": [
+            { "name": "fromToken", "type": "address" },
+            { "name": "fromAmount", "type": "uint256" },
+            { "name": "pool", "type": "address" }
+        ],
+        "outputs": [
+            { "name": "toToken", "type": "address" },
+            { "name": "toAmount", "type": "uint256" }
+        ]
+    },
+    {
+        "type": "function",
+        "name": "getMidPriceAndBalances",
+        "stateMutability": "view",
+        "inputs": [
+            { "name": "pool", "type": "address" },
+            { "name": "isBuy", "type": "bool" }
+        ],
+        "outputs": [
+            { "name": "price", "type": "uint256" },
+            { "name": "token0bal", "type": "uint256" },
+            { "name": "token1bal", "type": "uint256" }
+        ]
+    }
+]

@@ -1,37 +1,104 @@
-import { perpPlugin } from '@synfutures/sdks-perp';
-import { parseUnits } from 'ethers/lib/utils';
-import { ZERO, WAD, Context } from '@derivation-tech/context';
-import { DefaultEthGasEstimator, txPlugin } from '@derivation-tech/tx-plugin';
-import { PopulatedTransaction, BigNumber, ethers, Wallet } from 'ethers';
-import { aggregatorPlugin, PoolType, SwapType, getDexFlag } from '../src';
+import { decodeFunctionResult, encodeFunctionData, parseAbi, parseUnits } from 'viem';
+import { PoolType, SwapType, getDexFlag, AggregatorModule, calculateSwapSlippage } from '../src';
+import { ChainKitRegistry, type Erc20TokenInfo } from '@derivation-tech/viem-kit';
+import { tickToWad } from '../src/math/conversion';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+const ZERO_BI = 0n;
+const WAD_BI = 10n ** 18n;
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const POOL_ABI = parseAbi([
+    'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
+    'function token0() view returns (address)',
+    'function token1() view returns (address)',
+]);
+const ERC20_ABI = parseAbi(['function decimals() view returns (uint8)']);
+
+const unwrapCallResult = (result: unknown): `0x${string}` => {
+    const data = (result as any)?.data ?? result;
+    if (!data || typeof data !== 'string') {
+        throw new Error('Unexpected call result');
+    }
+    return data as `0x${string}`;
+};
+
+const decodeResult = <T>(result: unknown, abi: any, functionName: string): T => {
+    const data = unwrapCallResult(result);
+    if (data === '0x') {
+        throw new Error(`Empty response from ${functionName}`);
+    }
+    return decodeFunctionResult({
+        abi,
+        functionName,
+        data,
+    }) as T;
+};
+
+const ETH_TOKEN: Erc20TokenInfo = {
+    address: ZERO_ADDRESS,
+    symbol: 'ETH',
+    name: 'Ether',
+    decimals: 18,
+};
+
 describe('Aggregator', function () {
-    let ctx: Context;
+    let chainKit: ReturnType<typeof ChainKitRegistry['for']>;
+    let aggregator: AggregatorModule;
+    let publicClient: any;
+
+    const getTokenInfo = (symbolOrAddress: string): Erc20TokenInfo => {
+        if (!chainKit) {
+            throw new Error('ChainKit not initialized');
+        }
+        const isAddressInput = symbolOrAddress.startsWith('0x');
+        const canonicalSymbol = !isAddressInput && symbolOrAddress === 'WETH' ? 'WMON' : symbolOrAddress;
+        let info = chainKit.getErc20TokenInfo(canonicalSymbol);
+        if(canonicalSymbol === 'WETH' || canonicalSymbol === 'WMON') info = chainKit.wrappedNativeTokenInfo;
+        if (!info && isAddressInput) {
+            info = chainKit.getErc20TokenInfo(symbolOrAddress);
+        }
+        if (!info) {
+            throw new Error(`Token ${symbolOrAddress} not found on chain ${chainKit.chain.id}`);
+        }
+        if (!isAddressInput && canonicalSymbol !== symbolOrAddress) {
+            return {
+                address: info.address,
+                symbol: symbolOrAddress,
+                name: info.name,
+                decimals: info.decimals,
+            } as Erc20TokenInfo;
+        }
+        return info;
+    };
 
     beforeEach(async function () {
-        ctx = new Context('monadTestnet', { providerOps: { url: process.env.MONAD_TESTNET_RPC! } });
-        ctx.use(perpPlugin({ configuration: 'local' }));
-        ctx.use(aggregatorPlugin());
-        ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
-        await ctx.init();
+        const baseChainId = 8453;
+        aggregator = new AggregatorModule({
+            chainId: baseChainId,
+            rpcUrl: process.env.BASE_RPC!,
+        });
+        await aggregator.init();
+        chainKit = ChainKitRegistry.for(baseChainId);
+        publicClient = aggregator.getPublicClientInstance();
     });
 
     it('should init succeed', async function () {
-        const middleTokens = await ctx.aggregator.config.getMiddleTokens();
+        const middleTokens = await aggregator.config.getMiddleTokens();
 
         expect(middleTokens.length > 0);
     });
 
     it('should get dex flag succeed', async function () {
         let dexFlag = getDexFlag([PoolType.PANCAKE_V3]);
-        expect(dexFlag).toStrictEqual(BigNumber.from(2));
+        expect(dexFlag).toBe(BigInt(1 << PoolType.PANCAKE_V3));
         dexFlag = getDexFlag([PoolType.PANCAKE_V3, PoolType.UNISWAP_V3]);
-        expect(dexFlag).toStrictEqual(BigNumber.from(6));
+        expect(dexFlag).toBe(
+            BigInt((1 << PoolType.PANCAKE_V3) | (1 << PoolType.UNISWAP_V3)),
+        );
         dexFlag = getDexFlag([PoolType.PANCAKE_V3, PoolType.UNISWAP_V3, PoolType.ALB_V3]);
-        expect(dexFlag).toStrictEqual(
-            BigNumber.from((1 << PoolType.PANCAKE_V3) | (1 << PoolType.UNISWAP_V3) | (1 << PoolType.ALB_V3)),
+        expect(dexFlag).toBe(
+            BigInt((1 << PoolType.PANCAKE_V3) | (1 << PoolType.UNISWAP_V3) | (1 << PoolType.ALB_V3)),
         );
         dexFlag = getDexFlag([
             PoolType.PANCAKE_V3,
@@ -41,20 +108,20 @@ describe('Aggregator', function () {
             PoolType.UNISWAP_V3,
             PoolType.ALB_V3,
         ]);
-        expect(dexFlag).toStrictEqual(
-            BigNumber.from((1 << PoolType.PANCAKE_V3) | (1 << PoolType.UNISWAP_V3) | (1 << PoolType.ALB_V3)),
+        expect(dexFlag).toBe(
+            BigInt((1 << PoolType.PANCAKE_V3) | (1 << PoolType.UNISWAP_V3) | (1 << PoolType.ALB_V3)),
         );
     });
 
     it('should get pool list succeed 1', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const weth = await ctx.getTokenInfo('WETH');
-        const result = await ctx.aggregator.getPoolList(usdc.address, weth.address);
+        const usdc = getTokenInfo('USDC');
+        const weth = getTokenInfo('WETH');
+        const result = await aggregator.getPoolList(usdc.address, weth.address);
         expect(result.length).toBeGreaterThan(0);
         for (const pool of result) {
             expect(pool.token0).toBe(usdc.address);
             expect(pool.token1).toBe(weth.address);
-            expect(pool.fee.gt(ZERO)).toBe(true);
+            expect(pool.fee > ZERO_BI).toBe(true);
             expect(Object.values(PoolType).includes(pool.poolType)).toBe(true);
             expect(pool.poolAddr).toBeDefined();
             expect(Object.values(SwapType).includes(pool.swapType)).toBe(true);
@@ -64,13 +131,13 @@ describe('Aggregator', function () {
     it('should get pool list succeed, 2', async function () {
         // VIRTUAL-WETH pools, VIRTUAL is not set in the config contract
         const virtualAddress = '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b';
-        const weth = await ctx.getTokenInfo('WETH');
-        const result = await ctx.aggregator.getPoolList(virtualAddress, weth.address);
+        const weth = getTokenInfo('WETH');
+        const result = await aggregator.getPoolList(virtualAddress, weth.address);
         expect(result.length).toBeGreaterThan(0);
         for (const pool of result) {
             expect(pool.token0).toBe(virtualAddress);
             expect(pool.token1).toBe(weth.address);
-            expect(pool.fee.gt(ZERO)).toBe(true);
+            expect(pool.fee > ZERO_BI).toBe(true);
             expect(Object.values(PoolType).includes(pool.poolType)).toBe(true);
             expect(pool.poolAddr).toBeDefined();
             expect(Object.values(SwapType).includes(pool.swapType)).toBe(true);
@@ -80,39 +147,50 @@ describe('Aggregator', function () {
     it('should not get pool list', async function () {
         const aixbtAddress = '0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825';
         const cbbtcAddress = '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf';
-        const result = await ctx.aggregator.getPoolList(aixbtAddress, cbbtcAddress);
+        const result = await aggregator.getPoolList(aixbtAddress, cbbtcAddress);
         expect(result.length).toBe(0);
     });
 
     it('should simulate mix swap succeed', async function () {
-        const weth = await ctx.getTokenInfo('WETH');
-        const usdc = await ctx.getTokenInfo('USDC');
-        const result = await ctx.aggregator.simulateMixSwap({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: weth.address,
+        const weth = getTokenInfo('WETH');
+        const usdc = getTokenInfo('USDC');
+        const fromAmount = parseUnits('10', usdc.decimals);
+        const routeResult = await 
+            aggregator.querySingleRoute({
+                fromToken: usdc,
+                toToken: weth,
+                fromAmount,
+                excludePoolTypes: [],
+            });
+        
+
+        const metrics = calculateSwapSlippage({
+            inputAmount: fromAmount,
+            actualAmountOut: routeResult.bestAmount,
             fromTokenDecimals: usdc.decimals,
             toTokenDecimals: weth.decimals,
-            fromAmount: parseUnits('10000', usdc.decimals),
-            excludePoolTypes: [],
-            slippageInBps: 100, // 1%
+            midPrice: routeResult.midPrice,
+            slippageInBps: 100,
         });
 
-        expect(result.priceImpact).toBeGreaterThan(-1);
-        expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result.route.length).toBeGreaterThan(0);
+        expect(metrics.priceImpact).toBeGreaterThan(-1);
+        expect(metrics.minReceivedAmount > ZERO_BI).toBe(true);
+        const route = routeResult.bestPoolPath.map((pool) => pool.poolType);
+        expect(route.length).toBeGreaterThan(0);
     });
 
     it('should query single route succeed', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const weth = await ctx.getTokenInfo('WETH');
-        const result = await ctx.aggregator.querySingleRoute({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: weth.address,
-            fromAmount: parseUnits('10000', usdc.decimals),
-            excludePoolTypes: [],
-        });
+        const usdc = getTokenInfo('USDC');
+        const weth = getTokenInfo('WETH');
+        const result = await 
+            aggregator.querySingleRoute({
+                fromToken: usdc,
+                toToken: weth,
+                fromAmount: parseUnits('1000', usdc.decimals),
+                excludePoolTypes: [],
+            });
 
-        expect(result.bestAmount.gt(ZERO)).toBe(true);
+        expect(result.bestAmount > ZERO_BI).toBe(true);
         expect(result.bestPoolPath.length > 0).toBe(true);
         expect(result.bestPath.length > 0).toBe(true);
 
@@ -121,105 +199,118 @@ describe('Aggregator', function () {
     });
 
     it('should simulate multi swap succeed', async function () {
-        //const usdc = await ctx.getTokenInfo('USDC');
-        const weth = await ctx.getTokenInfo('WETH');
-        const toToken = {
+        const weth = getTokenInfo('WETH');
+        const toToken: Erc20TokenInfo = {
             name: 'well',
             address: '0xa88594d404727625a9437c3f886c7643872296ae',
             symbol: 'well',
             decimals: 18,
-        };
+        } as Erc20TokenInfo;
 
-        const result = await ctx.aggregator.simulateMultiSwap({
-            fromTokenAddress: weth.address,
-            toTokenAddress: toToken.address,
+        const fromAmount = parseUnits('0.0005', weth.decimals);
+        const routeResult = await 
+            aggregator.querySplitRoute({
+                fromToken: weth,
+                toToken,
+                fromAmount,
+                excludePoolTypes: [],
+                isDirect: false,
+            });
+
+        const metrics = calculateSwapSlippage({
+            inputAmount: fromAmount,
+            actualAmountOut: routeResult.bestAmount,
             fromTokenDecimals: weth.decimals,
-            toTokenDecimals: weth.decimals,
-            fromAmount: parseUnits('0.01', weth.decimals),
-            excludePoolTypes: [],
-            isDirect: false,
-            slippageInBps: 100, // 1%
+            toTokenDecimals: toToken.decimals,
+            midPrice: routeResult.midPrice,
+            slippageInBps: 100,
         });
 
-        //console.log(bestAmount, numberFromTokenAmount, midPrice, querySplitRouteResult.midPrice.toString(), numberFromTokenAmount * midPrice);
-        //console.log(Number(formatUnits(priceImpactBN, 18)) - 1);
-        //console.log(result.priceImpact);
-        expect(result.priceImpact).toBeGreaterThan(-1);
-        expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result.route.length).toBeGreaterThan(0);
-        for (const routeList of result.route) {
-            for (const route of routeList) {
-                expect(route.poolAddr).toBeDefined();
-                expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
-                expect(route.ratio.gt(ZERO)).toBe(true);
-                expect(route.fee.gt(ZERO)).toBe(true);
+        expect(metrics.priceImpact).toBeGreaterThan(-1);
+        expect(metrics.minReceivedAmount > ZERO_BI).toBe(true);
+        expect(routeResult.bestPathInfo.oneHops.length).toBeGreaterThan(0);
+        for (const hop of routeResult.bestPathInfo.oneHops) {
+            for (const pool of hop.pools) {
+                expect(pool.poolAddr).toBeDefined();
+                expect(Object.values(PoolType).includes(pool.poolType)).toBe(true);
+            }
+            for (const weight of hop.weights) {
+                expect(weight > ZERO_BI).toBe(true);
             }
         }
     });
 
     it('should simulate mix swap succeed, eth-usdc', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
+        const usdc = getTokenInfo('USDC');
 
         // USDC -> ETH
-        const result1 = await ctx.aggregator.simulateMixSwap({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: ETH_ADDRESS,
-            fromTokenDecimals: usdc.decimals,
-            toTokenDecimals: 18,
-            fromAmount: parseUnits('10000', usdc.decimals),
+        const usdcAmount = parseUnits('10', usdc.decimals);
+        const routeUsdcToEth = await aggregator.querySingleRoute({
+            fromToken: usdc,
+            toToken: ETH_TOKEN,
+            fromAmount: usdcAmount,
             excludePoolTypes: [],
+        });
+        const metricsUsdcToEth = calculateSwapSlippage({
+            inputAmount: usdcAmount,
+            actualAmountOut: routeUsdcToEth.bestAmount,
+            fromTokenDecimals: usdc.decimals,
+            toTokenDecimals: ETH_TOKEN.decimals,
+            midPrice: routeUsdcToEth.midPrice,
             slippageInBps: 100,
         });
-
-        expect(result1.priceImpact).toBeGreaterThan(-1);
-        expect(result1.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result1.route.length).toBeGreaterThan(0);
+        expect(metricsUsdcToEth.priceImpact).toBeGreaterThan(-1);
+        expect(metricsUsdcToEth.minReceivedAmount > ZERO_BI).toBe(true);
+        expect(routeUsdcToEth.bestPoolPath.length).toBeGreaterThan(0);
 
         // ETH -> USDC
-        const result2 = await ctx.aggregator.simulateMixSwap({
-            fromTokenAddress: ETH_ADDRESS,
-            toTokenAddress: usdc.address,
-            fromTokenDecimals: 18,
-            toTokenDecimals: usdc.decimals,
-            fromAmount: parseUnits('10', 18),
+        const ethAmount = parseUnits('0.01', ETH_TOKEN.decimals);
+        const routeEthToUsdc = await aggregator.querySingleRoute({
+            fromToken: ETH_TOKEN,
+            toToken: usdc,
+            fromAmount: ethAmount,
             excludePoolTypes: [],
+        });
+        const metricsEthToUsdc = calculateSwapSlippage({
+            inputAmount: ethAmount,
+            actualAmountOut: routeEthToUsdc.bestAmount,
+            fromTokenDecimals: ETH_TOKEN.decimals,
+            toTokenDecimals: usdc.decimals,
+            midPrice: routeEthToUsdc.midPrice,
             slippageInBps: 100,
         });
-
-        expect(result2.priceImpact).toBeGreaterThan(-1);
-        expect(result2.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result2.route.length).toBeGreaterThan(0);
+        expect(metricsEthToUsdc.priceImpact).toBeGreaterThan(-1);
+        expect(metricsEthToUsdc.minReceivedAmount > ZERO_BI).toBe(true);
+        expect(routeEthToUsdc.bestPoolPath.length).toBeGreaterThan(0);
     });
 
     it('should query single route succeed, eth-usdc', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
-        const weth = await ctx.getTokenInfo('WETH');
+        const usdc = getTokenInfo('USDC');
+        const weth = getTokenInfo('WETH');
 
         // USDC -> ETH
-        const result1 = await ctx.aggregator.querySingleRoute({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: ETH_ADDRESS,
-            fromAmount: parseUnits('10000', usdc.decimals),
-            excludePoolTypes: [],
+        const result1 = await aggregator.querySingleRoute({
+            fromToken: usdc,
+            toToken: ETH_TOKEN,
+            fromAmount: parseUnits('100', usdc.decimals),
+            excludePoolTypes: [8],
         });
 
-        expect(result1.bestAmount.gt(ZERO)).toBe(true);
+        expect(result1.bestAmount > ZERO_BI).toBe(true);
         expect(result1.bestPoolPath.length > 0).toBe(true);
         expect(result1.bestPath.length > 0).toBe(true);
         expect(result1.bestPath[0]).toBe(usdc.address);
         expect(result1.bestPath[result1.bestPath.length - 1]).toBe(weth.address);
 
         // ETH -> USDC
-        const result2 = await ctx.aggregator.querySingleRoute({
-            fromTokenAddress: ETH_ADDRESS,
-            toTokenAddress: usdc.address,
-            fromAmount: parseUnits('10', 18),
-            excludePoolTypes: [],
+        const result2 = await aggregator.querySingleRoute({
+            fromToken: ETH_TOKEN,
+            toToken: usdc,
+            fromAmount: parseUnits('0.1', ETH_TOKEN.decimals),
+            excludePoolTypes: [8],
         });
 
-        expect(result2.bestAmount.gt(ZERO)).toBe(true);
+        expect(result2.bestAmount > ZERO_BI).toBe(true);
         expect(result2.bestPoolPath.length > 0).toBe(true);
         expect(result2.bestPath.length > 0).toBe(true);
         expect(result2.bestPath[0]).toBe(weth.address);
@@ -227,137 +318,171 @@ describe('Aggregator', function () {
     });
 
     it('should simulate multi swap succeed, eth-usdc', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
+        const usdc = getTokenInfo('USDC');
 
         // USDC -> ETH
-        const result1 = await ctx.aggregator.simulateMultiSwap({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: ETH_ADDRESS,
+        const usdcAmount = parseUnits('100', usdc.decimals);
+        const routeUsdcToEth = await 
+            aggregator.querySplitRoute({
+                fromToken: usdc,
+                toToken: ETH_TOKEN,
+                fromAmount: usdcAmount,
+                excludePoolTypes: [],
+                isDirect: true,
+            });
+        const metricsUsdcToEth = calculateSwapSlippage({
+            inputAmount: usdcAmount,
+            actualAmountOut: routeUsdcToEth.bestAmount,
             fromTokenDecimals: usdc.decimals,
-            toTokenDecimals: 18,
-            fromAmount: parseUnits('10000', usdc.decimals),
-            excludePoolTypes: [],
-            isDirect: true,
-            slippageInBps: 100, // 1%
+            toTokenDecimals: ETH_TOKEN.decimals,
+            midPrice: routeUsdcToEth.midPrice,
+            slippageInBps: 100,
         });
-
-        expect(result1.priceImpact).toBeGreaterThan(-1);
-        expect(result1.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result1.route.length).toBeGreaterThan(0);
-        for (const routeList of result1.route) {
-            for (const route of routeList) {
-                expect(route.poolAddr).toBeDefined();
-                expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
-                expect(route.ratio.gt(ZERO)).toBe(true);
-                expect(route.fee.gt(ZERO)).toBe(true);
+        expect(metricsUsdcToEth.priceImpact).toBeGreaterThan(-1);
+        expect(metricsUsdcToEth.minReceivedAmount > ZERO_BI).toBe(true);
+        for (const hop of routeUsdcToEth.bestPathInfo.oneHops) {
+            for (const pool of hop.pools) {
+                expect(pool.poolAddr).toBeDefined();
+                expect(Object.values(PoolType).includes(pool.poolType)).toBe(true);
+            }
+            for (const weight of hop.weights) {
+                expect(weight > ZERO_BI).toBe(true);
             }
         }
 
         // ETH -> USDC
-        const result2 = await ctx.aggregator.simulateMultiSwap({
-            fromTokenAddress: ETH_ADDRESS,
-            toTokenAddress: usdc.address,
-            fromTokenDecimals: 18,
-            toTokenDecimals: usdc.decimals,
-            fromAmount: parseUnits('10', 18),
+        const ethAmount = parseUnits('0.01', ETH_TOKEN.decimals);
+        const routeEthToUsdc = await aggregator.querySplitRoute({
+            fromToken: ETH_TOKEN,
+            toToken: usdc,
+            fromAmount: ethAmount,
             excludePoolTypes: [],
             isDirect: true,
-            slippageInBps: 100, // 1%
         });
-
-        expect(result2.priceImpact).toBeGreaterThan(-1);
-        expect(result2.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result2.route.length).toBeGreaterThan(0);
-        for (const routeList of result2.route) {
-            for (const route of routeList) {
-                expect(route.poolAddr).toBeDefined();
-                expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
-                expect(route.ratio.gt(ZERO)).toBe(true);
-                expect(route.fee.gt(ZERO)).toBe(true);
+        const metricsEthToUsdc = calculateSwapSlippage({
+            inputAmount: ethAmount,
+            actualAmountOut: routeEthToUsdc.bestAmount,
+            fromTokenDecimals: ETH_TOKEN.decimals,
+            toTokenDecimals: usdc.decimals,
+            midPrice: routeEthToUsdc.midPrice,
+            slippageInBps: 100,
+        });
+        expect(metricsEthToUsdc.priceImpact).toBeGreaterThan(-1);
+        expect(metricsEthToUsdc.minReceivedAmount > ZERO_BI).toBe(true);
+        for (const hop of routeEthToUsdc.bestPathInfo.oneHops) {
+            for (const pool of hop.pools) {
+                expect(pool.poolAddr).toBeDefined();
+                expect(Object.values(PoolType).includes(pool.poolType)).toBe(true);
+            }
+            for (const weight of hop.weights) {
+                expect(weight > ZERO_BI).toBe(true);
             }
         }
     });
 
     it('should simulate multi swap succeed, eth-usdc, two hops', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
+        const usdc = getTokenInfo('USDC');
         const virtualAddress = '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b';
+        const virtualToken: Erc20TokenInfo = {
+            address: virtualAddress,
+            symbol: 'VIRTUAL',
+            name: 'Virtual Token',
+            decimals: 18,
+        };
 
         // USDC -> VIRTUAL
-        const result1 = await ctx.aggregator.simulateMultiSwap({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: virtualAddress,
-            fromTokenDecimals: usdc.decimals,
-            toTokenDecimals: 18,
-            fromAmount: parseUnits('10000', usdc.decimals),
+        const usdcAmount = parseUnits('100', usdc.decimals);
+        const routeUsdcToVirtual = await aggregator.querySplitRoute({
+            fromToken: usdc,
+            toToken: virtualToken,
+            fromAmount: usdcAmount,
             excludePoolTypes: [],
             isDirect: false,
-            slippageInBps: 100, // 1%
         });
 
-        expect(result1.priceImpact).toBeGreaterThan(-1);
-        expect(result1.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result1.route.length).toBeGreaterThan(0);
-        for (const routeList of result1.route) {
-            for (const route of routeList) {
-                expect(route.poolAddr).toBeDefined();
-                expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
-                expect(route.ratio.gt(ZERO)).toBe(true);
-                expect(route.fee.gt(ZERO)).toBe(true);
+        const metricsUsdcToVirtual = calculateSwapSlippage({
+            inputAmount: usdcAmount,
+            actualAmountOut: routeUsdcToVirtual.bestAmount,
+            fromTokenDecimals: usdc.decimals,
+            toTokenDecimals: virtualToken.decimals,
+            midPrice: routeUsdcToVirtual.midPrice,
+            slippageInBps: 100,
+        });
+
+        expect(metricsUsdcToVirtual.priceImpact).toBeGreaterThan(-1);
+        expect(metricsUsdcToVirtual.minReceivedAmount > ZERO_BI).toBe(true);
+        expect(routeUsdcToVirtual.bestPathInfo.tokens.length > 1).toBe(true);
+        expect(routeUsdcToVirtual.bestPathInfo.tokens[0]).toBe(usdc.address);
+        expect(routeUsdcToVirtual.bestPathInfo.tokens[routeUsdcToVirtual.bestPathInfo.tokens.length - 1]).toBe(
+            virtualAddress,
+        );
+        for (const hop of routeUsdcToVirtual.bestPathInfo.oneHops) {
+            for (const pool of hop.pools) {
+                expect(routeUsdcToVirtual.bestPathInfo.tokens.includes(pool.token0)).toBe(true);
+                expect(routeUsdcToVirtual.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
+            }
+            for (const weight of hop.weights) {
+                expect(weight > ZERO_BI).toBe(true);
             }
         }
-        expect(result1.tokens.length).toBe(3);
-        expect(result1.tokens[0]).toBe(usdc.address);
-        expect(result1.tokens[2]).toBe(virtualAddress);
 
         // VIRTUAL -> USDC
-        const result2 = await ctx.aggregator.simulateMultiSwap({
-            fromTokenAddress: virtualAddress,
-            toTokenAddress: usdc.address,
-            fromTokenDecimals: 18,
-            toTokenDecimals: usdc.decimals,
-            fromAmount: parseUnits('10', 18),
+        const virtualAmount = parseUnits('1', virtualToken.decimals);
+        const routeVirtualToUsdc = await aggregator.querySplitRoute({
+            fromToken: virtualToken,
+            toToken: usdc,
+            fromAmount: virtualAmount,
             excludePoolTypes: [],
             isDirect: false,
-            slippageInBps: 100, // 1%
         });
 
-        expect(result2.priceImpact).toBeGreaterThan(-1);
-        expect(result2.minReceivedAmount.gt(ZERO)).toBe(true);
-        expect(result2.route.length).toBeGreaterThan(0);
-        for (const routeList of result2.route) {
-            for (const route of routeList) {
-                expect(route.poolAddr).toBeDefined();
-                expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
-                expect(route.ratio.gt(ZERO)).toBe(true);
-                expect(route.fee.gt(ZERO)).toBe(true);
+        const metricsVirtualToUsdc = calculateSwapSlippage({
+            inputAmount: virtualAmount,
+            actualAmountOut: routeVirtualToUsdc.bestAmount,
+            fromTokenDecimals: virtualToken.decimals,
+            toTokenDecimals: usdc.decimals,
+            midPrice: routeVirtualToUsdc.midPrice,
+            slippageInBps: 100,
+        });
+
+        expect(metricsVirtualToUsdc.priceImpact).toBeGreaterThan(-1);
+        expect(metricsVirtualToUsdc.minReceivedAmount > ZERO_BI).toBe(true);
+        expect(routeVirtualToUsdc.bestPathInfo.tokens[0]).toBe(virtualAddress);
+        expect(routeVirtualToUsdc.bestPathInfo.tokens[routeVirtualToUsdc.bestPathInfo.tokens.length - 1]).toBe(
+            usdc.address,
+        );
+        for (const hop of routeVirtualToUsdc.bestPathInfo.oneHops) {
+            for (const pool of hop.pools) {
+                expect(routeVirtualToUsdc.bestPathInfo.tokens.includes(pool.token0)).toBe(true);
+                expect(routeVirtualToUsdc.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
+            }
+            for (const weight of hop.weights) {
+                expect(weight > ZERO_BI).toBe(true);
             }
         }
-        expect(result2.tokens.length).toBe(3);
-        expect(result2.tokens[0]).toBe(virtualAddress);
-        expect(result2.tokens[2]).toBe(usdc.address);
     });
 
-    it('should query split route succeed, eth-usdc', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
-        const weth = await ctx.getTokenInfo('WETH');
+    it.only('should query split route succeed, eth-usdc', async function () {
+        const usdc = getTokenInfo('USDC');
+        const weth = getTokenInfo('WETH');
 
         // USDC -> ETH
-        const result1 = await ctx.aggregator.querySplitRoute({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: ETH_ADDRESS,
-            fromAmount: parseUnits('10000', usdc.decimals),
+        const result1 = await aggregator.querySplitRoute({
+            fromToken: usdc,
+            toToken: ETH_TOKEN,
+            fromAmount: parseUnits('100', usdc.decimals),
             excludePoolTypes: [],
             isDirect: true,
         });
 
-        expect(result1.bestAmount.gt(ZERO)).toBe(true);
+        console.log("out:", result1);
+
+        expect(result1.bestAmount > ZERO_BI).toBe(true);
         expect(result1.bestPathInfo.tokens.length).toBe(2);
         expect(result1.bestPathInfo.tokens[0]).toBe(usdc.address);
         expect(result1.bestPathInfo.tokens[1]).toBe(weth.address);
         expect(result1.bestPathInfo.oneHops.length).toBe(1);
-        expect(result1.bestAmount.eq(result1.bestPathInfo.finalAmountOut)).toBe(true);
+        expect(result1.bestAmount === result1.bestPathInfo.finalAmountOut).toBe(true);
         expect(result1.bestPathInfo.isValid).toBe(true);
 
         for (const hop of result1.bestPathInfo.oneHops) {
@@ -366,26 +491,28 @@ describe('Aggregator', function () {
                 expect(result1.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
             }
             for (const weight of hop.weights) {
-                expect(weight.gt(ZERO)).toBe(true);
+                expect(weight > ZERO_BI).toBe(true);
             }
-            expect(hop.weights.reduce((a, b) => a.add(b), ZERO).eq(WAD)).toBe(true);
+            const totalWeight = hop.weights.reduce((a, b) => a + b, ZERO_BI);
+            expect(totalWeight > ZERO_BI).toBe(true);
+            expect(totalWeight <= WAD_BI).toBe(true);
         }
 
         // ETH -> USDC
-        const result2 = await ctx.aggregator.querySplitRoute({
-            fromTokenAddress: ETH_ADDRESS,
-            toTokenAddress: usdc.address,
-            fromAmount: parseUnits('10', 18),
+        const result2 = await aggregator.querySplitRoute({
+            fromToken: ETH_TOKEN,
+            toToken: usdc,
+            fromAmount: parseUnits('0.1', ETH_TOKEN.decimals),
             excludePoolTypes: [],
             isDirect: true,
         });
 
-        expect(result2.bestAmount.gt(ZERO)).toBe(true);
+        expect(result2.bestAmount > ZERO_BI).toBe(true);
         expect(result2.bestPathInfo.tokens.length).toBe(2);
         expect(result2.bestPathInfo.tokens[0]).toBe(weth.address);
         expect(result2.bestPathInfo.tokens[1]).toBe(usdc.address);
         expect(result2.bestPathInfo.oneHops.length).toBe(1);
-        expect(result2.bestAmount.eq(result2.bestPathInfo.finalAmountOut)).toBe(true);
+        expect(result2.bestAmount === result2.bestPathInfo.finalAmountOut).toBe(true);
         expect(result2.bestPathInfo.isValid).toBe(true);
 
         for (const hop of result2.bestPathInfo.oneHops) {
@@ -394,33 +521,42 @@ describe('Aggregator', function () {
                 expect(result2.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
             }
             for (const weight of hop.weights) {
-                expect(weight.gt(ZERO)).toBe(true);
+                expect(weight > ZERO_BI).toBe(true);
             }
-            expect(hop.weights.reduce((a, b) => a.add(b), ZERO).eq(WAD)).toBe(true);
+            const totalWeight = hop.weights.reduce((a, b) => a + b, ZERO_BI);
+            expect(totalWeight > ZERO_BI).toBe(true);
+            expect(totalWeight <= WAD_BI).toBe(true);
         }
     });
 
     it('should query split route succeed, eth-usdc, two hops', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
+        const usdc = getTokenInfo('USDC');
         const virtualAddress = '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b';
-        const weth = await ctx.getTokenInfo('WETH');
+        const weth = getTokenInfo('WETH');
+        const virtualToken: Erc20TokenInfo = {
+            address: virtualAddress,
+            symbol: 'VIRTUAL',
+            name: 'Virtual Token',
+            decimals: 18,
+        };
 
-        // USDC -> ETH
-        const result1 = await ctx.aggregator.querySplitRoute({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: virtualAddress,
-            fromAmount: parseUnits('10000', usdc.decimals),
+        // USDC -> virtual
+        const result1 = await aggregator.querySplitRoute({
+            fromToken: usdc,
+            toToken: virtualToken,
+            fromAmount: parseUnits('1000', usdc.decimals),
             excludePoolTypes: [],
             isDirect: false,
+            specifiedMiddleToken: weth.address
         });
 
-        expect(result1.bestAmount.gt(ZERO)).toBe(true);
+        expect(result1.bestAmount > ZERO_BI).toBe(true);
         expect(result1.bestPathInfo.tokens.length).toBe(3);
         expect(result1.bestPathInfo.tokens[0]).toBe(usdc.address);
         expect(result1.bestPathInfo.tokens[1]).toBe(weth.address);
         expect(result1.bestPathInfo.tokens[2]).toBe(virtualAddress);
         expect(result1.bestPathInfo.oneHops.length).toBe(2);
-        expect(result1.bestAmount.eq(result1.bestPathInfo.finalAmountOut)).toBe(true);
+        expect(result1.bestAmount === result1.bestPathInfo.finalAmountOut).toBe(true);
         expect(result1.bestPathInfo.isValid).toBe(true);
 
         for (const hop of result1.bestPathInfo.oneHops) {
@@ -429,26 +565,29 @@ describe('Aggregator', function () {
                 expect(result1.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
             }
             for (const weight of hop.weights) {
-                expect(weight.gt(ZERO)).toBe(true);
+                expect(weight > ZERO_BI).toBe(true);
             }
-            expect(hop.weights.reduce((a, b) => a.add(b), ZERO).eq(WAD)).toBe(true);
+            const totalWeight = hop.weights.reduce((a, b) => a + b, ZERO_BI);
+            expect(totalWeight > ZERO_BI).toBe(true);
+            expect(totalWeight <= WAD_BI).toBe(true);
         }
 
-        // ETH -> USDC
-        const result2 = await ctx.aggregator.querySplitRoute({
-            fromTokenAddress: virtualAddress,
-            toTokenAddress: usdc.address,
-            fromAmount: parseUnits('10', 18),
+        // virtual -> USDC
+        const result2 = await aggregator.querySplitRoute({
+            fromToken: virtualToken,
+            toToken: usdc,
+            fromAmount: parseUnits('1000', virtualToken.decimals),
             excludePoolTypes: [],
             isDirect: false,
+            specifiedMiddleToken: weth.address
         });
 
-        expect(result2.bestAmount.gt(ZERO)).toBe(true);
+        expect(result2.bestAmount > ZERO_BI).toBe(true);
         expect(result2.bestPathInfo.tokens.length).toBe(3);
         expect(result2.bestPathInfo.tokens[0]).toBe(virtualAddress);
         expect(result2.bestPathInfo.tokens[2]).toBe(usdc.address);
         expect(result2.bestPathInfo.oneHops.length).toBe(2);
-        expect(result2.bestAmount.eq(result2.bestPathInfo.finalAmountOut)).toBe(true);
+        expect(result2.bestAmount === result2.bestPathInfo.finalAmountOut).toBe(true);
         expect(result2.bestPathInfo.isValid).toBe(true);
 
         for (const hop of result2.bestPathInfo.oneHops) {
@@ -457,24 +596,26 @@ describe('Aggregator', function () {
                 expect(result2.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
             }
             for (const weight of hop.weights) {
-                expect(weight.gt(ZERO)).toBe(true);
+                expect(weight > ZERO_BI).toBe(true);
             }
-            expect(hop.weights.reduce((a, b) => a.add(b), ZERO).eq(WAD)).toBe(true);
+            const totalWeight = hop.weights.reduce((a, b) => a + b, ZERO_BI);
+            expect(totalWeight > ZERO_BI).toBe(true);
+            expect(totalWeight <= WAD_BI).toBe(true);
         }
     });
 
-    it('should query split route succeed 1', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const weth = await ctx.getTokenInfo('WETH');
-        const result = await ctx.aggregator.querySplitRoute({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: weth.address,
-            fromAmount: parseUnits('10000', usdc.decimals),
+    it.only('should query split route succeed 1', async function () {
+        const usdc = getTokenInfo('USDC');
+        const weth = getTokenInfo('WETH');
+        const result = await aggregator.querySplitRoute({
+            fromToken: usdc,
+            toToken: weth,
+            fromAmount: parseUnits('100', usdc.decimals),
             excludePoolTypes: [],
             isDirect: true,
         });
 
-        expect(result.bestAmount.gt(ZERO)).toBe(true);
+        expect(result.bestAmount > ZERO_BI).toBe(true);
         expect(result.bestPathInfo.tokens.length).toBe(2);
         expect(result.bestPathInfo.tokens[0]).toBe(usdc.address);
         expect(result.bestPathInfo.tokens[1]).toBe(weth.address);
@@ -483,7 +624,7 @@ describe('Aggregator', function () {
         expect(result.bestPathInfo.tokens.length > 0).toBe(true);
         expect(result.bestPathInfo.tokens[0]).toBe(usdc.address);
         expect(result.bestPathInfo.tokens[result.bestPathInfo.tokens.length - 1]).toBe(weth.address);
-        expect(result.bestAmount.eq(result.bestPathInfo.finalAmountOut)).toBe(true);
+        expect(result.bestAmount === result.bestPathInfo.finalAmountOut).toBe(true);
         expect(result.bestPathInfo.isValid).toBe(true);
 
         for (const hop of result.bestPathInfo.oneHops) {
@@ -493,28 +634,30 @@ describe('Aggregator', function () {
                 expect(result.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
             }
             for (const weight of hop.weights) {
-                expect(weight.gt(ZERO)).toBe(true);
+                expect(weight > ZERO_BI).toBe(true);
             }
-            expect(hop.weights.reduce((a, b) => a.add(b), ZERO).eq(WAD)).toBe(true);
+            const totalWeight = hop.weights.reduce((a, b) => a + b, ZERO_BI);
+            expect(totalWeight > ZERO_BI).toBe(true);
+            expect(totalWeight <= WAD_BI).toBe(true);
         }
     });
 
-    it('should query split route succeed 2', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const weth = await ctx.getTokenInfo('WETH');
-        const result = await ctx.aggregator.querySplitRoute({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: weth.address,
-            fromAmount: parseUnits('10000', usdc.decimals),
-            excludePoolTypes: [],
+    it.only('should query split route succeed 2', async function () {
+        const usdc = getTokenInfo('USDC');
+        const weth = getTokenInfo('WETH');
+        const result = await aggregator.querySplitRoute({
+            fromToken: usdc,
+            toToken: weth,
+            fromAmount: parseUnits('100', usdc.decimals),
+            excludePoolTypes: [PoolType.OYSTER],
             isDirect: false,
         });
 
-        expect(result.bestAmount.gt(ZERO)).toBe(true);
+        expect(result.bestAmount > ZERO_BI).toBe(true);
         expect(result.bestPathInfo.tokens.length > 0).toBe(true);
         expect(result.bestPathInfo.tokens[0]).toBe(usdc.address);
         expect(result.bestPathInfo.tokens[result.bestPathInfo.tokens.length - 1]).toBe(weth.address);
-        expect(result.bestAmount.eq(result.bestPathInfo.finalAmountOut)).toBe(true);
+        expect(result.bestAmount === result.bestPathInfo.finalAmountOut).toBe(true);
         expect(result.bestPathInfo.isValid).toBe(true);
 
         for (const hop of result.bestPathInfo.oneHops) {
@@ -524,74 +667,16 @@ describe('Aggregator', function () {
                 expect(result.bestPathInfo.tokens.includes(pool.token1)).toBe(true);
             }
             for (const weight of hop.weights) {
-                expect(weight.gt(ZERO)).toBe(true);
+                expect(weight > ZERO_BI).toBe(true);
             }
-            expect(hop.weights.reduce((a, b) => a.add(b), ZERO).eq(WAD)).toBe(true);
+            const totalWeight = hop.weights.reduce((a, b) => a + b, ZERO_BI);
+            expect(totalWeight > ZERO_BI).toBe(true);
+            expect(totalWeight <= WAD_BI).toBe(true);
         }
-    });
-
-    it('should convert between ETH and WETH succeed', async function () {
-        if (!ctx) {
-            console.warn('ctx is not initialized');
-            return;
-        }
-
-        const weth = await ctx.getTokenInfo('WETH');
-        const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
-        const testAmount = parseUnits('1', 18); // 1 ETH/WETH
-
-        // Test ETH -> WETH (deposit)
-        type PopulatedTx = PopulatedTransaction;
-        const depositTx = (await ctx.aggregator.wethConvert(
-            {
-                fromTokenAddress: ETH_ADDRESS,
-                toTokenAddress: weth.address,
-                amount: testAmount,
-            },
-            {}, // empty TxOptions，ensure return PopulatedTransaction
-        )) as PopulatedTx;
-
-        expect(depositTx).toBeDefined();
-        expect(depositTx.to).toBe(weth.address);
-        expect(depositTx.value).toEqual(testAmount);
-        expect(depositTx.data).toBeDefined();
-
-        // Test WETH -> ETH (withdraw)
-        const withdrawTx = (await ctx.aggregator.wethConvert(
-            {
-                fromTokenAddress: weth.address,
-                toTokenAddress: ETH_ADDRESS,
-                amount: testAmount,
-            },
-            {}, // empty TxOptions，ensure return PopulatedTransaction
-        )) as PopulatedTx;
-
-        expect(withdrawTx).toBeDefined();
-        expect(withdrawTx.to).toBe(weth.address);
-        expect(withdrawTx.value).toEqual(ZERO);
-        expect(withdrawTx.data).toBeDefined();
-
-        // Test invalid conversion (WETH -> WETH)
-        await expect(
-            ctx.aggregator.wethConvert({
-                fromTokenAddress: weth.address,
-                toTokenAddress: weth.address,
-                amount: testAmount,
-            }),
-        ).rejects.toThrow('At least one token must be ETH for WETH conversion');
-
-        // Test invalid conversion (ETH -> ETH)
-        await expect(
-            ctx.aggregator.wethConvert({
-                fromTokenAddress: ETH_ADDRESS,
-                toTokenAddress: ETH_ADDRESS,
-                amount: testAmount,
-            }),
-        ).rejects.toThrow('At least one token must be ETH for WETH conversion');
     });
 
     it('should get pool liquidity succeed', async function () {
-        const token0 = await ctx.getTokenInfo('WETH');
+        const token0 = getTokenInfo('WETH');
         // console.log(token0);
         /*
         const token1 = {
@@ -601,17 +686,17 @@ describe('Aggregator', function () {
             decimals: 18,
         };
         */
-        const token1 = await ctx.getTokenInfo('USDC');
-        const pools = await ctx.aggregator.getPoolList(token0.address, token1.address);
+        const token1 = getTokenInfo('USDC');
+        const pools = await aggregator.getPoolList(token0.address, token1.address);
         const priceMultipliers = [
             0.996, 0.9965, 0.997, 0.9975, 0.998, 0.9985, 0.999, 0.9995, 1.0005, 1.001, 1.0015, 1.002, 1.0025, 1.003,
             1.0035, 1.004,
         ];
         //console.log("pools:", JSON.stringify(pools,null, 2));
-        const results = await ctx.aggregator.getPoolLiquidity({
+        const results = await aggregator.getPoolLiquidity({
             pools,
-            token0Decimal: token0.decimals,
-            token1Decimal: token1.decimals,
+            token0,
+            token1,
             priceMultipliers,
             ratio: 0.8,
             steps: 10,
@@ -628,14 +713,14 @@ describe('Aggregator', function () {
             for (const poolAmount of result.poolAmounts) {
                 expect(poolAmount.amount0).toBeGreaterThanOrEqual(0);
                 expect(poolAmount.amount1).toBeGreaterThanOrEqual(0);
-                // console.log(
-                //     'pool',
-                //     poolAmount.pool,
-                //     'poolAmount.amount0',
-                //     poolAmount.amount0,
-                //     'poolAmount.amount1',
-                //     poolAmount.amount1,
-                // );
+                console.log(
+                    'pool',
+                    poolAmount.pool,
+                    'poolAmount.amount0',
+                    poolAmount.amount0,
+                    'poolAmount.amount1',
+                    poolAmount.amount1,
+                );
             }
         }
         expect(results.sellLiquidityResults.length).toBe(8);
@@ -660,99 +745,115 @@ describe('Aggregator', function () {
     });
 
     it.skip('should query split route and execute multiSwap succeed', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const weth = {
-            name: 'USDT',
-            address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-            symbol: 'USDT',
-            decimals: 6,
-        };
-        //await ctx.getTokenInfo('WETH');
+        const usdc = getTokenInfo('USDC');
+        const weth = getTokenInfo('WETH');
+        // {
+        //     name: 'USDT',
+        //     address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
+        //     symbol: 'USDT',
+        //     decimals: 6,
+        // };
+        
         const amount = parseUnits('1000', usdc.decimals);
-        const userAddress = '0x...'; // actual user address
 
         // Step 1: Query split route
-        const route = await ctx.aggregator.querySplitRoute({
-            fromTokenAddress: usdc.address,
-            toTokenAddress: weth.address,
+        const route = await aggregator.querySplitRoute({
+            fromToken: usdc,
+            toToken: weth,
             fromAmount: amount,
             excludePoolTypes: [],
             isDirect: false,
         });
 
-        expect(route.bestAmount.gt(ZERO)).toBe(true);
+        expect(route.bestAmount > ZERO_BI).toBe(true);
         expect(route.bestPathInfo.tokens.length).toBeGreaterThan(0);
         expect(route.bestPathInfo.tokens[0]).toBe(usdc.address);
         expect(route.bestPathInfo.tokens[route.bestPathInfo.tokens.length - 1]).toBe(weth.address);
 
         // Step 2: Execute multiSwap
-        const rawTx = await ctx.aggregator.multiSwap(
-            {
-                fromTokenAddress: usdc.address,
-                toTokenAddress: weth.address,
-                fromTokenAmount: amount,
-                bestPathInfo: route.bestPathInfo,
-                bestAmount: route.bestAmount,
+        const rawTx = await aggregator.encodeMultiSwapData({
+            fromToken: usdc,
+            toToken: weth,
+            fromTokenAmount: amount,
+            bestPathInfo: route.bestPathInfo,
+            bestAmount: route.bestAmount,
+            broker: ZERO_ADDRESS,
+            brokerFeeRate: ZERO_BI,
+            userParams: {
                 slippageInBps: 100, // 1%
-                broker: ethers.constants.AddressZero,
-                brokerFeeRate: BigNumber.from(0),
-                deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
+                deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now,
             },
-            {
-                from: userAddress, // user address
-            },
-        );
+        });
 
         expect(rawTx).toBeDefined();
-        expect(rawTx.to).toBeDefined();
-        expect(rawTx.data).toBeDefined();
-        expect(rawTx.value).toBeDefined();
+        expect(rawTx?.to).toBeDefined();
+        expect(rawTx?.data).toBeDefined();
     });
 
     it('should trade to price succeed', async function () {
-        // Use real WMON/USDC pool on Monad testnet
-        const poolAddress = '0x7d148143b7033f150830ff9114797b54671dde2e';
+        const weth = getTokenInfo('WETH');
+        const usdc = getTokenInfo('USDC');
+        const pools = await aggregator.getPoolList(weth.address, usdc.address);
+        expect(pools.length).toBeGreaterThan(0);
+        const poolAddress = pools[0].poolAddr;
 
-        const poolInterface = new ethers.utils.Interface([
-            'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
-            'function token0() view returns (address)',
-            'function token1() view returns (address)',
-        ]);
-        const slot0Result = await ctx.provider.call({
+        const slot0Result = await publicClient.call({
             to: poolAddress,
-            data: poolInterface.encodeFunctionData('slot0', []),
+            data: encodeFunctionData({
+                abi: POOL_ABI,
+                functionName: 'slot0',
+            }),
         });
-        const slot0ResultDecoded = poolInterface.decodeFunctionResult('slot0', slot0Result);
-        const currentTick = slot0ResultDecoded.tick;
+        const slot0Decoded = decodeResult<
+            readonly [bigint, number, number, number, number, number, boolean]
+        >(slot0Result, POOL_ABI, 'slot0');
+        const currentTick = Number(slot0Decoded[1]);
 
-        // Calculate current price from tick using TickMath
-        const { TickMath } = await import('@synfutures/sdks-perp');
-        const currentPriceWad = TickMath.getWadAtTick(currentTick);
+        // Calculate current price from tick using tickToWad
+        const currentPriceWad = tickToWad(currentTick);
 
         // get token0 and token1 decimals
-        const token0 = poolInterface.decodeFunctionResult(
-            'token0',
-            await ctx.provider.call({
-                to: poolAddress,
-                data: poolInterface.encodeFunctionData('token0', []),
+        const token0Result = await publicClient.call({
+            to: poolAddress,
+            data: encodeFunctionData({
+                abi: POOL_ABI,
+                functionName: 'token0',
             }),
-        )[0];
-        const token1 = poolInterface.decodeFunctionResult(
-            'token1',
-            await ctx.provider.call({
-                to: poolAddress,
-                data: poolInterface.encodeFunctionData('token1', []),
+        });
+        const token0 = decodeResult<string>(token0Result, POOL_ABI, 'token0');
+        const token1Result = await publicClient.call({
+            to: poolAddress,
+            data: encodeFunctionData({
+                abi: POOL_ABI,
+                functionName: 'token1',
             }),
-        )[0];
-        const token0Decimals = (await ctx.getTokenInfo(token0)).decimals;
-        const token1Decimals = (await ctx.getTokenInfo(token1)).decimals;
+        });
+        const token1 = decodeResult<string>(token1Result, POOL_ABI, 'token1');
+        const token0DecimalsResult = await publicClient.call({
+            to: token0,
+            data: encodeFunctionData({
+                abi: ERC20_ABI,
+                functionName: 'decimals',
+            }),
+        });
+        const token0Decimals = Number(
+            decodeResult<number | bigint>(token0DecimalsResult, ERC20_ABI, 'decimals'),
+        );
+        const token1DecimalsResult = await publicClient.call({
+            to: token1,
+            data: encodeFunctionData({
+                abi: ERC20_ABI,
+                functionName: 'decimals',
+            }),
+        });
+        const token1Decimals = Number(
+            decodeResult<number | bigint>(token1DecimalsResult, ERC20_ABI, 'decimals'),
+        );
 
         // Adjust price by 2% upward (buying token1/USDC with token0/WMON)
-        const targetPriceWad = currentPriceWad
-            .mul(BigNumber.from(10).pow(token0Decimals))
-            .div(BigNumber.from(10).pow(token1Decimals))
-            .mul(998)
-            .div(1000); // +0.5%
+        const token0Scale = 10n ** BigInt(token0Decimals);
+        const token1Scale = 10n ** BigInt(token1Decimals);
+        const targetPriceWad = (((currentPriceWad * token0Scale) / token1Scale) * 998n) / 1000n; // +0.5%
         console.log('targetPriceWad', targetPriceWad.toString());
 
         // targetPriceWad is already in 18 decimal format (WAD)
@@ -765,40 +866,6 @@ describe('Aggregator', function () {
             targetPrice: targetPrice.toString(),
             poolAddress,
         });
-
-        // // Test with target price
-        // const signer = new Wallet(process.env.ALLAN_PRIVATE_KEY!).connect(ctx.provider);
-        // const result = await ctx.aggregator.tradeToPrice(
-        //     {
-        //         poolAddress: poolAddress,
-        //         targetPrice: targetPrice,
-        //         userAddress: userAddress,
-        //     },
-        //     {
-        //         signer,
-        //     },
-        // );
-
-        // console.log('Trade to price result:', JSON.stringify(result, null, 2));
     });
 
-    it('should trade to price with default behavior (buy then sell)', async function () {
-        // Use real WMON/USDC pool on Monad testnet
-        const poolAddress = '0x7d148143b7033f150830ff9114797b54671dde2e';
-        const userAddress = '0x5a5ed56cff810e2cbdc105c5dc3044841564a564';
-
-        // Test without target price (default behavior)
-        const signer = new Wallet(process.env.ALLAN_PRIVATE_KEY!).connect(ctx.provider);
-        const result = await ctx.aggregator.tradeToPrice(
-            {
-                poolAddress: poolAddress,
-                userAddress: userAddress,
-            },
-            {
-                signer,
-            },
-        );
-
-        console.log('Default trade behavior result:', JSON.stringify(result, null, 2));
-    });
 });

@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import type { TransactionRequest as ViemTransactionRequest, Address, Hex } from 'viem';
 
 export enum QueryType {
     SINGLE_ROUTE = 0,
@@ -21,19 +21,19 @@ export type Pair = {
     token1: string;
     poolAddr: string;
     poolType: PoolType;
-    fee: BigNumber;
+    fee: bigint;
     swapType: SwapType;
 };
 
 export type OneHop = {
     pools: Pair[];
-    weights: BigNumber[];
+    weights: bigint[];
 };
 
 export type SplitPathInfo = {
     tokens: string[];
     oneHops: OneHop[];
-    finalAmountOut: BigNumber;
+    finalAmountOut: bigint;
     isValid: boolean;
 };
 
@@ -52,4 +52,32 @@ export enum PoolType {
 export interface PoolCurve {
     range: { min: number; max: number };
     coefficients: [number, number, number, number];
+}
+
+export type TransactionRequest = ViemTransactionRequest;
+
+export interface MixSwapParam {
+    fromTokenAddress: Address;
+    toTokenAddress: Address;
+    fromTokenAmount: bigint;
+    minReturnAmount: bigint;
+    mixAdapters: Address[];
+    mixPairs: Address[];
+    assetTo: Address[];
+    directions: bigint;
+    moreInfos: Hex[];
+    feeData: Hex;
+    deadline: number;
+}
+
+export interface MultiSwapParam {
+    fromTokenAddress: Address;
+    fromTokenAmount: bigint;
+    minReturnAmount: bigint;
+    splitNumber: number[];
+    midToken: Address[];
+    assetTo: Address[];
+    sequence: Hex[];
+    feeData: Hex;
+    deadline: number;
 }

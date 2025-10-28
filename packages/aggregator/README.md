@@ -21,22 +21,20 @@ Our aggregator contract is a smart contract that allows users to swap tokens usi
 ## Install
 
 ```sh
-npm i @derivation-tech/context @derivation-tech/tx-plugin @synfutures/sdks-aggregator
+npm i @synfutures/sdks-aggregator
 ```
 
 ### Initialization example
 
 ```ts
-// initialize the SDK
-import { Context } from '@derivation-tech/context';
-import { txPlugin } from '@derivation-tech/tx-plugin';
-import { aggregatorPlugin, DefaultEthGasEstimator } from '@synfutures/sdks-aggregator';
+import { AggregatorModule } from '@synfutures/sdks-aggregator';
 
-ctx = new Context('base', { url: 'your rpc url' });
-ctx.use(aggregatorPlugin());
-ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
+const aggregator = new AggregatorModule({
+    chainId: 8453, // Base mainnet
+    rpcUrl: 'https://mainnet.base.org',
+});
 
-await ctx.init();
+await aggregator.init();
 ```
 
 ## Example
@@ -44,11 +42,16 @@ await ctx.init();
 ### Query single route
 
 ```ts
-const usdc = await ctx.getTokenInfo('USDC');
-const weth = await ctx.getTokenInfo('WETH');
-const result = await ctx.aggregator.querySingleRoute({
-    fromTokenAddress: usdc.address,
-    toTokenAddress: weth.address,
+const aggregator = new AggregatorModule({ chainId: 8453, rpcUrl: 'https://mainnet.base.org' });
+await aggregator.init();
+
+const chainKit = ChainKitRegistry.for(8453);
+const usdc = chainKit.getErc20TokenInfo('USDC');
+const weth = chainKit.getErc20TokenInfo('WETH');
+
+const result = await aggregator.querySingleRoute({
+    fromToken: usdc,
+    toToken: weth,
     fromAmount: parseUnits('10000', usdc.decimals),
     excludePoolTypes: [],
 });
@@ -57,11 +60,9 @@ const result = await ctx.aggregator.querySingleRoute({
 ### Query split route
 
 ```ts
-const usdc = await ctx.getTokenInfo('USDC');
-const weth = await ctx.getTokenInfo('WETH');
-const result = await ctx.aggregator.querySplitRoute({
-    fromTokenAddress: usdc.address,
-    toTokenAddress: weth.address,
+const result = await aggregator.querySplitRoute({
+    fromToken: usdc,
+    toToken: weth,
     fromAmount: parseUnits('10000', usdc.decimals),
     excludePoolTypes: [],
     isDirect: true,
@@ -71,18 +72,13 @@ const result = await ctx.aggregator.querySplitRoute({
 ### Simulate mix swap
 
 ```ts
-const usdc = await ctx.getTokenInfo('USDC');
-const weth = await ctx.getTokenInfo('WETH');
-
 const fromToken = weth;
 const toToken = usdc;
 const fromAmount = parseUnits('0.001', fromToken.decimals);
 
-const result = await ctx.aggregator.simulateMixSwap({
-    fromTokenAddress: fromToken.address,
-    toTokenAddress: toToken.address,
-    fromTokenDecimals: fromToken.decimals,
-    toTokenDecimals: toToken.decimals,
+const result = await aggregator.simulateMixSwap({
+    fromToken,
+    toToken,
     fromAmount,
     excludePoolTypes: [],
     slippageInBps: 100, // 1%
@@ -102,11 +98,9 @@ const fromToken = usdc;
 const toToken = weth;
 const fromAmount = parseUnits('10', fromToken.decimals);
 
-const result = await ctx.aggregator.simulateMultiSwap({
-    fromTokenAddress: fromToken.address,
-    toTokenAddress: toToken.address,
-    fromTokenDecimals: fromToken.decimals,
-    toTokenDecimals: toToken.decimals,
+const result = await aggregator.simulateMultiSwap({
+    fromToken,
+    toToken,
     fromAmount,
     excludePoolTypes: [],
     isDirect: true,
@@ -139,7 +133,7 @@ const approveTo = OYSTER_AGGREGATOR_ADDRESS[ctx.chainId];
 console.log('approveTo', approveTo);
 
 await ctx.erc20.approveIfNeeded(signer, fromToken.address, approveTo, fromTokenAmount);
-const tx = await ctx.aggregator.mixSwap(
+const tx = await ctx.aggregator.encodeMixSwapData(
     {
         fromTokenAddress: fromToken.address,
         fromTokenAmount,
@@ -147,10 +141,12 @@ const tx = await ctx.aggregator.mixSwap(
         bestPath: result.bestPath,
         bestPoolPath: result.bestPoolPath,
         bestAmount: result.bestAmount,
-        slippageInBps: 100, // 1%
         broker: ZERO_ADDRESS,
         brokerFeeRate: ZERO,
-        deadline: NULL_DDL,
+        userParams: {
+            slippageInBps: 100, // 1%
+            deadline: NULL_DDL,
+        },
     },
     { signer },
 );
@@ -179,17 +175,19 @@ const approveTo = OYSTER_AGGREGATOR_ADDRESS[ctx.chainId];
 console.log('approveTo', approveTo);
 
 await ctx.erc20.approveIfNeeded(signer, fromToken.address, approveTo, fromTokenAmount);
-const tx = await ctx.aggregator.multiSwap(
+const tx = await ctx.aggregator.encodeMultiSwapData(
     {
         fromTokenAddress: fromToken.address,
         fromTokenAmount,
         toTokenAddress: toToken.address,
         bestPathInfo: result.bestPathInfo,
         bestAmount: result.bestAmount,
-        slippageInBps: 100, // 1%
         broker: ZERO_ADDRESS,
         brokerFeeRate: ZERO,
-        deadline: NULL_DDL,
+        userParams: {
+            slippageInBps: 100, // 1%
+            deadline: NULL_DDL,
+        },
     },
     { signer },
 );

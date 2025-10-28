@@ -17,10 +17,7 @@
         "build:check": "node -e \"require('./dist-node')\""
     },
     "dependencies": {
-        "@derivation-tech/context": "catalog:",
-        "@derivation-tech/tx-plugin": "catalog:",
-        "@synfutures/sdks-perp": "workspace:^",
-        "ethers": "catalog:"
+        "@derivation-tech/viem-kit": "0.0.2"
     },
     "jest": {
         "verbose": true,
