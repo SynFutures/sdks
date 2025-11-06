@@ -383,7 +383,6 @@ export class AggregatorModule implements AggregatorInterface {
     }
 
     async querySplitRoute(params: QuerySplitRouteInput): Promise<QuerySplitRouteOutput> {
-        // todo 加指定高度， done
         const fromTokenAddress = toWrappedETH(this.wrappedNativeTokenAddress, params.fromToken.address);
         const toTokenAddress = toWrappedETH(this.wrappedNativeTokenAddress, params.toToken.address);
         const isDirect = normalizeBoolean((params as { isDirect?: unknown }).isDirect);
@@ -402,7 +401,6 @@ export class AggregatorModule implements AggregatorInterface {
             };
         }
 
-        // todo 考虑合并, done
         const publicClient = this.getPublicClient();
         const decoded = await executeRouteCall<any, [string, string, bigint, boolean, bigint, string]>({
             client: publicClient,
@@ -736,7 +734,6 @@ export class AggregatorModule implements AggregatorInterface {
         };
     }
 
-    // todo rename and 构建return type, done
     private async _getMultiSwapDataFromRawParams(params: MultiSwapRawInput): Promise<MultiSwapParam> {
         const {
             fromToken,
@@ -820,9 +817,6 @@ export class AggregatorModule implements AggregatorInterface {
         };
     }
 
-    // todo rename encode multiswap CallData, done
-    // todo erc20 use tokenInfo, done
-    // todo user setting params?? maybe it's not needed
     async encodeMultiSwapData(params: MultiSwapRawInput): Promise<TransactionRequest> {
         const paramForContract = await this._getMultiSwapDataFromRawParams(params);
         const aggregatorAddress = this.getOysterAggregatorAddress();

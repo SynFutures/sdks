@@ -1,6 +1,6 @@
 import { tickToWad, tickToSqrtX96, wadToTick } from '../math';
-import { formatUnits as formatUnitsViem, parseAbi, parseUnits } from 'viem';
-import { ERC20_ABI, type Erc20TokenInfo } from '@derivation-tech/viem-kit';
+import { formatUnits as formatUnitsViem, parseAbi, parseUnits, erc20Abi as ERC20_ABI } from 'viem';
+import { type Erc20TokenInfo } from '@derivation-tech/viem-kit';
 import QuoterV2ABI from '../abis/QuoterV2.json';
 import {
     ZERO_ADDRESS,

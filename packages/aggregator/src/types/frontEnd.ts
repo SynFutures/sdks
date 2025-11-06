@@ -2,9 +2,6 @@ import { Pair, PoolInput, PoolType, SplitPathInfo, TransactionRequest } from './
 import type { Erc20TokenInfo } from '@derivation-tech/viem-kit';
 
 
-// todo 前端Input、output命名, done
-// todo 合约贴近 param, done
-// todo 重整理,done
 export interface GetMidPricesInput {
     poolAddresses: string[];
     poolTypes: PoolType[];
