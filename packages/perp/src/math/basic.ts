@@ -233,9 +233,13 @@ export function mulDiv(x: BigNumber, y: BigNumber, d: BigNumber): BigNumber {
 }
 
 export function sqrtX96ToWad(sqrtPX96: BigNumberish): BigNumber {
+    // sqrtX96ToWad() performs integer division twice (once when squaring, once when scaling back to WAD),
+    // which means 1.0001^tick is always rounded down to 18 decimals. Adding 1 wei pulls the number back
+    // into the original tick interval so getTickAtPWad(getWadAtTick(t)) returns t (instead of t-1) like
+    // the Solidity TickMath library, while keeping the value strictly below price(tick+1).
     sqrtPX96 = BigNumber.from(sqrtPX96);
     const px96 = mulDiv(sqrtPX96, sqrtPX96, Q96);
-    return mulDiv(px96, WAD, Q96);
+    return mulDiv(px96, WAD, Q96).add(ONE);
 }
 
 export function wadToSqrtX96(price: BigNumber): BigNumber {
