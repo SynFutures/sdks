@@ -366,10 +366,31 @@ export function calcMaxWithdrawable(
 
 export function alignPriceToTick(price: BigNumber): { tick: number; price: BigNumber } {
     let tick = wadToTick(price);
-    tick = Math.round(tick / PEARL_SPACING) * PEARL_SPACING;
+    tick = Math.max(TickMath.MIN_TICK, Math.min(tick, TickMath.MAX_TICK));
 
-    const alignedprice = TickMath.getWadAtTick(tick);
-    return { tick: tick, price: alignedprice };
+    // Front-end price inputs are often truncated/rounded down to less than 18 decimals, so wadToTick(price)
+    // tends to land on tick - 1 even though the intention was tick. We compare the current tick
+    // and the next tick, then keep whichever TickMath.getWadAtTick() is closer to the input price
+    // so both truncated prices and already aligned prices map back to the correct tick.
+    let bestTick = tick;
+    let bestPrice = TickMath.getWadAtTick(tick);
+
+    if (tick < TickMath.MAX_TICK) {
+        const nextTick = tick + 1;
+        const nextPrice = TickMath.getWadAtTick(nextTick);
+        const baseDiff = price.sub(bestPrice).abs();
+        const nextDiff = price.sub(nextPrice).abs();
+
+        if (nextDiff.lt(baseDiff)) {
+            bestTick = nextTick;
+            bestPrice = nextPrice;
+        }
+    }
+
+    const spacedTick = Math.round(bestTick / PEARL_SPACING) * PEARL_SPACING;
+    const alignedTick = Math.max(TickMath.MIN_TICK, Math.min(spacedTick, TickMath.MAX_TICK));
+    const alignedprice = TickMath.getWadAtTick(alignedTick);
+    return { tick: alignedTick, price: alignedprice };
 }
 
 export function calcBoost(alpha: number, imr: number): number {
