@@ -18,6 +18,7 @@ import {
     MAX_UINT_16,
     MAX_UINT_8,
     Q96,
+    Q96_SQUARED,
 } from './constants';
 import { CalculationError } from '../errors/calculationError';
 
@@ -238,8 +239,8 @@ export function sqrtX96ToWad(sqrtPX96: BigNumberish): BigNumber {
 }
 
 export function wadToSqrtX96(price: BigNumber): BigNumber {
-    const x96 = price.mul(Q96).div(WAD);
-    return sqrt(x96.mul(Q96));
+    const squaredX96 = price.mul(Q96_SQUARED).div(WAD);
+    return sqrt(squaredX96);
 }
 
 export function wadToTick(price: BigNumber): number {
