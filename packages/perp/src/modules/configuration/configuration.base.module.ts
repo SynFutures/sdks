@@ -3,14 +3,22 @@ import { ContractParser, Context } from '@derivation-tech/context';
 import {
     Beacon__factory,
     CexMarket__factory,
-    Config__factory,
     DexV2Market__factory,
     EmergingFeederFactory__factory,
-    Gate__factory,
     Guardian__factory,
-    Observer__factory,
     PythFeederFactory__factory,
 } from '../../typechain';
+import {
+    Gate__factory as LegacyGate__factory,
+    Observer__factory as LegacyObserver__factory,
+    Config__factory as LegacyConfig__factory,
+} from '../../typechain';
+import {
+    Gate__factory as CurrentGate__factory,
+    Observer__factory as CurrentObserver__factory,
+    Config__factory as CurrentConfig__factory,
+} from '../../typechain/current/factories';
+
 import {
     SynFuturesConfig,
     InstrumentIdentifier,
@@ -19,7 +27,7 @@ import {
     FeederFactoryContracts,
 } from '../../types';
 import { MarketType } from '../../enum';
-import { isCexMarket } from '../../utils';
+import { isCexMarket, isLegacyChain } from '../../utils';
 import { CexMarketParser, ConfigParser, DexV2MarketParser, GateParser, GuardianParser } from '../../parser';
 import { ConfigurationInterface } from './configuration.interface';
 import { SynfError } from '../../errors';
@@ -120,16 +128,38 @@ export abstract class ConfigurationModuleBase implements ConfigurationInterface 
             }
         }
 
-        return {
-            gate: Gate__factory.connect(this.config.contractAddress.gate, provider),
-            observer: Observer__factory.connect(this.config.contractAddress.observer, provider),
-            config: Config__factory.connect(this.config.contractAddress.config, provider),
-            guardian: this.config.contractAddress.guardian
-                ? Guardian__factory.connect(this.config.contractAddress.guardian, provider)
-                : undefined,
-            marketContracts: marketContracts,
-            feederFactoryContracts: feederFactoryContracts,
-        };
+        // Select the appropriate factory based on the chain ID
+        // For legacy chains (Base, Blast), use contracts with stabilityFeeRatioParam
+        // For current chains, use contracts without stabilityFeeRatioParam
+        const useLegacy = isLegacyChain(this.context.chainId);
+        const observerContract = this.context.perp._observer.isLegacyObserver() ?
+            LegacyObserver__factory.connect(this.config.contractAddress.observer, provider) : CurrentObserver__factory.connect(this.config.contractAddress.observer, provider);
+
+        if (useLegacy) {
+            // Use legacy factories for Base and Blast networks (with stabilityFeeRatioParam)
+            return {
+                gate: LegacyGate__factory.connect(this.config.contractAddress.gate, provider),
+                observer: observerContract,
+                config: LegacyConfig__factory.connect(this.config.contractAddress.config, provider),
+                guardian: this.config.contractAddress.guardian
+                    ? Guardian__factory.connect(this.config.contractAddress.guardian, provider)
+                    : undefined,
+                marketContracts: marketContracts,
+                feederFactoryContracts: feederFactoryContracts,
+            };
+        } else {
+            // Use current factories for new networks (without stabilityFeeRatioParam)
+            return {
+                gate: CurrentGate__factory.connect(this.config.contractAddress.gate, provider),
+                observer: observerContract,
+                config: CurrentConfig__factory.connect(this.config.contractAddress.config, provider),
+                guardian: this.config.contractAddress.guardian
+                    ? Guardian__factory.connect(this.config.contractAddress.guardian, provider)
+                    : undefined,
+                marketContracts: marketContracts,
+                feederFactoryContracts: feederFactoryContracts,
+            };
+        }
     }
 
     onSetProvider() {

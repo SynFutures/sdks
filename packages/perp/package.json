@@ -1,6 +1,6 @@
 {
     "name": "@synfutures/sdks-perp",
-    "version": "1.0.6",
+    "version": "1.0.9-monadtestnet.3",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
@@ -22,7 +22,10 @@
         "ethers": "catalog:",
         "yallist": "catalog:"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@typechain/ethers-v5": "catalog:",
+        "typechain": "catalog:"
+    },
     "jest": {
         "verbose": true,
         "collectCoverageFrom": [

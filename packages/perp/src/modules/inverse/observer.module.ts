@@ -31,9 +31,11 @@ export class InverseObserverModule extends ObserverModule {
 
         const portfolios = await Promise.all(
             (Array.isArray(result) ? result : [result]).map((p: Portfolio) =>
-                this.context.perp.configuration
-                    .isInverse(p.instrumentAddr)
-                    .then((isInverse) => (isInverse ? reversePortfolio(p) : p)),
+                p.isInverse !== undefined
+                    ? Promise.resolve(p.isInverse ? reversePortfolio(p) : p)
+                    : this.context.perp.configuration
+                          .isInverse(p.instrumentAddr)
+                          .then((isInverse) => (isInverse ? reversePortfolio(p) : p)),
             ),
         );
 
@@ -64,22 +66,22 @@ export class InverseObserverModule extends ObserverModule {
         );
 
         if (!Array.isArray(instrument)) {
-            const isInverse = await this.context.perp.configuration.isInverse(instrument.instrumentAddr);
+            const isInverse = instrument.isInverse ?? (await this.context.perp.configuration.isInverse(instrument.instrumentAddr));
 
             return isInverse ? reverseInstrument(instrument) : instrument;
         } else {
             return await Promise.all(
-                instrument.map((i) =>
-                    this.context.perp.configuration
-                        .isInverse(i.instrumentAddr)
-                        .then((isInverse) => (isInverse ? reverseInstrument(i) : i)),
-                ),
+                instrument.map(async (i) => {
+                    const isInverse = i.isInverse ?? (await this.context.perp.configuration.isInverse(i.instrumentAddr));
+
+                    return isInverse ? reverseInstrument(i) : i;
+                }),
             );
         }
     }
 
     async getPositionIfSettle(portfolio: Portfolio, amm: Amm): Promise<Position> {
-        const isInverse = await this.context.perp.configuration.isInverse(portfolio.instrumentAddr);
+        const isInverse = portfolio.isInverse ?? (await this.context.perp.configuration.isInverse(portfolio.instrumentAddr));
 
         const position = await super.getPositionIfSettle(
             isInverse ? reversePortfolio(portfolio) : portfolio,
@@ -95,8 +97,9 @@ export class InverseObserverModule extends ObserverModule {
         side: Side,
         baseAmount: BigNumber,
         overrides?: CallOverrides,
+        isInverse?: boolean,
     ): Promise<{ quoteAmount: BigNumber; quotation: Quotation }> {
-        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddr);
+         isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         return await super.inquireByBase(
             instrumentAddr,
@@ -113,8 +116,9 @@ export class InverseObserverModule extends ObserverModule {
         side: Side,
         quoteAmount: BigNumber,
         overrides?: CallOverrides,
+        isInverse?: boolean,
     ): Promise<{ baseAmount: BigNumber; quotation: Quotation }> {
-        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddr);
+         isInverse =  isInverse ?? await this.context.perp.configuration.isInverse(instrumentAddr);
 
         return await super.inquireByQuote(
             instrumentAddr,

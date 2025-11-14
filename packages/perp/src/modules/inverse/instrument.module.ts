@@ -22,10 +22,11 @@ export class InverseInstrumentModule extends InstrumentModule {
         param: AddLiquidityParam,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
-        const isInverse =
+        const isInverse = param.isInverse ?? (
             typeof param.instrumentAddr === 'string'
                 ? await this.context.perp.configuration.isInverse(param.instrumentAddr)
-                : await this.context.perp.configuration.isInverseByIdentifier(param.instrumentAddr);
+                : await this.context.perp.configuration.isInverseByIdentifier(param.instrumentAddr)
+        );
 
         return isInverse
             ? await super.addLiquidity(
@@ -48,7 +49,7 @@ export class InverseInstrumentModule extends InstrumentModule {
         param: RemoveLiquidityParam,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.instrumentAddr);
+        const isInverse = param.isInverse ?? (await this.context.perp.configuration.isInverse(param.instrumentAddr));
 
         return isInverse
             ? await super.removeLiquidity(
@@ -71,7 +72,7 @@ export class InverseInstrumentModule extends InstrumentModule {
         param: PlaceLimitOrderParam,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.instrumentAddr);
+        const isInverse = param.isInverse ?? (await this.context.perp.configuration.isInverse(param.instrumentAddr));
 
         return isInverse
             ? await super.placeLimitOrder(
@@ -93,7 +94,7 @@ export class InverseInstrumentModule extends InstrumentModule {
         param: PlaceMarketOrderParam,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.instrumentAddr);
+        const isInverse = param.isInverse ?? (await this.context.perp.configuration.isInverse(param.instrumentAddr));
 
         return isInverse
             ? await super.placeMarketOrder(
@@ -115,7 +116,7 @@ export class InverseInstrumentModule extends InstrumentModule {
         param: BatchPlaceLimitOrderParam,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.instrumentAddr);
+        const isInverse = param.isInverse ?? (await this.context.perp.configuration.isInverse(param.instrumentAddr));
 
         return isInverse
             ? await super.batchPlaceLimitOrder(
@@ -140,7 +141,7 @@ export class InverseInstrumentModule extends InstrumentModule {
         param: PlaceCrossMarketOrderParam,
         txOptions?: TxOptions,
     ): Promise<ethers.providers.TransactionReceipt | ethers.PopulatedTransaction> {
-        const isInverse = await this.context.perp.configuration.isInverse(param.instrumentAddr);
+        const isInverse = param.isInverse ?? (await this.context.perp.configuration.isInverse(param.instrumentAddr));
 
         return isInverse
             ? await super.placeCrossMarketOrder(

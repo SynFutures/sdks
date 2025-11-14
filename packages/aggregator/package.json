@@ -19,7 +19,7 @@
     "dependencies": {
         "@derivation-tech/context": "catalog:",
         "@derivation-tech/tx-plugin": "catalog:",
-        "@synfutures/sdks-perp": "workspace:^",
+        "@synfutures/sdks-perp": "workspace:*",
         "ethers": "catalog:"
     },
     "jest": {
