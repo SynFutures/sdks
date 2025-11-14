@@ -25,6 +25,7 @@ import {
     QuerySinglePoolRouteParam,
     SimulateMTSinglePoolParam,
     SimulateMTSinglePoolResult,
+    TradeToPriceParam,
 } from './params';
 
 export interface AggregatorInterface {
@@ -90,4 +91,7 @@ export interface AggregatorInterface {
         txOptions?: TxOptions,
     ): Promise<TransactionReceipt | PopulatedTransaction>;
 
+    tradeToPrice(params: TradeToPriceParam, txOptions: TxOptionsWithSigner): Promise<TransactionReceipt[]>;
+    tradeToPrice(params: TradeToPriceParam, txOptions?: TxOptions): Promise<PopulatedTransaction[]>;
+    tradeToPrice(params: TradeToPriceParam, txOptions?: TxOptions): Promise<TransactionReceipt[] | PopulatedTransaction[]>;
 }

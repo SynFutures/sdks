@@ -10,7 +10,7 @@ export function toWrappedETH(ctx: Context, tokenAddress: string): string {
 }
 
 export function zeroToETHForSwap(tokenAddress: string): string {
-    return tokenAddress.toLowerCase() == ZERO_ADDRESS.toLocaleLowerCase() ? ETH_ADDRESS : tokenAddress;
+    return tokenAddress.toLowerCase() == ZERO_ADDRESS.toLowerCase() ? ETH_ADDRESS : tokenAddress;
 }
 
 export function fromWei(amount: BigNumber, decimals = 18): number {

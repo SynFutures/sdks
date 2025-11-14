@@ -9,22 +9,21 @@ dotenv.config();
 
 describe('Aggregator', function () {
     let ctx: Context;
-    let token0 = {
+    const token0 = {
         name: 'WMON',
         address: '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
         symbol: 'WMON',
         decimals: 18,
     };
-    let token1 = {
+    const token1 = {
         name: 'USDC',
         address: '0xf817257fed379853cDe0fa4F97AB987181B1E5Ea',
         symbol: 'USDT',
         decimals: 6,
     };
 
-
     beforeEach(async function () {
-        ctx = new Context('monad-testnet', { providerOps: { url: process.env.MONAD_RPC! }});
+        ctx = new Context('monad-testnet', { providerOps: { url: process.env.MONAD_RPC! } });
         ctx.use(perpPlugin({ configuration: 'local' }));
         ctx.use(aggregatorPlugin());
         ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
@@ -38,7 +37,7 @@ describe('Aggregator', function () {
     });
 
     it('should get dex flag succeed', async function () {
-        let dexFlag = getDexFlag([PoolType.OYSTER]);
+        const dexFlag = getDexFlag([PoolType.OYSTER]);
         expect(dexFlag).toStrictEqual(BigNumber.from(1 << PoolType.OYSTER));
     });
 
@@ -79,8 +78,8 @@ describe('Aggregator', function () {
 
         expect(result.priceImpact).toBeGreaterThan(-1);
         expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
-        console.log("out amount:", result.minReceivedAmount.toString());
-        console.log("path:", result.route);
+        console.log('out amount:', result.minReceivedAmount.toString());
+        console.log('path:', result.route);
         expect(result.route.length).toBeGreaterThan(0);
     });
 
@@ -107,7 +106,7 @@ describe('Aggregator', function () {
         const usdc = token1;
 
         const result = await ctx.aggregator.simulateMultiSwap({
-            fromTokenAddress: '0x0000000000000000000000000000000000000000',//weth.address,
+            fromTokenAddress: '0x0000000000000000000000000000000000000000', //weth.address,
             toTokenAddress: usdc.address,
             fromTokenDecimals: weth.decimals,
             toTokenDecimals: usdc.decimals,
@@ -155,7 +154,7 @@ describe('Aggregator', function () {
             for (const route of routeList) {
                 expect(route.poolAddr).toBeDefined();
                 expect(Object.values(PoolType).includes(route.poolType)).toBe(true);
-                console.log("ratio:", route.ratio.toString());
+                console.log('ratio:', route.ratio.toString());
                 expect(route.ratio.gt(ZERO)).toBe(true);
                 expect(route.fee.gt(ZERO)).toBe(true);
             }
@@ -173,7 +172,7 @@ describe('Aggregator', function () {
             address: '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
             symbol: 'WMON',
             decimals: 18,
-        };;
+        };
         const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
         const testAmount = parseUnits('1', 18); // 1 ETH/WETH
 
@@ -254,14 +253,14 @@ describe('Aggregator', function () {
             for (const poolAmount of result.poolAmounts) {
                 //expect(poolAmount.amount0).toBeGreaterThanOrEqual(0);
                 //expect(poolAmount.amount1).toBeGreaterThanOrEqual(0);
-                 console.log(
-                     'pool',
-                     poolAmount.pool,
-                     'poolAmount.amount0',
-                     poolAmount.amount0,
-                     'poolAmount.amount1',
-                     poolAmount.amount1,
-                 );
+                console.log(
+                    'pool',
+                    poolAmount.pool,
+                    'poolAmount.amount0',
+                    poolAmount.amount0,
+                    'poolAmount.amount1',
+                    poolAmount.amount1,
+                );
             }
         }
         expect(results.sellLiquidityResults.length).toBe(8);
@@ -338,16 +337,16 @@ describe('Aggregator', function () {
     it('should simulate MT single pool succeed', async function () {
         const weth = token0;
         const usdc = token1;
-        
+
         // Get pool list to find a valid pool address
         const pools = await ctx.aggregator.getPoolList(weth.address, usdc.address);
         expect(pools.length).toBeGreaterThan(0);
-        
+
         // Use the first pool for testing
         const testPool = pools[0];
-        console.log("Testing with pool:", testPool.poolAddr);
-        console.log("Pool type:", testPool.poolType);
-        
+        console.log('Testing with pool:', testPool.poolAddr);
+        console.log('Pool type:', testPool.poolType);
+
         const result = await ctx.aggregator.simulateMTSinglePool({
             fromTokenAddress: usdc.address,
             toTokenAddress: weth.address,
@@ -363,41 +362,41 @@ describe('Aggregator', function () {
         expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
         expect(result.route.length).toBeGreaterThan(0);
         expect(result.tokens.length).toBe(2);
-        
+
         // Verify tokens are in correct order
         expect(result.tokens[0]).toBe(usdc.address);
         expect(result.tokens[1]).toBe(weth.address);
-        
+
         // Verify route structure (should be single pool)
         expect(result.route.length).toBe(1); // Single hop
         expect(result.route[0].length).toBe(1); // Single pool in the hop
-        
+
         const routeInfo = result.route[0][0];
         expect(routeInfo.poolAddr).toBe(testPool.poolAddr);
         expect(routeInfo.poolType).toBe(PoolType.OYSTER_NEW);
         expect(routeInfo.ratio.gt(ZERO)).toBe(true);
         expect(routeInfo.fee.gte(ZERO)).toBe(true);
-        
-        console.log("Price impact:", result.priceImpact);
-        console.log("Min received amount:", result.minReceivedAmount.toString());
-        console.log("Route:", JSON.stringify(result.route, null, 2));
-        console.log("Tokens:", result.tokens);
+
+        console.log('Price impact:', result.priceImpact);
+        console.log('Min received amount:', result.minReceivedAmount.toString());
+        console.log('Route:', JSON.stringify(result.route, null, 2));
+        console.log('Tokens:', result.tokens);
     });
 
     it('should simulate MT single pool with custom adapter succeed', async function () {
         const weth = token0;
         const usdc = token1;
-        
+
         // Get pool list to find a valid pool address
         const pools = await ctx.aggregator.getPoolList(weth.address, usdc.address);
         expect(pools.length).toBeGreaterThan(0);
-        
+
         // Use the first pool for testing
         const testPool = pools[0];
-        
+
         // Get default adapter address for comparison
         const defaultAdapter = await ctx.aggregator.getPoolAdapter(PoolType.OYSTER_NEW);
-        
+
         const result = await ctx.aggregator.simulateMTSinglePool({
             fromTokenAddress: usdc.address,
             toTokenAddress: weth.address,
@@ -414,22 +413,22 @@ describe('Aggregator', function () {
         expect(result.minReceivedAmount.gt(ZERO)).toBe(true);
         expect(result.route.length).toBe(1);
         expect(result.route[0].length).toBe(1);
-        
-        console.log("Custom adapter test - Price impact:", result.priceImpact);
-        console.log("Custom adapter test - Min received amount:", result.minReceivedAmount.toString());
+
+        console.log('Custom adapter test - Price impact:', result.priceImpact);
+        console.log('Custom adapter test - Min received amount:', result.minReceivedAmount.toString());
     });
 
     it('should query single pool route succeed', async function () {
         const weth = token0;
         const usdc = token1;
-        
+
         // Get pool list to find a valid pool address
         const pools = await ctx.aggregator.getPoolList(weth.address, usdc.address);
         expect(pools.length).toBeGreaterThan(0);
-        
+
         // Use the first pool for testing
         const testPool = pools[0];
-        
+
         const result = await ctx.aggregator.querySinglePoolRoute({
             fromTokenAddress: usdc.address,
             toTokenAddress: weth.address,
@@ -445,23 +444,23 @@ describe('Aggregator', function () {
         expect(result.bestPathInfo.oneHops.length).toBe(1);
         expect(result.bestPathInfo.oneHops[0].pools.length).toBe(1);
         expect(result.bestPathInfo.oneHops[0].weights.length).toBe(1);
-        
+
         // Verify tokens are in correct order
         expect(result.bestPathInfo.tokens[0]).toBe(usdc.address);
         expect(result.bestPathInfo.tokens[1]).toBe(weth.address);
-        
+
         // Verify pool info
         const poolInfo = result.bestPathInfo.oneHops[0].pools[0];
         expect(poolInfo.poolAddr).toBe(testPool.poolAddr);
         expect(poolInfo.poolType).toBe(PoolType.OYSTER_NEW);
         expect(poolInfo.swapType).toBe(SwapType.ADAPTER);
-        
+
         // Verify weight is 100% for single pool
         expect(result.bestPathInfo.oneHops[0].weights[0].eq(ONE)).toBe(true);
-        
-        console.log("Query single pool route - Best amount:", result.bestAmount.toString());
-        console.log("Query single pool route - Mid price:", result.midPrice.toString());
-        console.log("Query single pool route - Final amount out:", result.bestPathInfo.finalAmountOut.toString());
+
+        console.log('Query single pool route - Best amount:', result.bestAmount.toString());
+        console.log('Query single pool route - Mid price:', result.midPrice.toString());
+        console.log('Query single pool route - Final amount out:', result.bestPathInfo.finalAmountOut.toString());
     });
 
     it.skip('should query single pool route and execute multiSwap with WMON as toToken succeed', async function () {
@@ -473,10 +472,10 @@ describe('Aggregator', function () {
         // Get pool list to find a valid pool address
         const pools = await ctx.aggregator.getPoolList(wmon.address, usdc.address);
         expect(pools.length).toBeGreaterThan(0);
-        
+
         // Use the first pool for testing
         const testPool = pools[2];
-        console.log("Testing USDC -> WMON with pool:", testPool.poolAddr);
+        console.log('Testing USDC -> WMON with pool:', testPool.poolAddr);
 
         // Step 1: Query single pool route
         const route = await ctx.aggregator.querySinglePoolRoute({
@@ -515,11 +514,11 @@ describe('Aggregator', function () {
         expect(rawTx.to).toBeDefined();
         expect(rawTx.data).toBeDefined();
         expect(rawTx.value).toBeDefined();
-        
-        console.log("USDC -> WMON transaction:", {
+
+        console.log('USDC -> WMON transaction:', {
             to: rawTx.to,
             value: rawTx.value?.toString(),
-            dataLength: rawTx.data?.length
+            dataLength: rawTx.data?.length,
         });
     });
 
@@ -532,10 +531,10 @@ describe('Aggregator', function () {
         // Get pool list to find a valid pool address
         const pools = await ctx.aggregator.getPoolList(wmon.address, usdc.address);
         expect(pools.length).toBeGreaterThan(0);
-        
+
         // Use the first pool for testing
         const testPool = pools[1];
-        console.log("Testing WMON -> USDC with pool:", testPool.poolAddr);
+        console.log('Testing WMON -> USDC with pool:', testPool.poolAddr);
 
         // Step 1: Query single pool route
         const route = await ctx.aggregator.querySinglePoolRoute({
@@ -574,11 +573,11 @@ describe('Aggregator', function () {
         expect(rawTx.to).toBeDefined();
         expect(rawTx.data).toBeDefined();
         expect(rawTx.value).toBeDefined();
-        
-        console.log("WMON -> USDC transaction:", {
+
+        console.log('WMON -> USDC transaction:', {
             to: rawTx.to,
             value: rawTx.value?.toString(),
-            dataLength: rawTx.data?.length
+            dataLength: rawTx.data?.length,
         });
     });
 
@@ -591,10 +590,10 @@ describe('Aggregator', function () {
         // Get pool list to find a valid pool address (using WETH address for pool lookup)
         const pools = await ctx.aggregator.getPoolList(token0.address, usdc.address); // token0 is WMON
         expect(pools.length).toBeGreaterThan(0);
-        
+
         // Use the first pool for testing
         const testPool = pools[0];
-        console.log("Testing ETH -> USDC with pool:", testPool.poolAddr);
+        console.log('Testing ETH -> USDC with pool:', testPool.poolAddr);
 
         // Step 1: Query single pool route
         const route = await ctx.aggregator.querySinglePoolRoute({
@@ -633,11 +632,11 @@ describe('Aggregator', function () {
         expect(rawTx.to).toBeDefined();
         expect(rawTx.data).toBeDefined();
         expect(rawTx.value).toBe(amount); // Should include ETH value
-        
-        console.log("ETH -> USDC transaction:", {
+
+        console.log('ETH -> USDC transaction:', {
             to: rawTx.to,
             value: rawTx.value?.toString(),
-            dataLength: rawTx.data?.length
+            dataLength: rawTx.data?.length,
         });
     });
 
@@ -650,10 +649,10 @@ describe('Aggregator', function () {
         // Get pool list to find a valid pool address (using WETH address for pool lookup)
         const pools = await ctx.aggregator.getPoolList(token0.address, usdc.address); // token0 is WMON
         expect(pools.length).toBeGreaterThan(0);
-        
+
         // Use the first pool for testing
         const testPool = pools[0];
-        console.log("Testing USDC -> ETH with pool:", testPool.poolAddr);
+        console.log('Testing USDC -> ETH with pool:', testPool.poolAddr);
 
         // Step 1: Query single pool route
         const route = await ctx.aggregator.querySinglePoolRoute({
@@ -692,11 +691,108 @@ describe('Aggregator', function () {
         expect(rawTx.to).toBeDefined();
         expect(rawTx.data).toBeDefined();
         expect(rawTx.value.toString()).toBe('0'); // No ETH value for USDC -> ETH
-        
-        console.log("USDC -> ETH transaction:", {
+
+        console.log('USDC -> ETH transaction:', {
             to: rawTx.to,
             value: rawTx.value?.toString(),
-            dataLength: rawTx.data?.length
+            dataLength: rawTx.data?.length,
+        });
+    });
+
+    it.skip('should query specified pool', async function () {
+        // const test_token1 = {
+        //     name: 'YAKI',
+        //     address: '0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50',
+        //     symbol: 'YAKI',
+        //     decimals: 18,
+        // };
+        const test_token1 = token1;
+        // const test_token0 = {
+        //     name: 'WETH',
+        //     address: '0xB5a30b0FDc5EA94A52fDc42e3E9760Cb8449Fb37',
+        //     symbol: 'WETH',
+        //     decimals: 18,
+        // };
+        const test_token0 = token0;
+        const amount = parseUnits('1', test_token1.decimals);
+        const userAddress = '0x...'; // actual user address
+
+        // Get pool list to find a valid pool address (using WETH address for pool lookup)
+        // const pools = await ctx.aggregator.getPoolList(test_token0.address, test_token1.address); // token0 is WMON
+        // expect(pools.length).toBeGreaterThan(0);
+
+        // Use the first pool for testing
+        const testPool = {
+            token0: test_token1.address,
+            token1: test_token0.address,
+            poolAddr: '0x7d148143b7033f150830ff9114797b54671dde2e',
+            poolType: PoolType.OYSTER_NEW,
+            fee: BigNumber.from(3000),
+            swapType: SwapType.ADAPTER,
+        };
+        console.log('Testing USDC -> MON with pool:', testPool.poolAddr);
+
+        // Step 1: Query single pool route
+        const route = await ctx.aggregator.querySinglePoolRoute({
+            fromTokenAddress: test_token1.address,
+            toTokenAddress: test_token0.address,
+            fromAmount: amount,
+            poolAddress: testPool.poolAddr,
+        });
+
+        console.log('best amount:', route.bestAmount.toString());
+        expect(route.bestAmount.gt(ZERO)).toBe(true);
+        expect(route.bestPathInfo.tokens.length).toBe(2);
+        expect(route.bestPathInfo.tokens[0]).toBe(test_token1.address);
+        expect(route.bestPathInfo.tokens[1]).toBe(test_token0.address); // Should be WETH address after conversion
+        expect(route.bestPathInfo.oneHops.length).toBe(1);
+        expect(route.bestPathInfo.oneHops[0].pools.length).toBe(1);
+
+        const simulate_result = await ctx.aggregator.simulateMTSinglePool({
+            fromTokenAddress: test_token1.address,
+            toTokenAddress: test_token0.address,
+            fromTokenDecimals: test_token1.decimals,
+            toTokenDecimals: test_token0.decimals,
+            fromAmount: amount,
+            poolAddress: testPool.poolAddr,
+            slippageInBps: 100, // 1%
+        });
+
+        // Verify basic result structure
+        console.log('simulate result:', simulate_result.minReceivedAmount.toString());
+        console.log('simulate priceImpact:', simulate_result.priceImpact.toString());
+        // expect(simulate_result.priceImpact).toBeGreaterThan(-1); // extreme price, priceImpact = 100%
+        expect(simulate_result.minReceivedAmount.gt(ZERO)).toBe(true);
+        expect(simulate_result.route.length).toBeGreaterThan(0);
+        expect(simulate_result.tokens.length).toBe(2);
+
+        // Step 2: Execute multiSwap
+        const rawTx = await ctx.aggregator.multiSwap(
+            {
+                fromTokenAddress: test_token1.address,
+                toTokenAddress: test_token0.address,
+                fromTokenAmount: amount,
+                bestPathInfo: route.bestPathInfo,
+                bestAmount: route.bestAmount,
+                slippageInBps: 100, // 1%
+                broker: ethers.constants.AddressZero,
+                brokerFeeRate: BigNumber.from(0),
+                deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
+            },
+            {
+                from: userAddress, // user address
+            },
+        );
+
+        expect(rawTx).toBeDefined();
+        expect(rawTx.to).toBeDefined();
+        expect(rawTx.data).toBeDefined();
+        expect(rawTx.value.toString()).toBe('0'); // No ETH value for USDC -> ETH
+
+        console.log('WETH -> USDC transaction:', {
+            to: rawTx.to,
+            value: rawTx.value?.toString(),
+            dataLength: rawTx.data?.length,
         });
     });
 });

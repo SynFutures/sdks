@@ -1,5 +1,5 @@
 import { Pair, PoolInput, PoolType, SplitPathInfo } from './types';
-import { BigNumber } from 'ethers';
+import { BigNumber, PopulatedTransaction } from 'ethers';
 
 export interface GetMidPricesParam {
     poolAddresses: string[];
@@ -189,4 +189,14 @@ export interface SimulateMTSinglePoolResult {
     minReceivedAmount: BigNumber;
     route: Route[][];
     tokens: string[];
+}
+
+export interface TradeToPriceParam {
+    poolAddress: string;
+    targetPrice?: BigNumber; // if not provided, execute default buy-sell operation
+    userAddress: string;
+}
+
+export interface TradeToPriceResult {
+    transactions: PopulatedTransaction[];
 }
