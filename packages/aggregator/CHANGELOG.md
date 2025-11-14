@@ -1,11 +1,25 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.19
+
+### Patch Changes
+
+- align version
+- Updated dependencies
+    - @synfutures/sdks-perp@1.0.9
+
+## 1.0.18
+
+### Patch Changes
+
+- Support monad private mainnet
+
 ## 1.0.16
 
 ### Major Changes
 
 - Fix simulateMTSinglePool priceImpact
-  
+
 ## 1.0.11
 
 ### Major Changes
