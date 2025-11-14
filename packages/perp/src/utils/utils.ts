@@ -270,7 +270,7 @@ export function isInstrument(instrument: Instrument | InstrumentIdentifier): ins
     return 'instrumentAddr' in instrument;
 }
 
-export function toPopulatedTxOverrides(txOptions?: TxOptions): CallOverrides {
+export function toPopulatedTxOverrides(txOptions?: TxOptions): CallOverrides & { from?: string } {
     if (!txOptions) {
         return {};
     }
@@ -307,7 +307,11 @@ export function toPopulatedTxOverrides(txOptions?: TxOptions): CallOverrides {
         delete _txOptions['gasPriceMultiple'];
     }
 
-    return _txOptions;
+    if (_txOptions.from && typeof _txOptions.from !== 'string') {
+        delete _txOptions['from'];
+    }
+
+    return _txOptions as CallOverrides & { from?: string };
 }
 
 export function toPortfolio(
@@ -378,4 +382,8 @@ export function toPortfolio(
     };
 
     return portfolio;
+}
+
+export function bnMax(a: BigNumber, b: BigNumber): BigNumber {
+    return a.gt(b) ? a : b;
 }

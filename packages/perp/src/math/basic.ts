@@ -18,6 +18,7 @@ import {
     MAX_UINT_16,
     MAX_UINT_8,
     Q96,
+    Q96_SQUARED,
 } from './constants';
 import { CalculationError } from '../errors/calculationError';
 
@@ -232,14 +233,18 @@ export function mulDiv(x: BigNumber, y: BigNumber, d: BigNumber): BigNumber {
 }
 
 export function sqrtX96ToWad(sqrtPX96: BigNumberish): BigNumber {
+    // sqrtX96ToWad() performs integer division twice (once when squaring, once when scaling back to WAD),
+    // which means 1.0001^tick is always rounded down to 18 decimals. Adding 1 wei pulls the number back
+    // into the original tick interval so getTickAtPWad(getWadAtTick(t)) returns t (instead of t-1) like
+    // the Solidity TickMath library, while keeping the value strictly below price(tick+1).
     sqrtPX96 = BigNumber.from(sqrtPX96);
     const px96 = mulDiv(sqrtPX96, sqrtPX96, Q96);
-    return mulDiv(px96, WAD, Q96);
+    return mulDiv(px96, WAD, Q96).add(ONE);
 }
 
 export function wadToSqrtX96(price: BigNumber): BigNumber {
-    const x96 = price.mul(Q96).div(WAD);
-    return sqrt(x96.mul(Q96));
+    const squaredX96 = price.mul(Q96_SQUARED).div(WAD);
+    return sqrt(squaredX96);
 }
 
 export function wadToTick(price: BigNumber): number {
@@ -365,10 +370,31 @@ export function calcMaxWithdrawable(
 
 export function alignPriceToTick(price: BigNumber): { tick: number; price: BigNumber } {
     let tick = wadToTick(price);
-    tick = Math.round(tick / PEARL_SPACING) * PEARL_SPACING;
+    tick = Math.max(TickMath.MIN_TICK, Math.min(tick, TickMath.MAX_TICK));
 
-    const alignedprice = TickMath.getWadAtTick(tick);
-    return { tick: tick, price: alignedprice };
+    // Front-end price inputs are often truncated/rounded down to less than 18 decimals, so wadToTick(price)
+    // tends to land on tick - 1 even though the intention was tick. We compare the current tick
+    // and the next tick, then keep whichever TickMath.getWadAtTick() is closer to the input price
+    // so both truncated prices and already aligned prices map back to the correct tick.
+    let bestTick = tick;
+    let bestPrice = TickMath.getWadAtTick(tick);
+
+    if (tick < TickMath.MAX_TICK) {
+        const nextTick = tick + 1;
+        const nextPrice = TickMath.getWadAtTick(nextTick);
+        const baseDiff = price.sub(bestPrice).abs();
+        const nextDiff = price.sub(nextPrice).abs();
+
+        if (nextDiff.lt(baseDiff)) {
+            bestTick = nextTick;
+            bestPrice = nextPrice;
+        }
+    }
+
+    const spacedTick = Math.round(bestTick / PEARL_SPACING) * PEARL_SPACING;
+    const alignedTick = Math.max(TickMath.MIN_TICK, Math.min(spacedTick, TickMath.MAX_TICK));
+    const alignedprice = TickMath.getWadAtTick(alignedTick);
+    return { tick: alignedTick, price: alignedprice };
 }
 
 export function calcBoost(alpha: number, imr: number): number {

@@ -59,6 +59,7 @@ import {
     ADDRESS_ZERO,
     calcAsymmetricBoost,
     getMinOrderMargin,
+    wdivDown,
 } from '../math';
 import {
     signOfSide,
@@ -84,6 +85,7 @@ import {
     rangeUpperPositionIfRemove,
     tickDeltaToAlphaWad,
     inquireTransferAmountFromTargetLeverage,
+    bnMax,
 } from '../utils';
 import {
     updateFundingIndex,
@@ -283,8 +285,6 @@ export class SimulateModule implements SimulateInterface {
             overrides ?? {},
         );
 
-        const { baseSize, quoteSize } = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {});
-
         const sign = signOfSide(params.side);
         const long = sign > 0;
         const { targetTick, targetPrice } = this.getPriceInfo(params.priceInfo);
@@ -295,23 +295,37 @@ export class SimulateModule implements SimulateInterface {
         }
 
         let swapToTick = long ? targetTick + 1 : targetTick - 1;
-        let { size: swapSize, quotation } = await this.context.perp.contracts.observer.inquireByTick(
-            instrument.instrumentAddr,
-            amm.expiry,
-            swapToTick,
-            overrides ?? {},
-        );
-
-        if ((long && quotation.postTick <= targetTick) || (!long && quotation.postTick >= targetTick)) {
-            swapToTick = long ? swapToTick + 1 : swapToTick - 1;
-            const retry = await this.context.perp.contracts.observer.inquireByTick(
+        let swapSize: BigNumber;
+        let quotation: Quotation;
+        if (params.inquireResult) {
+            swapSize = params.inquireResult.firstQuote.size;
+            quotation = params.inquireResult.firstQuote.quotation;
+        } else {
+            const res = await this.context.perp.contracts.observer.inquireByTick(
                 instrument.instrumentAddr,
                 amm.expiry,
                 swapToTick,
                 overrides ?? {},
             );
-            swapSize = retry.size;
-            quotation = retry.quotation;
+            swapSize = res.size;
+            quotation = res.quotation;
+        }
+
+        if ((long && quotation.postTick <= targetTick) || (!long && quotation.postTick >= targetTick)) {
+            swapToTick = long ? swapToTick + 1 : swapToTick - 1;
+            if (params.inquireResult) {
+                swapSize = params.inquireResult.secondQuote.size;
+                quotation = params.inquireResult.secondQuote.quotation;
+            } else {
+                const retry = await this.context.perp.contracts.observer.inquireByTick(
+                    instrument.instrumentAddr,
+                    amm.expiry,
+                    swapToTick,
+                    overrides ?? {},
+                );
+                swapSize = retry.size;
+                quotation = retry.quotation;
+            }
         }
 
         if ((long && swapSize.lt(0)) || (!long && swapSize.gt(0))) {
@@ -327,6 +341,10 @@ export class SimulateModule implements SimulateInterface {
                 strictMode: params.strictMode,
                 instrument: instrument,
                 leverage: params.leverage,
+                inquireResult: {
+                    size: swapSize,
+                    quotation,
+                }
             },
             overrides ?? {},
         );
@@ -336,8 +354,28 @@ export class SimulateModule implements SimulateInterface {
             throw new SimulationError('Size to tick is trivial');
         }
 
-        const orderBaseSize = baseSize.sub(swapSize.abs());
-        const orderQuoteSize = quoteSize.sub(tradeSimulation.size.quote);
+        // split user's intended size into:
+        // - market leg: swapSize.abs() executed immediately to reach target tick
+        // - limit leg: the remaining size to place at targetTick
+        // For ByBase, base amount is the user's intent; quote is derived at worst-of(mark, target)
+        // For ByQuote, quote amount is the user's intent; base is derived at worst-of(mark, target)
+        const worstPrice = bnMax(amm.markPrice, targetPrice);
+
+        let orderBaseSize: BigNumber;
+        let orderQuoteSize: BigNumber;
+        if (isByBase(params.size)) {
+            const totalBase = params.size.base;
+            const remainingBase = totalBase.sub(swapSize.abs());
+            orderBaseSize = remainingBase.gt(ZERO) ? remainingBase : ZERO;
+            orderQuoteSize = wmulUp(orderBaseSize, worstPrice);
+        } else {
+            const totalQuote = params.size.quote;
+            const spentQuote = tradeSimulation.size.quote;
+            const remainingQuote = totalQuote.sub(spentQuote);
+            orderQuoteSize = remainingQuote.gt(ZERO) ? remainingQuote : ZERO;
+            // derive base conservatively at worstPrice to keep size.quote and base consistent
+            orderBaseSize = wdivDown(orderQuoteSize, worstPrice);
+        }
 
         const orderSimulation = {
             ...this._simulateOrder(instrument, amm, targetPrice, orderBaseSize, params.leverage),
@@ -349,7 +387,8 @@ export class SimulateModule implements SimulateInterface {
         const targetTickPrice = TickMath.getWadAtTick(targetTick);
         const minOrderSize = wdivUp(minOrderValue, targetTickPrice);
 
-        if (swapSize.abs().add(minOrderSize).gt(baseSize)) {
+        // placeable only if remaining base meets min base requirement at target
+        if (orderBaseSize.lt(minOrderSize)) {
             // in this case we can't place order since size is too small
             return {
                 canPlaceOrder: false,
@@ -402,7 +441,16 @@ export class SimulateModule implements SimulateInterface {
             throw new SimulationError('Fair price is too far away from mark price');
         }
 
-        const { baseSize, quoteSize } = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {});
+        let baseSize: BigNumber;
+        let quoteSize: BigNumber;
+
+        if (isByBase(params.size)) {
+            baseSize = params.size.base;
+            quoteSize = wmulUp(baseSize, bnMax(amm.markPrice, targetPrice));
+        } else {
+            quoteSize = params.size.quote;
+            baseSize = wdivDown(quoteSize, bnMax(amm.markPrice, targetPrice));
+        }
 
         const res = this._simulateOrder(instrument, amm, targetPrice, baseSize, params.leverage);
 
@@ -456,13 +504,7 @@ export class SimulateModule implements SimulateInterface {
             try {
                 const baseSize = wmul(params.baseSize, r2w(params.ratios[index]));
 
-                const { quoteAmount: quoteSize } = await this.observer.inquireByBase(
-                    params.tradeInfo.instrumentAddr,
-                    params.tradeInfo.expiry,
-                    params.side,
-                    baseSize,
-                    overrides ?? {},
-                );
+                const quoteSize = wmulUp(baseSize, bnMax(amm.markPrice, targetPrice));
 
                 const res = this._simulateOrder(instrument, amm, targetPrice, baseSize, params.leverage);
 
@@ -493,13 +535,14 @@ export class SimulateModule implements SimulateInterface {
             );
         }
 
-        const { instrument, amm } = await this.mustGetInstrumentAndAmm(
-            params.tradeInfo,
-            params.instrument,
-            overrides ?? {},
-        );
+        const { instrument } = await this.mustGetInstrumentAndAmm(params.tradeInfo, params.instrument, overrides ?? {});
 
-        const { baseSize, quoteSize } = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {});
+        let baseSize: BigNumber;
+        if (isByBase(params.size)) {
+            baseSize = params.size.base;
+        } else {
+            throw new SimulationError('quote size is not supported');
+        }
 
         const targetTicks = params.priceInfo.map((p) => (typeof p === 'number' ? p : TickMath.getTickAtPWad(p)));
 
@@ -525,7 +568,6 @@ export class SimulateModule implements SimulateInterface {
 
         // calculate totalMinSize
         const sizes = ratios.map((ratio) => baseSize.mul(ratio).div(RATIO_BASE));
-        const bnMax = (a: BigNumber, b: BigNumber): BigNumber => (a.gt(b) ? a : b);
 
         // pick the max minSize/size ratio
         const minSizeToSizeRatio = minSizes
@@ -559,7 +601,7 @@ export class SimulateModule implements SimulateInterface {
             totalMinSize,
             size: {
                 base: baseSize,
-                quote: quoteSize,
+                quote: res.reduce((acc, res) => acc.add(res?.size.quote ?? ZERO), ZERO),
             },
         };
     }
@@ -612,12 +654,26 @@ export class SimulateModule implements SimulateInterface {
         );
         const prePosition = await this.getPosition(params.tradeInfo, overrides ?? {});
 
-        const { baseSize, quoteSize, quotation } = await this.inquireByBaseOrQuote(
-            params,
-            amm.markPrice,
-            overrides ?? {},
-            true,
-        );
+        let baseSize: BigNumber;
+        let quoteSize: BigNumber;
+        let quotation: Quotation;
+        // if inquireResult is provided, skip on-chain inquire or inquireByNotional rpc call
+        if (params.inquireResult) {
+            if (isByBase(params.size)) {
+                baseSize = params.size.base;
+                quoteSize = params.inquireResult.quotation.entryNotional;
+                quotation = params.inquireResult.quotation;
+            } else {
+                baseSize = params.inquireResult.size;
+                quoteSize = params.size.quote;
+                quotation = params.inquireResult.quotation;
+            }
+        } else {
+            const res = await this.inquireByBaseOrQuote(params, amm.markPrice, overrides ?? {}, true);
+            baseSize = res.baseSize;
+            quoteSize = res.quoteSize;
+            quotation = res.quotation;
+        }
 
         if (baseSize.lte(0)) {
             // TODO: @samlior
@@ -1014,21 +1070,16 @@ export class SimulateModule implements SimulateInterface {
               }
             : params.instrument;
 
-        const instruments = (await this.context.perp.contracts.gate.getAllInstruments(overrides ?? {})).map((addr) =>
-            addr.toLowerCase(),
-        );
-        const info = instruments.includes(instrumentAddress)
-            ? isInstrument(params.instrument)
-                ? {
-                      instrument: params.instrument,
-                      amm: params.instrument.amms.get(params.expiry),
-                  }
-                : await this.getInstrumentAndAmm(
-                      { expiry: params.expiry, instrumentAddr: instrumentAddress },
-                      undefined,
-                      overrides ?? {},
-                  )
-            : undefined;
+        const info = isInstrument(params.instrument)
+            ? {
+                  instrument: params.instrument,
+                  amm: params.instrument.amms.get(params.expiry),
+              }
+            : await this.getInstrumentAndAmm(
+                  { expiry: params.expiry, instrumentAddr: instrumentAddress },
+                  undefined,
+                  overrides ?? {},
+              );
 
         let quoteInfo: TokenInfo;
         let setting: InstrumentSetting;
@@ -1054,7 +1105,7 @@ export class SimulateModule implements SimulateInterface {
                 setting = {
                     initialMarginRatio: INITIAL_MARGIN_RATIO,
                     maintenanceMarginRatio: MAINTENANCE_MARGIN_RATIO,
-                    quoteParam: { ...quoteParam },
+                    quoteParam: { stabilityFeeRatioParam: ZERO, ...quoteParam },
                 };
             }
             amm = factory.createAmm({
@@ -1232,21 +1283,16 @@ export class SimulateModule implements SimulateInterface {
               }
             : params.instrument;
 
-        const instruments = (await this.context.perp.contracts.gate.getAllInstruments(overrides ?? {})).map((addr) =>
-            addr.toLowerCase(),
-        );
-        const info = instruments.includes(instrumentAddress)
-            ? isInstrument(params.instrument)
-                ? {
-                      instrument: params.instrument,
-                      amm: params.instrument.amms.get(params.expiry),
-                  }
-                : await this.getInstrumentAndAmm(
-                      { expiry: params.expiry, instrumentAddr: instrumentAddress },
-                      undefined,
-                      overrides ?? {},
-                  )
-            : undefined;
+        const info = isInstrument(params.instrument)
+            ? {
+                  instrument: params.instrument,
+                  amm: params.instrument.amms.get(params.expiry),
+              }
+            : await this.getInstrumentAndAmm(
+                  { expiry: params.expiry, instrumentAddr: instrumentAddress },
+                  undefined,
+                  overrides ?? {},
+              );
 
         let quoteInfo: TokenInfo;
         let setting: InstrumentSetting;
@@ -1272,7 +1318,7 @@ export class SimulateModule implements SimulateInterface {
                 setting = {
                     initialMarginRatio: INITIAL_MARGIN_RATIO,
                     maintenanceMarginRatio: MAINTENANCE_MARGIN_RATIO,
-                    quoteParam: { ...quoteParam },
+                    quoteParam: { stabilityFeeRatioParam: ZERO, ...quoteParam },
                 };
             }
             amm = factory.createAmm({

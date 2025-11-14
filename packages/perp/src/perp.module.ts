@@ -27,6 +27,7 @@ export interface PerpModuleOptions {
     basePath?: string;
     inverse?: boolean;
     configuration?: 'local' | 's3';
+    legacyObserver?: boolean;
 }
 
 const defaultOptions: PerpModuleOptions = {
@@ -64,11 +65,11 @@ export class PerpModule implements PerpInterface {
 
         this.config = new ConfigModule(context);
         this.gate = new GateModule(context);
-        this._observer = new ObserverModule(context);
+        this._observer = new ObserverModule(context, options?.legacyObserver);
 
         this.calc = inverse ? new InverseCalcModule(context) : new CalcModule(context);
         this.instrument = inverse ? new InverseInstrumentModule(context) : new InstrumentModule(context);
-        this.observer = inverse ? new InverseObserverModule(context) : new ObserverModule(context);
+        this.observer = inverse ? new InverseObserverModule(context, options?.legacyObserver) : new ObserverModule(context, options?.legacyObserver);
         this.simulate = inverse ? new InverseSimulateModule(context) : new SimulateModule(context);
 
         this.configuration =

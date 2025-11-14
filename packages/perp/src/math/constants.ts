@@ -9,6 +9,7 @@ export const Q24 = TWO.pow(24);
 export const Q32 = TWO.pow(32);
 export const Q96 = TWO.pow(96);
 export const Q192 = TWO.pow(192);
+export const Q96_SQUARED = Q96.mul(Q96);
 export const WAD = BigNumber.from(10).pow(18);
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';

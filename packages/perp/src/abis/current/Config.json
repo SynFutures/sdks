@@ -1,12 +1,6 @@
 [
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "admin",
-                "type": "address"
-            }
-        ],
+        "inputs": [],
         "stateMutability": "nonpayable",
         "type": "constructor"
     },
@@ -90,9 +84,22 @@
         "anonymous": false,
         "inputs": [
             {
+                "indexed": false,
+                "internalType": "uint8",
+                "name": "version",
+                "type": "uint8"
+            }
+        ],
+        "name": "Initialized",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
                 "indexed": true,
                 "internalType": "address",
-                "name": "user",
+                "name": "previousOwner",
                 "type": "address"
             },
             {
@@ -199,11 +206,6 @@
                         "internalType": "uint16",
                         "name": "protocolFeeRatio",
                         "type": "uint16"
-                    },
-                    {
-                        "internalType": "uint64",
-                        "name": "stabilityFeeRatioParam",
-                        "type": "uint64"
                     },
                     {
                         "internalType": "enum QuoteType",
@@ -327,11 +329,6 @@
                         "type": "uint16"
                     },
                     {
-                        "internalType": "uint64",
-                        "name": "stabilityFeeRatioParam",
-                        "type": "uint64"
-                    },
-                    {
                         "internalType": "enum QuoteType",
                         "name": "qtype",
                         "type": "uint8"
@@ -348,6 +345,19 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "admin",
+                "type": "address"
+            }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -495,6 +505,13 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -600,11 +617,6 @@
                         "internalType": "uint16",
                         "name": "protocolFeeRatio",
                         "type": "uint16"
-                    },
-                    {
-                        "internalType": "uint64",
-                        "name": "stabilityFeeRatioParam",
-                        "type": "uint64"
                     },
                     {
                         "internalType": "enum QuoteType",

@@ -1,7 +1,7 @@
 import type { BigNumber } from 'ethers';
 import type { TokenInfo } from '@derivation-tech/context';
 import type { BatchOrderSizeDistribution, MarketType, QuoteType, Side } from '../enum';
-import type { Portfolio, Instrument, Position } from './types';
+import type { Portfolio, Instrument, Position, Quotation } from './types';
 
 export interface InstrumentSetting {
     initialMarginRatio: number;
@@ -109,11 +109,13 @@ export interface FetchPortfolioParam {
     traderAddr: string;
     instrumentAddr: string;
     expiry: number;
+    isInverse?: boolean;
 }
 
 export interface FetchInstrumentParam {
     instrument: string;
     expiries: number[];
+    isInverse?: boolean;
 }
 
 export interface FillOrderParam extends FillParam {
@@ -138,10 +140,12 @@ export interface AddLiquidityParam {
     limitTicks: BigNumber;
     deadline: number;
     referralCode?: string;
+    isInverse?: boolean;
 }
 
 export interface RemoveLiquidityParam extends RemoveParam {
     instrumentAddr: string;
+    isInverse?: boolean;
 }
 
 export interface PlaceLimitOrderParam {
@@ -153,6 +157,7 @@ export interface PlaceLimitOrderParam {
     side: Side;
     deadline: number;
     referralCode?: string;
+    isInverse?: boolean;
 }
 
 export interface BatchPlaceLimitOrderParam {
@@ -165,6 +170,7 @@ export interface BatchPlaceLimitOrderParam {
     leverage: BigNumber;
     deadline: number;
     referralCode?: string;
+    isInverse?: boolean;
 }
 
 export interface PlaceMarketOrderParam {
@@ -176,10 +182,12 @@ export interface PlaceMarketOrderParam {
     limitTick: number;
     deadline: number;
     referralCode?: string;
+    isInverse?: boolean;
 }
 
 export interface CancelOrderParam extends CancelParam {
     instrumentAddr: string;
+    isInverse?: boolean;
 }
 
 export interface BatchCancelOrderParam {
@@ -187,6 +195,7 @@ export interface BatchCancelOrderParam {
     expiry: number;
     orderTicks: number[];
     deadline: number;
+    isInverse?: boolean;
 }
 
 export interface PlaceCrossMarketOrderParam {
@@ -201,6 +210,7 @@ export interface PlaceCrossMarketOrderParam {
     orderMargin: BigNumber;
     deadline: number;
     referralCode?: string;
+    isInverse?: boolean;
 }
 
 export interface SettleParam {
@@ -228,6 +238,11 @@ export interface SimulateTradeParamsBase {
     slippage: number;
     strictMode?: boolean;
     instrument?: Instrument;
+    isInverse?: boolean;
+    inquireResult?: {
+        size?: BigNumber;
+        quotation: Quotation;
+    };
 }
 
 export interface SimulateMarketOrderByMarginParams extends SimulateTradeParamsBase {
@@ -244,6 +259,11 @@ export interface SimulateCloseParams {
     slippage: number;
     strictMode?: boolean;
     instrument?: Instrument;
+    isInverse?: boolean;
+    inquireResult?: {
+        size?: BigNumber;
+        quotation: Quotation;
+    };
 }
 
 export interface SimulateTradeResult {
@@ -266,6 +286,7 @@ export interface SimulateAdjustMarginParamsBase {
     tradeInfo: TradeInfo | Position;
     slippage: number;
     instrument?: Instrument;
+    isInverse?: boolean;
 }
 
 export interface SimulateAdjustMarginByMarginParams extends SimulateAdjustMarginParamsBase {
@@ -295,6 +316,7 @@ export interface SimulateAddLiquidityParams {
     margin: BigNumber;
     slippage: number;
     currentSqrtPX96?: BigNumber;
+    isInverse?: boolean;
 }
 
 export interface SimulateAddLiquidityResult {
@@ -321,6 +343,7 @@ export interface SimulateAddLiquidityWithAsymmetricRangeParams {
     margin: BigNumber;
     slippage: number;
     currentSqrtPX96?: BigNumber;
+    isInverse?: boolean;
 }
 
 export interface SimulateAddLiquidityWithAsymmetricRangeResult {
@@ -347,6 +370,7 @@ export interface SimulateRemoveLiquidityParams {
     tickLower: number;
     slippage: number;
     instrument?: Instrument;
+    isInverse?: boolean;
 }
 
 export interface SimulateRemoveLiquidityResult {
@@ -357,7 +381,7 @@ export interface SimulateRemoveLiquidityResult {
 }
 
 export interface SimulateCrossMarketOrderParams {
-    tradeInfo: TradeInfo | Portfolio;
+    tradeInfo: TradeInfo | Position;
     priceInfo: BigNumber | number;
     size: ByBase | ByQuote;
     side: Side;
@@ -365,6 +389,17 @@ export interface SimulateCrossMarketOrderParams {
     slippage: number;
     strictMode?: boolean;
     instrument?: Instrument;
+    isInverse?: boolean;
+    inquireResult?: {
+        firstQuote: {
+            size: BigNumber;
+            quotation: Quotation;
+        };
+        secondQuote: {
+            size: BigNumber;
+            quotation: Quotation;
+        };
+    };
 }
 
 export interface SimulateCrossMarketOrderResult {
@@ -381,6 +416,7 @@ export interface SimulateLimitOrderParams {
     side: Side;
     leverage: BigNumber;
     instrument?: Instrument;
+    isInverse?: boolean;
 }
 
 export interface SimulateLimitOrderResult {
@@ -413,6 +449,7 @@ export interface SimulateScaledLimitOrderParams {
     side: Side;
     leverage: BigNumber;
     instrument?: Instrument;
+    isInverse?: boolean;
 }
 
 export interface SimulateScaledLimitOrderResult {

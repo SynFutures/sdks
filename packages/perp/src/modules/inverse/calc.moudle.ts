@@ -3,8 +3,12 @@ import { CalcModule } from '../calc.module';
 import { reversePrice } from '../../utils';
 
 export class InverseCalcModule extends CalcModule {
-    async alignPriceToTick(instrumentAddr: string, price: BigNumber): Promise<{ tick: number; price: BigNumber }> {
-        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddr);
+    async alignPriceToTick(
+        instrumentAddr: string,
+        price: BigNumber,
+        isInverse?: boolean,
+    ): Promise<{ tick: number; price: BigNumber }> {
+        isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.alignPriceToTick(instrumentAddr, isInverse ? reversePrice(price) : price);
 
@@ -16,16 +20,16 @@ export class InverseCalcModule extends CalcModule {
             : result;
     }
 
-    async getWadAtTick(instrumentAddr: string, tick: number): Promise<BigNumber> {
-        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddr);
+    async getWadAtTick(instrumentAddr: string, tick: number, isInverse?: boolean): Promise<BigNumber> {
+        isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.getWadAtTick(instrumentAddr, tick);
 
         return isInverse ? reversePrice(result) : result;
     }
 
-    async getTickAtPWad(instrumentAddr: string, price: BigNumber): Promise<number> {
-        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddr);
+    async getTickAtPWad(instrumentAddr: string, price: BigNumber, isInverse?: boolean): Promise<number> {
+        isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         return await super.getTickAtPWad(instrumentAddr, isInverse ? reversePrice(price) : price);
     }
@@ -34,8 +38,9 @@ export class InverseCalcModule extends CalcModule {
         instrumentAddr: string,
         lowerTick: number,
         upperTick: number,
+        isInverse?: boolean,
     ): Promise<{ lowerPrice: BigNumber; upperPrice: BigNumber }> {
-        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddr);
+        isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.getWadAtTicks(instrumentAddr, lowerTick, upperTick);
 
@@ -47,8 +52,8 @@ export class InverseCalcModule extends CalcModule {
             : result;
     }
 
-    async sqrtX96ToWad(instrumentAddr: string, sqrtPX96: BigNumber): Promise<BigNumber> {
-        const isInverse = await this.context.perp.configuration.isInverse(instrumentAddr);
+    async sqrtX96ToWad(instrumentAddr: string, sqrtPX96: BigNumber, isInverse?: boolean): Promise<BigNumber> {
+        isInverse = isInverse ?? (await this.context.perp.configuration.isInverse(instrumentAddr));
 
         const result = await super.sqrtX96ToWad(instrumentAddr, sqrtPX96);
 
