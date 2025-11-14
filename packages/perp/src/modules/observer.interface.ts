@@ -210,4 +210,6 @@ export interface ObserverInterface {
         tickDelta: number,
         overrides?: CallOverrides,
     ): Promise<LiquidityDetails>;
+
+    isLegacyObserver(): boolean;
 }
