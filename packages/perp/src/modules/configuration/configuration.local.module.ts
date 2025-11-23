@@ -11,6 +11,7 @@ import * as blastsepoliaConfig from './config/blastsepolia.json';
 import * as blastConfig from './config/blast.json';
 import * as baseConfig from './config/base.json';
 import * as monadTestnetConfig from './config/monadTestnet.json';
+import * as monadConfig from './config/monad.json';
 import * as gelatoConfig from './config/gelato.json';
 import * as conduitConfig from './config/conduit.json';
 import * as abcConfig from './config/abc.json';
@@ -48,6 +49,9 @@ export class LocalConfigurationModule extends ConfigurationModuleBase {
             }
             case CHAIN_ID.MONADTESTNET: {
                 return loadConfig(monadTestnetConfig);
+            }
+            case CHAIN_ID.MONAD: {
+                return loadConfig(monadConfig);
             }
             case CHAIN_ID.GELATO: {
                 return loadConfig(gelatoConfig);

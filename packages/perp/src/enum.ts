@@ -49,6 +49,7 @@ export enum MarketType {
     DEXV2 = 'DEXV2',
     EMG = 'EMG',
     PYTH = 'PYTH',
+    STORK = 'STORK',
 }
 
 export enum BatchOrderSizeDistribution {
