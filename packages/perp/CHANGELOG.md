@@ -1,5 +1,11 @@
 # @synfutures/sdks-perp
 
+## 1.0.20
+
+### Patch Changes
+
+- Add monad perp config
+
 ## 1.0.19
 
 ### Patch Changes
