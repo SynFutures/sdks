@@ -865,15 +865,38 @@ export class SimulateModule implements SimulateInterface {
                 tradeLoss: BigNumber,
                 quotation: Quotation,
             ) => {
-                // calc margin required by fixed leverage
+                const postSize = baseSize.mul(sign).add(prePosition.size);
+
+                // full close: let contract gather all remaining margin; no explicit transfer needed
+                if (postSize.eq(ZERO)) {
+                    return { leverage: ZERO, margin: ZERO };
+                }
+
+                // if this trade reduces an existing position (opposite side, smaller size),
+                // keep current leverage unchanged and free margin proportionally.
+                const isReducing =
+                    prePosition.size.mul(sign).lt(ZERO) && baseSize.abs().lt(prePosition.size.abs());
+
+                const targetLeverage = isReducing
+                    ? safeWDiv(wmul(markPrice, prePosition.size.abs()), preEquity)
+                    : params.leverage;
+
+                // fallback: if leverage can't be determined, keep old behavior (no margin change)
+                if (targetLeverage.eq(ZERO)) {
+                    const margin = ZERO;
+                    const postEquity = preEquity.sub(tradeLoss).sub(quotation.fee);
+                    const leverage = postEquity.eq(ZERO)
+                        ? ZERO
+                        : wdiv(wmul(markPrice, postSize.abs()), postEquity);
+                    return { leverage, margin };
+                }
+
+                // calc margin required by target leverage
                 // postEquity = preEquity + margin - tradeLoss - fee
                 // margin = postEquity - preEquity + tradeLoss + fee
-                const postEquity = wdiv(
-                    wmul(markPrice, baseSize.mul(sign).add(prePosition.size)).abs(),
-                    params.leverage,
-                );
+                const postEquity = wdiv(wmul(markPrice, postSize.abs()), targetLeverage);
                 const margin = postEquity.sub(preEquity).add(tradeLoss).add(quotation.fee);
-                return { leverage: params.leverage, margin };
+                return { leverage: targetLeverage, margin };
             },
             overrides ?? {},
         );
