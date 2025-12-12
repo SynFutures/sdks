@@ -867,9 +867,13 @@ export class SimulateModule implements SimulateInterface {
             ) => {
                 const postSize = baseSize.mul(sign).add(prePosition.size);
 
-                // full close: let contract gather all remaining margin; no explicit transfer needed
+                // full close: ensure worst-case (limit price) equity is non-negative.
+                // If preEquity is insufficient to cover tradeLoss + fee, user must transfer in extra margin.
+                // Otherwise, no explicit transfer is needed and remaining margin will be gathered by Gate.
                 if (postSize.eq(ZERO)) {
-                    return { leverage: ZERO, margin: ZERO };
+                    const requiredMargin = tradeLoss.add(quotation.fee).sub(preEquity);
+                    const margin = requiredMargin.gt(ZERO) ? requiredMargin : ZERO;
+                    return { leverage: ZERO, margin };
                 }
 
                 // if this trade reduces an existing position (opposite side, smaller size),
@@ -929,14 +933,13 @@ export class SimulateModule implements SimulateInterface {
             ) => {
                 const postSize = baseSize.mul(sign).add(prePosition.size);
 
-                // full close: let contract gather all remaining margin; no explicit transfer needed
+                // full close: ensure worst-case (limit price) equity is non-negative.
+                // If preEquity is insufficient to cover tradeLoss + fee, user must transfer in extra margin.
+                // Otherwise, no explicit transfer is needed and remaining margin will be gathered by Gate.
                 if (postSize.eq(ZERO)) {
-                    const margin = ZERO;
-                    const postEquity = preEquity.sub(tradeLoss).sub(quotation.fee);
-                    const leverage = postEquity.eq(ZERO)
-                        ? ZERO
-                        : wdiv(wmul(markPrice, postSize.abs()), postEquity);
-                    return { leverage, margin };
+                    const requiredMargin = tradeLoss.add(quotation.fee).sub(preEquity);
+                    const margin = requiredMargin.gt(ZERO) ? requiredMargin : ZERO;
+                    return { leverage: ZERO, margin };
                 }
 
                 // keep current position leverage unchanged when partially closing
