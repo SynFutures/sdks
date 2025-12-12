@@ -916,15 +916,12 @@ export class SimulateModule implements SimulateInterface {
                     return { leverage, margin };
                 }
 
-                // target leverage: user-specified or fallback to current position leverage
-                let targetLeverage = params.leverage;
-                if (!targetLeverage) {
-                    const preValue = wmul(markPrice, prePosition.size.abs());
-                    targetLeverage = safeWDiv(preValue, preEquity);
-                }
+                // keep current position leverage unchanged when partially closing
+                const preValue = wmul(markPrice, prePosition.size.abs());
+                const targetLeverage = safeWDiv(preValue, preEquity);
 
                 // if leverage can't be determined, fall back to old behavior (no margin change)
-                if (!targetLeverage || targetLeverage.eq(ZERO)) {
+                if (targetLeverage.eq(ZERO)) {
                     const margin = ZERO;
                     const postEquity = preEquity.sub(tradeLoss).sub(quotation.fee);
                     const leverage = postEquity.eq(ZERO)

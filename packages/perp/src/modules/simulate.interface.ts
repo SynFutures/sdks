@@ -78,14 +78,13 @@ export interface SimulateInterface {
         overrides?: CallOverrides,
     ): Promise<SimulateTradeResult>;
 
-     /**
-      * Simulate close position
+    /**
+     * Simulate close position
      * @param params {@link SimulateCloseParams}
-     *        - Optional `leverage`: used to free margin when partially closing by target leverage
-      * @param overrides {@link CallOverrides}
-      * @returns result {@link SimulateTradeResult}
-      */
-     simulateClose(params: SimulateCloseParams, overrides?: CallOverrides): Promise<SimulateTradeResult>;
+     * @param overrides {@link CallOverrides}
+     * @returns result {@link SimulateTradeResult}
+     */
+    simulateClose(params: SimulateCloseParams, overrides?: CallOverrides): Promise<SimulateTradeResult>;
 
     /**
      * Simulate margin adjustments by user-specified margin transfers

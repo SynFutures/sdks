@@ -670,8 +670,6 @@ const result = await ctx.perp.simulate.simulateClose({
     tradeInfo: position,
     size: { base: position.size.abs() }, // close the whole position
     slippage,
-    // leverage is optional. If not provided, SDK will keep current position leverage when partially closing.
-    // leverage: parseEther('5'),
 });
 
 console.log(utils.formatSimulateMarketOrderResult(result, amm, instrument.setting.maintenanceMarginRatio));
