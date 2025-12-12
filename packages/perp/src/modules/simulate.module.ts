@@ -41,6 +41,7 @@ import {
 } from '../types';
 import {
     wdiv,
+    safeWDiv,
     wmul,
     TickMath,
     ZERO,
@@ -903,10 +904,38 @@ export class SimulateModule implements SimulateInterface {
                 tradeLoss: BigNumber,
                 quotation: Quotation,
             ) => {
-                const margin = ZERO;
-                const postEquity = preEquity.add(ZERO).sub(tradeLoss).sub(quotation.fee);
-                const leverage = wdiv(wmul(markPrice, baseSize.mul(sign).add(prePosition.size)).abs(), postEquity);
-                return { leverage, margin };
+                const postSize = baseSize.mul(sign).add(prePosition.size);
+
+                // full close: let contract gather all remaining margin; no explicit transfer needed
+                if (postSize.eq(ZERO)) {
+                    const margin = ZERO;
+                    const postEquity = preEquity.sub(tradeLoss).sub(quotation.fee);
+                    const leverage = postEquity.eq(ZERO)
+                        ? ZERO
+                        : wdiv(wmul(markPrice, postSize.abs()), postEquity);
+                    return { leverage, margin };
+                }
+
+                // target leverage: user-specified or fallback to current position leverage
+                let targetLeverage = params.leverage;
+                if (!targetLeverage) {
+                    const preValue = wmul(markPrice, prePosition.size.abs());
+                    targetLeverage = safeWDiv(preValue, preEquity);
+                }
+
+                // if leverage can't be determined, fall back to old behavior (no margin change)
+                if (!targetLeverage || targetLeverage.eq(ZERO)) {
+                    const margin = ZERO;
+                    const postEquity = preEquity.sub(tradeLoss).sub(quotation.fee);
+                    const leverage = postEquity.eq(ZERO)
+                        ? ZERO
+                        : wdiv(wmul(markPrice, postSize.abs()), postEquity);
+                    return { leverage, margin };
+                }
+
+                const postEquity = wdiv(wmul(markPrice, postSize.abs()), targetLeverage);
+                const margin = postEquity.sub(preEquity).add(tradeLoss).add(quotation.fee);
+                return { leverage: targetLeverage, margin };
             },
             overrides ?? {},
         );

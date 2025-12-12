@@ -257,6 +257,11 @@ export interface SimulateCloseParams {
     tradeInfo: TradeInfo | Position;
     size: ByBase | ByQuote;
     slippage: number;
+    /**
+     * Target leverage (18-decimal WAD). Used to free margin when reducing/partially closing a position.
+     * If omitted, the SDK defaults to the current position leverage.
+     */
+    leverage?: BigNumber;
     strictMode?: boolean;
     instrument?: Instrument;
     isInverse?: boolean;
