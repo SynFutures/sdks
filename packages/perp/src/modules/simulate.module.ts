@@ -41,6 +41,7 @@ import {
 } from '../types';
 import {
     wdiv,
+    safeWDiv,
     wmul,
     TickMath,
     ZERO,
@@ -864,15 +865,42 @@ export class SimulateModule implements SimulateInterface {
                 tradeLoss: BigNumber,
                 quotation: Quotation,
             ) => {
-                // calc margin required by fixed leverage
+                const postSize = baseSize.mul(sign).add(prePosition.size);
+
+                // full close: ensure worst-case (limit price) equity is non-negative.
+                // If preEquity is insufficient to cover tradeLoss + fee, user must transfer in extra margin.
+                // Otherwise, no explicit transfer is needed and remaining margin will be gathered by Gate.
+                if (postSize.eq(ZERO)) {
+                    const requiredMargin = tradeLoss.add(quotation.fee).sub(preEquity);
+                    const margin = requiredMargin.gt(ZERO) ? requiredMargin : ZERO;
+                    return { leverage: ZERO, margin };
+                }
+
+                // if this trade reduces an existing position (opposite side, smaller size),
+                // keep current leverage unchanged and free margin proportionally.
+                const isReducing =
+                    prePosition.size.mul(sign).lt(ZERO) && baseSize.abs().lt(prePosition.size.abs());
+
+                const targetLeverage = isReducing
+                    ? safeWDiv(wmul(markPrice, prePosition.size.abs()), preEquity)
+                    : params.leverage;
+
+                // fallback: if leverage can't be determined, keep old behavior (no margin change)
+                if (targetLeverage.eq(ZERO)) {
+                    const margin = ZERO;
+                    const postEquity = preEquity.sub(tradeLoss).sub(quotation.fee);
+                    const leverage = postEquity.eq(ZERO)
+                        ? ZERO
+                        : wdiv(wmul(markPrice, postSize.abs()), postEquity);
+                    return { leverage, margin };
+                }
+
+                // calc margin required by target leverage
                 // postEquity = preEquity + margin - tradeLoss - fee
                 // margin = postEquity - preEquity + tradeLoss + fee
-                const postEquity = wdiv(
-                    wmul(markPrice, baseSize.mul(sign).add(prePosition.size)).abs(),
-                    params.leverage,
-                );
+                const postEquity = wdiv(wmul(markPrice, postSize.abs()), targetLeverage);
                 const margin = postEquity.sub(preEquity).add(tradeLoss).add(quotation.fee);
-                return { leverage: params.leverage, margin };
+                return { leverage: targetLeverage, margin };
             },
             overrides ?? {},
         );
@@ -903,10 +931,34 @@ export class SimulateModule implements SimulateInterface {
                 tradeLoss: BigNumber,
                 quotation: Quotation,
             ) => {
-                const margin = ZERO;
-                const postEquity = preEquity.add(ZERO).sub(tradeLoss).sub(quotation.fee);
-                const leverage = wdiv(wmul(markPrice, baseSize.mul(sign).add(prePosition.size)).abs(), postEquity);
-                return { leverage, margin };
+                const postSize = baseSize.mul(sign).add(prePosition.size);
+
+                // full close: ensure worst-case (limit price) equity is non-negative.
+                // If preEquity is insufficient to cover tradeLoss + fee, user must transfer in extra margin.
+                // Otherwise, no explicit transfer is needed and remaining margin will be gathered by Gate.
+                if (postSize.eq(ZERO)) {
+                    const requiredMargin = tradeLoss.add(quotation.fee).sub(preEquity);
+                    const margin = requiredMargin.gt(ZERO) ? requiredMargin : ZERO;
+                    return { leverage: ZERO, margin };
+                }
+
+                // keep current position leverage unchanged when partially closing
+                const preValue = wmul(markPrice, prePosition.size.abs());
+                const targetLeverage = safeWDiv(preValue, preEquity);
+
+                // if leverage can't be determined, fall back to old behavior (no margin change)
+                if (targetLeverage.eq(ZERO)) {
+                    const margin = ZERO;
+                    const postEquity = preEquity.sub(tradeLoss).sub(quotation.fee);
+                    const leverage = postEquity.eq(ZERO)
+                        ? ZERO
+                        : wdiv(wmul(markPrice, postSize.abs()), postEquity);
+                    return { leverage, margin };
+                }
+
+                const postEquity = wdiv(wmul(markPrice, postSize.abs()), targetLeverage);
+                const margin = postEquity.sub(preEquity).add(tradeLoss).add(quotation.fee);
+                return { leverage: targetLeverage, margin };
             },
             overrides ?? {},
         );
