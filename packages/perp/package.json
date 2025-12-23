@@ -1,6 +1,6 @@
 {
     "name": "@synfutures/sdks-perp",
-    "version": "1.0.21-test-close.2",
+    "version": "1.0.21",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
