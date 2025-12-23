@@ -1,108 +1,71 @@
 {
-    "chainId": 10143,
-    "chainName": "monadTestnet",
+    "chainId": 143,
+    "chainName": "monad",
     "nativeToken": "MON",
-    "blockExplorerUrl": "https://testnet.monadexplorer.com/",
-    "blockTime": 500,
-    "wrappedNativeAddress": "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701",
+    "blockExplorerUrl": "https://monadvision.com/",
+    "blockTime": 400,
+    "wrappedNativeAddress": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
     "subgraph": "",
     "subgraphProxy": "",
     "commit": "",
     "contractAddress": {
-        "config": "0xa8a5Be3449683caF64c78A42A18b5BbDcfd1B401",
-        "gate": "0x48c6e940777fA0Ad2366F0B3Cf342adc8cA64317",
-        "observer": "0x1eAd1e0158a3cB69063E93Dc88791AF69f9ea95B",
-        "guardian": "0x293B6dB89a8C286bE2CD76D10309717Ae943E47e",
+        "config": "0x15bC3C13cbf5903E78b97208ba1021E5dc1B4470",
+        "gate": "0x2E32345Bf0592bFf19313831B99900C530D37d90",
+        "observer": "0xdfBA572929De47838BdE12336dfE8842B06d9628",
+        "guardian": "0x5FE49fb8770A8009335B1d76496c3e07Ca04FC9F",
         "market": {
-            "LINK": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0x170DE7d21b6d301D2ca9831C9af598caEA284786"
-            },
-            "DEXV2": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0xA02E8fbB119eC7d1b5F81519e52a44A3aAe83394"
-            },
-            "EMG": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0xe28969389505138Bc947E207757F07073000fF8a"
-            },
-            "PYTH": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0x97A93cDD8dCaEc46eAA0E2b1eCC71e5BF6DAD60C"
+            "STORK": {
+                "beacon": "0xcfb79469BDe45D6560f1D16965AB3b3895a85C5d",
+                "market": "0x6E77d8eF45F572CE59b0D9b95Be5f12a5906bA65"
             }
         },
         "feederFactory": {
-            "PYTH": {
-                "beacon": "0x798Fc8dE21852d2bd0Ba5D81be1ee8a5EF7C098B",
-                "factory": "0x0E6fd15A6d40f6a41f6bf8fA0De60EdfC0Fdf570"
-            },
-            "EMG": {
-                "beacon": "0x652A8402925447D9F7Be8dA36579077e50B4Dfaf",
-                "factory": "0x70eAB93b6DB7859E783C9c6FB8aE6eF73768B003"
+            "STORK": {
+                "beacon": "0xe6ED06331b0F81AC3FeD17A5963f723E53a35d9c",
+                "factory": "0x6fDb78862C00F88930e4d758236907d39643aA75"
             }
         }
     },
     "marketConfig": {
-        "LINK": {
-            "dailyInterestRate": 3,
-            "feederSource": []
-        },
-        "DEXV2": {
-            "dailyInterestRate": 3,
-            "feederSource": []
-        },
-        "EMG": {
+        "STORK": {
             "dailyInterestRate": 3,
             "feederSource": [
                 {
+                    "baseSymbol": "MON",
+                    "quoteSymbol": "USDC",
+                    "ftype": 1,
+                    "aggregator0": "0x352C453501067FdD4b0Ae0789f7dB88cBD3897B4",
+                    "heartBeat0": 3600,
+                    "aggregator1": "0xD77286d433068Cd36fBD93FC45E6Dd36735cd09c",
+                    "heartBeat1": 3600
+                },
+                {
                     "baseSymbol": "BTC",
-                    "quoteSymbol": "USDM",
+                    "quoteSymbol": "USDC",
                     "ftype": 1,
-                    "aggregator0": "",
-                    "heartBeat0": 8640000,
-                    "aggregator1": "0x0000000000000000000000000000000000000000",
-                    "heartBeat1": 0
-                },
-                {
-                    "baseSymbol": "ETH",
-                    "quoteSymbol": "USDM",
-                    "ftype": 1,
-                    "aggregator0": "",
-                    "heartBeat0": 8640000,
-                    "aggregator1": "0x0000000000000000000000000000000000000000",
-                    "heartBeat1": 0
-                },
-                {
-                    "baseSymbol": "SOL",
-                    "quoteSymbol": "USDM",
-                    "ftype": 1,
-                    "aggregator0": "",
-                    "heartBeat0": 8640000,
-                    "aggregator1": "0x0000000000000000000000000000000000000000",
-                    "heartBeat1": 0
+                    "aggregator0": "0x52D0d18014689FA4Fdb062C11afD391D139011d5",
+                    "heartBeat0": 3600,
+                    "aggregator1": "0xD77286d433068Cd36fBD93FC45E6Dd36735cd09c",
+                    "heartBeat1": 3600
                 }
             ]
-        },
-        "PYTH": {
-            "dailyInterestRate": 3,
-            "feederSource": []
         }
     },
     "quotesParam": {
-        "USDM": {
-            "tradingFeeRatio": 10,
+        "USDC": {
+            "tradingFeeRatio": 5,
             "stabilityFeeRatioParam": "14415916854096691200",
-            "protocolFeeRatio": 10,
+            "protocolFeeRatio": 5,
             "qtype": 1,
-            "minMarginAmount": "1000000",
-            "tip": "100000"
+            "minMarginAmount": "5000000",
+            "tip": "20000"
         }
     },
     "tokenInfo": [
         {
-            "name": "USDM",
-            "address": "0x8da593B1084727DD82212A0b812415851F29cdec",
-            "symbol": "USDM",
+            "name": "USDC",
+            "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+            "symbol": "USDC",
             "decimals": 6
         }
     ],

@@ -17,6 +17,7 @@ import {
     Gate__factory as CurrentGate__factory,
     Observer__factory as CurrentObserver__factory,
     Config__factory as CurrentConfig__factory,
+    StorkFeederFactory__factory,
 } from '../../typechain/current/factories';
 
 import {
@@ -82,6 +83,11 @@ export abstract class ConfigurationModuleBase implements ConfigurationInterface 
                         feederFactoryAddress.factory,
                         new ContractParser(EmergingFeederFactory__factory.createInterface()),
                     );
+                } else if (marketType === MarketType.STORK) {
+                    this.context.registerContractParser(
+                        feederFactoryAddress.factory,
+                        new ContractParser(StorkFeederFactory__factory.createInterface()),
+                    );
                 }
             }
         }
@@ -122,6 +128,11 @@ export abstract class ConfigurationModuleBase implements ConfigurationInterface 
                         factory: EmergingFeederFactory__factory.connect(feederFactoryAddress.factory, provider),
                         beacon: Beacon__factory.connect(feederFactoryAddress.beacon, provider),
                     };
+                } else if (mType === MarketType.STORK) {
+                    feederFactoryContracts[mType] = {
+                        factory: StorkFeederFactory__factory.connect(feederFactoryAddress.factory, provider),
+                        beacon: Beacon__factory.connect(feederFactoryAddress.beacon, provider),
+                    };
                 } else {
                     throw new SynfError(`Invalid market type: ${mType}`);
                 }
@@ -132,8 +143,9 @@ export abstract class ConfigurationModuleBase implements ConfigurationInterface 
         // For legacy chains (Base, Blast), use contracts with stabilityFeeRatioParam
         // For current chains, use contracts without stabilityFeeRatioParam
         const useLegacy = isLegacyChain(this.context.chainId);
-        const observerContract = this.context.perp._observer.isLegacyObserver() ?
-            LegacyObserver__factory.connect(this.config.contractAddress.observer, provider) : CurrentObserver__factory.connect(this.config.contractAddress.observer, provider);
+        const observerContract = this.context.perp._observer.isLegacyObserver()
+            ? LegacyObserver__factory.connect(this.config.contractAddress.observer, provider)
+            : CurrentObserver__factory.connect(this.config.contractAddress.observer, provider);
 
         if (useLegacy) {
             // Use legacy factories for Base and Blast networks (with stabilityFeeRatioParam)

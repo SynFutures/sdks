@@ -5,6 +5,7 @@ import { Config as LegacyConfig, Gate as LegacyGate, Observer as LegacyObserver 
 import { Config as CurrentConfig, Gate as CurrentGate, Observer as CurrentObserver } from '../typechain/current';
 import type { FeederType, InstrumentCondition, MarketType, Side, Status } from '../enum';
 import type { InstrumentSetting, QuoteParam } from './params';
+import { StorkFeederFactory } from 'src/typechain/current/StorkFeederFactory';
 
 export interface Portfolio {
     instrumentAddr: string;
@@ -406,6 +407,6 @@ export interface MarketContracts {
 }
 
 export interface FeederFactoryContracts {
-    factory: EmergingFeederFactory | PythFeederFactory;
+    factory: EmergingFeederFactory | PythFeederFactory | StorkFeederFactory;
     beacon: Beacon;
 }

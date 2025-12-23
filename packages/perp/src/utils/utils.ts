@@ -228,7 +228,7 @@ export function isEmptyPortfolio(portfolio: Portfolio): boolean {
 }
 
 export function isCexMarket(marketType: MarketType): boolean {
-    return marketType === MarketType.LINK || marketType === MarketType.EMG || marketType === MarketType.PYTH;
+    return marketType === MarketType.LINK || marketType === MarketType.EMG || marketType === MarketType.PYTH || marketType === MarketType.STORK;
 }
 
 export function sizeToSide(size: BigNumber): Side {
