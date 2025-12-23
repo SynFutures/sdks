@@ -21,10 +21,12 @@ export let ORDER_SPACING = PEARL_SPACING;
 export let RANGE_SPACING = PEARL_SPACING * 50;
 
 export function configureSpacing(chainId: number): void {
-    const spacing = chainId === CHAIN_ID.BASE ? 5 : 1;
-    PEARL_SPACING = spacing;
-    ORDER_SPACING = PEARL_SPACING;
-    RANGE_SPACING = PEARL_SPACING * 50;
+    // Default spacing is 1 for other chains, except BASE.
+    if (chainId === CHAIN_ID.BASE) {
+        PEARL_SPACING = 5;
+        ORDER_SPACING = PEARL_SPACING;
+        RANGE_SPACING = PEARL_SPACING * 10;
+    }
 }
 
 export const RATIO_BASE = 10000;
