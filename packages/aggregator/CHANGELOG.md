@@ -1,5 +1,11 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.21
+
+### Patch Changes
+
+- Upgrade monad testnet contract addresses
+
 ## 1.0.20
 
 ### Patch Changes

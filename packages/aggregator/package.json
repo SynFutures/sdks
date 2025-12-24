@@ -1,6 +1,6 @@
 {
     "name": "@synfutures/sdks-aggregator",
-    "version": "1.0.20",
+    "version": "1.0.21",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
@@ -17,8 +17,8 @@
         "build:check": "node -e \"require('./dist-node')\""
     },
     "dependencies": {
-        "@derivation-tech/context": "catalog:",
-        "@derivation-tech/tx-plugin": "catalog:",
+        "@derivation-tech/context": "^1.0.11",
+        "@derivation-tech/tx-plugin": "^1.0.11",
         "@synfutures/sdks-perp": "workspace:*",
         "ethers": "catalog:"
     },
