@@ -17,8 +17,8 @@
         "build:check": "node -e \"require('./dist-node')\""
     },
     "dependencies": {
-        "@derivation-tech/context": "^1.0.11",
-        "@derivation-tech/tx-plugin": "^1.0.11",
+        "@derivation-tech/context": "catalog:",
+        "@derivation-tech/tx-plugin": "catalog:",
         "@synfutures/sdks-perp": "workspace:*",
         "ethers": "catalog:"
     },
