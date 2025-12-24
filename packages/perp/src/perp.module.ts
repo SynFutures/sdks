@@ -22,6 +22,7 @@ import {
 } from './modules';
 import { PerpInterface } from './perp.interface';
 import { SynFuturesV3Contracts } from './types';
+import { configureSpacing } from './constants';
 
 export interface PerpModuleOptions {
     basePath?: string;
@@ -62,6 +63,8 @@ export class PerpModule implements PerpInterface {
             ...defaultOptions,
             ...options,
         };
+
+        configureSpacing(context.chainId);
 
         this.config = new ConfigModule(context);
         this.gate = new GateModule(context);

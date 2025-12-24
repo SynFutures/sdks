@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers';
+import { CHAIN_ID } from '@derivation-tech/context';
 import { RawAmm } from './types';
 
 export const WAD_DECIMALS = 18;
@@ -15,9 +16,18 @@ export const MIN_TICK = -322517;
 export const INT24_MIN = -8388608;
 export const INT24_MAX = 8388607;
 
-export const PEARL_SPACING = 1;
-export const ORDER_SPACING = PEARL_SPACING;
-export const RANGE_SPACING = PEARL_SPACING * 50;
+export let PEARL_SPACING = 1;
+export let ORDER_SPACING = PEARL_SPACING;
+export let RANGE_SPACING = PEARL_SPACING * 50;
+
+export function configureSpacing(chainId: number): void {
+    // Default spacing is 1 for other chains, except BASE.
+    if (chainId === CHAIN_ID.BASE) {
+        PEARL_SPACING = 5;
+        ORDER_SPACING = PEARL_SPACING;
+        RANGE_SPACING = PEARL_SPACING * 10;
+    }
+}
 
 export const RATIO_BASE = 10000;
 export const STABILITY_FEE_RATIO_BASE = 100;
