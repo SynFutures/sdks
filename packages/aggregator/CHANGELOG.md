@@ -1,6 +1,6 @@
 # @synfutures/sdks-aggregator
 
-## 1.0.21
+## 1.0.22
 
 ### Patch Changes
 
