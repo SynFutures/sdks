@@ -6,6 +6,12 @@ settings:
 
 catalogs:
   default:
+    '@derivation-tech/context':
+      specifier: ^1.0.12
+      version: 1.0.12
+    '@derivation-tech/tx-plugin':
+      specifier: ^1.0.12
+      version: 1.0.12
     '@typechain/ethers-v5':
       specifier: ^11.1.0
       version: 11.1.2
@@ -102,11 +108,11 @@ importers:
   packages/aggregator:
     dependencies:
       '@derivation-tech/context':
-        specifier: ^1.0.11
-        version: 1.0.11
+        specifier: 'catalog:'
+        version: 1.0.12
       '@derivation-tech/tx-plugin':
-        specifier: ^1.0.11
-        version: 1.0.11
+        specifier: 'catalog:'
+        version: 1.0.12
       '@synfutures/sdks-perp':
         specifier: workspace:*
         version: link:../perp
@@ -117,11 +123,11 @@ importers:
   packages/perp:
     dependencies:
       '@derivation-tech/context':
-        specifier: ^1.0.11
-        version: 1.0.11
+        specifier: 'catalog:'
+        version: 1.0.12
       '@derivation-tech/tx-plugin':
-        specifier: ^1.0.11
-        version: 1.0.11
+        specifier: 'catalog:'
+        version: 1.0.12
       ethers:
         specifier: 'catalog:'
         version: 5.7.2
@@ -804,14 +810,14 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@derivation-tech/context@1.0.11':
-    resolution: {integrity: sha512-lMD83xxDInwrKEE7pu7GXiXRLnB34PeitJ2eN62m/QDfzwtRk9naTEbcH0rLmQNt/5kGRLrRev6mmJYxphCUxA==}
+  '@derivation-tech/context@1.0.12':
+    resolution: {integrity: sha512-xlHQAAdZIbYb5EdEuYMmyyUNMgTsJQvu9zTEUc1iDkRNobwr5iyUHxIH3tiZjxsxKNgR2YE2C0iPytHJOS0Ukg==}
 
-  '@derivation-tech/contracts@1.0.11':
-    resolution: {integrity: sha512-/vpYbp0lKMepG0cv5+8FrsQvsq6WV2CamS+IBsWtpeVoW7iMAGJHlEDG+CiDiXYiCz6/Mt+f3BIRskSgy00brA==}
+  '@derivation-tech/contracts@1.0.12':
+    resolution: {integrity: sha512-12Xjo0bdc3S/zHuAuCf8+L33tLpAhq8lZdcG0+DAEBLlBkPfPHoyi71pYMafH5Qd3d9TvRcqjnXer4iNxJNaKw==}
 
-  '@derivation-tech/tx-plugin@1.0.11':
-    resolution: {integrity: sha512-tKOBn4gJ5OuZXq3pM/S3RteoIadp7V5cjUR1VzvetTZAtMPLPSNZ7dwngurQmRnOGCD7oBYwEQsykud8moTojA==}
+  '@derivation-tech/tx-plugin@1.0.12':
+    resolution: {integrity: sha512-4mPIwEenZAS5+MBZ6b+SbQFdVl+vT8swOj+qMHHa4rp+PgJd3S3/VIithQCjxDGa67+jTawDN0hRqdiKAGG4/w==}
 
   '@emnapi/core@1.3.1':
     resolution: {integrity: sha512-pVGjBIt1Y6gg3EJN8jTcfpP/+uuRksIo055oE/OBkDNcjZqVbfkWCksG1Jp4yZnj3iKWyWX8fdG/j6UDYPbFog==}
@@ -4740,9 +4746,9 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@derivation-tech/context@1.0.11':
+  '@derivation-tech/context@1.0.12':
     dependencies:
-      '@derivation-tech/contracts': 1.0.11
+      '@derivation-tech/contracts': 1.0.12
       '@eth-optimism/sdk': 3.3.3(ethers@5.7.2)
       async-retry: 1.3.3
       axios: 1.13.2
@@ -4755,7 +4761,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@derivation-tech/contracts@1.0.11':
+  '@derivation-tech/contracts@1.0.12':
     dependencies:
       chalk: 4.1.2
       ethers: 5.7.2
@@ -4763,10 +4769,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@derivation-tech/tx-plugin@1.0.11':
+  '@derivation-tech/tx-plugin@1.0.12':
     dependencies:
-      '@derivation-tech/context': 1.0.11
-      '@derivation-tech/contracts': 1.0.11
+      '@derivation-tech/context': 1.0.12
+      '@derivation-tech/contracts': 1.0.12
       async-retry: 1.3.3
       chalk: 4.1.2
       ethers: 5.7.2
