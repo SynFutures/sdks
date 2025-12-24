@@ -4,41 +4,25 @@
     "nativeToken": "MON",
     "blockExplorerUrl": "https://testnet.monadexplorer.com/",
     "blockTime": 500,
-    "wrappedNativeAddress": "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701",
+    "wrappedNativeAddress": "0xFb8bf4c1CC7a94c73D209a149eA2AbEa852BC541",
     "subgraph": "",
     "subgraphProxy": "",
     "commit": "",
     "contractAddress": {
-        "config": "0xa8a5Be3449683caF64c78A42A18b5BbDcfd1B401",
-        "gate": "0x48c6e940777fA0Ad2366F0B3Cf342adc8cA64317",
-        "observer": "0x1eAd1e0158a3cB69063E93Dc88791AF69f9ea95B",
-        "guardian": "0x293B6dB89a8C286bE2CD76D10309717Ae943E47e",
+        "config": "0x0506087b6b9A514E924E8d262DF1D50f987635C0",
+        "gate": "0xD016AEd1584f3Ec2A09c722797989F64dA605c7e",
+        "observer": "0x47066A71a1ee82301A7AbeCE99bE920dC58c3f4c",
+        "guardian": "0x206f0a544C3e0861f7D1AfBA02d627BA8fE2759c",
         "market": {
-            "LINK": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0x170DE7d21b6d301D2ca9831C9af598caEA284786"
-            },
-            "DEXV2": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0xA02E8fbB119eC7d1b5F81519e52a44A3aAe83394"
-            },
             "EMG": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0xe28969389505138Bc947E207757F07073000fF8a"
-            },
-            "PYTH": {
-                "beacon": "0xb4c569554e77f8eeCFf12175f9C70D504D663F75",
-                "market": "0x97A93cDD8dCaEc46eAA0E2b1eCC71e5BF6DAD60C"
+                "beacon": "0x34B250271dAcaE480a3Ebe552bA77D36db8F5585",
+                "market": "0xE1eE2878b10BCeb6cd8798C77d087fd3bfF9a4a7"
             }
         },
         "feederFactory": {
-            "PYTH": {
-                "beacon": "0x798Fc8dE21852d2bd0Ba5D81be1ee8a5EF7C098B",
-                "factory": "0x0E6fd15A6d40f6a41f6bf8fA0De60EdfC0Fdf570"
-            },
             "EMG": {
-                "beacon": "0x652A8402925447D9F7Be8dA36579077e50B4Dfaf",
-                "factory": "0x70eAB93b6DB7859E783C9c6FB8aE6eF73768B003"
+                "beacon": "0x28012BE7dBa4162739C3b79f08f66149425c470C",
+                "factory": "0xFF4942f7b8C69D0b29da190dBc48102C72b2Aa19"
             }
         }
     },
@@ -56,24 +40,6 @@
             "feederSource": [
                 {
                     "baseSymbol": "BTC",
-                    "quoteSymbol": "USDM",
-                    "ftype": 1,
-                    "aggregator0": "",
-                    "heartBeat0": 8640000,
-                    "aggregator1": "0x0000000000000000000000000000000000000000",
-                    "heartBeat1": 0
-                },
-                {
-                    "baseSymbol": "ETH",
-                    "quoteSymbol": "USDM",
-                    "ftype": 1,
-                    "aggregator0": "",
-                    "heartBeat0": 8640000,
-                    "aggregator1": "0x0000000000000000000000000000000000000000",
-                    "heartBeat1": 0
-                },
-                {
-                    "baseSymbol": "SOL",
                     "quoteSymbol": "USDM",
                     "ftype": 1,
                     "aggregator0": "",
@@ -101,7 +67,7 @@
     "tokenInfo": [
         {
             "name": "USDM",
-            "address": "0x8da593B1084727DD82212A0b812415851F29cdec",
+            "address": "0x618102779b8564B7EFa49B26D70d941896222B55",
             "symbol": "USDM",
             "decimals": 6
         }
