@@ -1,5 +1,17 @@
 # @synfutures/sdks-perp
 
+## 1.0.23
+
+### Patch Changes
+
+- Update
+
+## 1.0.22
+
+### Patch Changes
+
+- Update
+
 ## 1.0.21
 
 ### Patch Changes

@@ -1,3 +1,4 @@
+import '@derivation-tech/tx-plugin';
 import { BigNumber, ethers } from 'ethers';
 import { Context } from '@derivation-tech/context';
 import { Instrument__factory } from '../typechain';
