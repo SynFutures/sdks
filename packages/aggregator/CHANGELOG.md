@@ -1,5 +1,11 @@
 # @synfutures/sdks-aggregator
 
+## 1.0.26
+
+### Patch Changes
+
+- 8c4a261: add: recipient in mixSwap and multiSwap
+
 ## 1.0.25
 
 ### Patch Changes
