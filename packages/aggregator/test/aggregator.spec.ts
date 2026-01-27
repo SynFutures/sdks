@@ -696,6 +696,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {

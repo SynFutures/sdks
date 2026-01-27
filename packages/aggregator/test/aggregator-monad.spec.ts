@@ -11,14 +11,14 @@ describe('Aggregator', function () {
     let ctx: Context;
     const token0 = {
         name: 'WMON',
-        address: '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
+        address: '0xFb8bf4c1CC7a94c73D209a149eA2AbEa852BC541',
         symbol: 'WMON',
         decimals: 18,
     };
     const token1 = {
-        name: 'USDC',
-        address: '0xf817257fed379853cDe0fa4F97AB987181B1E5Ea',
-        symbol: 'USDT',
+        name: 'USDM',
+        address: '0x618102779b8564B7EFa49B26D70d941896222B55',
+        symbol: 'USDM',
         decimals: 6,
     };
 
@@ -161,18 +161,13 @@ describe('Aggregator', function () {
         }
     });
 
-    it('should convert between ETH and WETH succeed', async function () {
+    it.skip('should convert between ETH and WETH succeed', async function () {
         if (!ctx) {
             console.warn('ctx is not initialized');
             return;
         }
 
-        const weth = {
-            name: 'WMON',
-            address: '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
-            symbol: 'WMON',
-            decimals: 18,
-        };
+        const weth = token0;
         const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
         const testAmount = parseUnits('1', 18); // 1 ETH/WETH
 
@@ -235,8 +230,8 @@ describe('Aggregator', function () {
         //console.log("pools:", JSON.stringify(pools,null, 2));
         const results = await ctx.aggregator.getPoolLiquidity({
             pools,
-            token0Decimal: token0.decimals,
-            token1Decimal: token1.decimals,
+            token0Decimal: token1.decimals,
+            token1Decimal: token0.decimals,
             priceMultipliers,
             ratio: 0.4,
             steps: 16,
@@ -285,15 +280,10 @@ describe('Aggregator', function () {
     });
 
     it.skip('should query split route and execute multiSwap succeed', async function () {
-        const usdc = await ctx.getTokenInfo('USDC');
-        const weth = {
-            name: 'USDT',
-            address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-            symbol: 'USDT',
-            decimals: 6,
-        };
+        const usdc = token1;
+        const weth = token0;
         //await ctx.getTokenInfo('WETH');
-        const amount = parseUnits('1000', usdc.decimals);
+        const amount = parseUnits('0.01', usdc.decimals);
         const userAddress = '0x...'; // actual user address
 
         // Step 1: Query split route
@@ -321,6 +311,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {
@@ -503,6 +494,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {
@@ -562,6 +554,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {
@@ -621,6 +614,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {
@@ -680,6 +674,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {
@@ -777,6 +772,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {

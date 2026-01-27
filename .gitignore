@@ -100,3 +100,5 @@ dist
 .nx
 
 .npmrc
+
+**/.DS_Store
