@@ -11,7 +11,7 @@ describe('Aggregator', function () {
     let ctx: Context;
 
     beforeEach(async function () {
-        ctx = new Context('monadTestnet', { providerOps: { url: process.env.MONAD_TESTNET_RPC! } });
+        ctx = new Context('base', { providerOps: { url: process.env.BASE_RPC! } });
         ctx.use(perpPlugin({ configuration: 'local' }));
         ctx.use(aggregatorPlugin());
         ctx.use(txPlugin({ gasEstimator: new DefaultEthGasEstimator() }));
@@ -696,6 +696,7 @@ describe('Aggregator', function () {
                 slippageInBps: 100, // 1%
                 broker: ethers.constants.AddressZero,
                 brokerFeeRate: BigNumber.from(0),
+                recipient: userAddress,
                 deadline: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes from now
             },
             {

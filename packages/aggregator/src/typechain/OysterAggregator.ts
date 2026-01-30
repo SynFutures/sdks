@@ -25,7 +25,9 @@ export interface OysterAggregatorInterface extends utils.Interface {
         'changeRouteFeeRate(uint256)': FunctionFragment;
         'changeRouteFeeReceiver(address)': FunctionFragment;
         'mixSwap(address,address,uint256,uint256,address[],address[],address[],uint256,bytes[],bytes,uint256)': FunctionFragment;
+        'mixSwapTo(address,address,uint256,uint256,address[],address[],address[],uint256,bytes[],address,bytes,uint256)': FunctionFragment;
         'multiSwap(uint256,uint256,uint256[],address[],address[],bytes[],bytes,uint256)': FunctionFragment;
+        'multiSwapTo(uint256,uint256,uint256[],address[],address[],bytes[],address,bytes,uint256)': FunctionFragment;
         'owner()': FunctionFragment;
         'pendingOwner()': FunctionFragment;
         'renounceOwnership()': FunctionFragment;
@@ -43,7 +45,9 @@ export interface OysterAggregatorInterface extends utils.Interface {
             | 'changeRouteFeeRate'
             | 'changeRouteFeeReceiver'
             | 'mixSwap'
+            | 'mixSwapTo'
             | 'multiSwap'
+            | 'multiSwapTo'
             | 'owner'
             | 'pendingOwner'
             | 'renounceOwnership'
@@ -75,8 +79,29 @@ export interface OysterAggregatorInterface extends utils.Interface {
         ],
     ): string;
     encodeFunctionData(
+        functionFragment: 'mixSwapTo',
+        values: [
+            string,
+            string,
+            BigNumberish,
+            BigNumberish,
+            string[],
+            string[],
+            string[],
+            BigNumberish,
+            BytesLike[],
+            string,
+            BytesLike,
+            BigNumberish,
+        ],
+    ): string;
+    encodeFunctionData(
         functionFragment: 'multiSwap',
         values: [BigNumberish, BigNumberish, BigNumberish[], string[], string[], BytesLike[], BytesLike, BigNumberish],
+    ): string;
+    encodeFunctionData(
+        functionFragment: 'multiSwapTo',
+        values: [BigNumberish, BigNumberish, BigNumberish[], string[], string[], BytesLike[], string, BytesLike, BigNumberish],
     ): string;
     encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
     encodeFunctionData(functionFragment: 'pendingOwner', values?: undefined): string;
@@ -92,7 +117,9 @@ export interface OysterAggregatorInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: 'changeRouteFeeRate', data: BytesLike): Result;
     decodeFunctionResult(functionFragment: 'changeRouteFeeReceiver', data: BytesLike): Result;
     decodeFunctionResult(functionFragment: 'mixSwap', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'mixSwapTo', data: BytesLike): Result;
     decodeFunctionResult(functionFragment: 'multiSwap', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'multiSwapTo', data: BytesLike): Result;
     decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
     decodeFunctionResult(functionFragment: 'pendingOwner', data: BytesLike): Result;
     decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
@@ -192,6 +219,22 @@ export interface OysterAggregator extends BaseContract {
             overrides?: PayableOverrides & { from?: string },
         ): Promise<ContractTransaction>;
 
+        mixSwapTo(
+            fromToken: string,
+            toToken: string,
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            mixAdapters: string[],
+            mixPairs: string[],
+            assetTo: string[],
+            directions: BigNumberish,
+            moreInfos: BytesLike[],
+            recipient: string,
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: PayableOverrides & { from?: string },
+        ): Promise<ContractTransaction>;
+
         multiSwap(
             fromTokenAmount: BigNumberish,
             minReturnAmount: BigNumberish,
@@ -199,6 +242,19 @@ export interface OysterAggregator extends BaseContract {
             midToken: string[],
             assetFrom: string[],
             sequence: BytesLike[],
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: PayableOverrides & { from?: string },
+        ): Promise<ContractTransaction>;
+
+        multiSwapTo(
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            splitNumber: BigNumberish[],
+            midToken: string[],
+            assetFrom: string[],
+            sequence: BytesLike[],
+            recipient: string,
             feeData: BytesLike,
             deadLine: BigNumberish,
             overrides?: PayableOverrides & { from?: string },
@@ -250,6 +306,22 @@ export interface OysterAggregator extends BaseContract {
         overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
+    mixSwapTo(
+        fromToken: string,
+        toToken: string,
+        fromTokenAmount: BigNumberish,
+        minReturnAmount: BigNumberish,
+        mixAdapters: string[],
+        mixPairs: string[],
+        assetTo: string[],
+        directions: BigNumberish,
+        moreInfos: BytesLike[],
+        recipient: string,
+        feeData: BytesLike,
+        deadLine: BigNumberish,
+        overrides?: PayableOverrides & { from?: string },
+    ): Promise<ContractTransaction>;
+
     multiSwap(
         fromTokenAmount: BigNumberish,
         minReturnAmount: BigNumberish,
@@ -257,6 +329,19 @@ export interface OysterAggregator extends BaseContract {
         midToken: string[],
         assetFrom: string[],
         sequence: BytesLike[],
+        feeData: BytesLike,
+        deadLine: BigNumberish,
+        overrides?: PayableOverrides & { from?: string },
+    ): Promise<ContractTransaction>;
+
+    multiSwapTo(
+        fromTokenAmount: BigNumberish,
+        minReturnAmount: BigNumberish,
+        splitNumber: BigNumberish[],
+        midToken: string[],
+        assetFrom: string[],
+        sequence: BytesLike[],
+        recipient: string,
         feeData: BytesLike,
         deadLine: BigNumberish,
         overrides?: PayableOverrides & { from?: string },
@@ -302,6 +387,22 @@ export interface OysterAggregator extends BaseContract {
             overrides?: CallOverrides,
         ): Promise<BigNumber>;
 
+        mixSwapTo(
+            fromToken: string,
+            toToken: string,
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            mixAdapters: string[],
+            mixPairs: string[],
+            assetTo: string[],
+            directions: BigNumberish,
+            moreInfos: BytesLike[],
+            recipient: string,
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: CallOverrides,
+        ): Promise<BigNumber>;
+
         multiSwap(
             fromTokenAmount: BigNumberish,
             minReturnAmount: BigNumberish,
@@ -309,6 +410,19 @@ export interface OysterAggregator extends BaseContract {
             midToken: string[],
             assetFrom: string[],
             sequence: BytesLike[],
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: CallOverrides,
+        ): Promise<BigNumber>;
+
+        multiSwapTo(
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            splitNumber: BigNumberish[],
+            midToken: string[],
+            assetFrom: string[],
+            sequence: BytesLike[],
+            recipient: string,
             feeData: BytesLike,
             deadLine: BigNumberish,
             overrides?: CallOverrides,
@@ -387,6 +501,22 @@ export interface OysterAggregator extends BaseContract {
             overrides?: PayableOverrides & { from?: string },
         ): Promise<BigNumber>;
 
+        mixSwapTo(
+            fromToken: string,
+            toToken: string,
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            mixAdapters: string[],
+            mixPairs: string[],
+            assetTo: string[],
+            directions: BigNumberish,
+            moreInfos: BytesLike[],
+            recipient: string,
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: PayableOverrides & { from?: string },
+        ): Promise<BigNumber>;
+
         multiSwap(
             fromTokenAmount: BigNumberish,
             minReturnAmount: BigNumberish,
@@ -394,6 +524,19 @@ export interface OysterAggregator extends BaseContract {
             midToken: string[],
             assetFrom: string[],
             sequence: BytesLike[],
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: PayableOverrides & { from?: string },
+        ): Promise<BigNumber>;
+
+        multiSwapTo(
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            splitNumber: BigNumberish[],
+            midToken: string[],
+            assetFrom: string[],
+            sequence: BytesLike[],
+            recipient: string,
             feeData: BytesLike,
             deadLine: BigNumberish,
             overrides?: PayableOverrides & { from?: string },
@@ -446,6 +589,22 @@ export interface OysterAggregator extends BaseContract {
             overrides?: PayableOverrides & { from?: string },
         ): Promise<PopulatedTransaction>;
 
+        mixSwapTo(
+            fromToken: string,
+            toToken: string,
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            mixAdapters: string[],
+            mixPairs: string[],
+            assetTo: string[],
+            directions: BigNumberish,
+            moreInfos: BytesLike[],
+            recipient: string,
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: PayableOverrides & { from?: string },
+        ): Promise<PopulatedTransaction>;
+
         multiSwap(
             fromTokenAmount: BigNumberish,
             minReturnAmount: BigNumberish,
@@ -453,6 +612,19 @@ export interface OysterAggregator extends BaseContract {
             midToken: string[],
             assetFrom: string[],
             sequence: BytesLike[],
+            feeData: BytesLike,
+            deadLine: BigNumberish,
+            overrides?: PayableOverrides & { from?: string },
+        ): Promise<PopulatedTransaction>;
+
+        multiSwapTo(
+            fromTokenAmount: BigNumberish,
+            minReturnAmount: BigNumberish,
+            splitNumber: BigNumberish[],
+            midToken: string[],
+            assetFrom: string[],
+            sequence: BytesLike[],
+            recipient: string,
             feeData: BytesLike,
             deadLine: BigNumberish,
             overrides?: PayableOverrides & { from?: string },

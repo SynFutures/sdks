@@ -62,9 +62,17 @@ export interface AggregatorInterface {
     mixSwap(params: MixSwapParam, txOptions?: TxOptions): Promise<PopulatedTransaction>;
     mixSwap(params: MixSwapParam, txOptions?: TxOptions): Promise<TransactionReceipt | PopulatedTransaction>;
 
+    mixSwapTo(params: MixSwapParam, txOptions: TxOptionsWithSigner): Promise<TransactionReceipt>;
+    mixSwapTo(params: MixSwapParam, txOptions?: TxOptions): Promise<PopulatedTransaction>;
+    mixSwapTo(params: MixSwapParam, txOptions?: TxOptions): Promise<TransactionReceipt | PopulatedTransaction>;
+
     multiSwap(params: MultiSwapParam, txOptions: TxOptionsWithSigner): Promise<TransactionReceipt>;
     multiSwap(params: MultiSwapParam, txOptions?: TxOptions): Promise<PopulatedTransaction>;
     multiSwap(params: MultiSwapParam, txOptions?: TxOptions): Promise<TransactionReceipt | PopulatedTransaction>;
+
+    multiSwapTo(params: MultiSwapParam, txOptions: TxOptionsWithSigner): Promise<TransactionReceipt>;
+    multiSwapTo(params: MultiSwapParam, txOptions?: TxOptions): Promise<PopulatedTransaction>;
+    multiSwapTo(params: MultiSwapParam, txOptions?: TxOptions): Promise<TransactionReceipt | PopulatedTransaction>;
 
     wethConvert(
         params: {

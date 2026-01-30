@@ -150,6 +150,7 @@ export interface MixSwapParam {
     slippageInBps: number;
     broker: string;
     brokerFeeRate: BigNumber;
+    recipient: string;
     deadline: number;
 }
 
@@ -162,6 +163,7 @@ export interface MultiSwapParam {
     slippageInBps: number;
     broker: string;
     brokerFeeRate: BigNumber;
+    recipient: string;
     deadline: number;
 }
 
