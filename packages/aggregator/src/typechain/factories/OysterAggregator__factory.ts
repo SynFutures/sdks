@@ -152,6 +152,80 @@ const _abi = [
     },
     {
         type: 'function',
+        name: 'mixSwapTo',
+        inputs: [
+            {
+                name: 'fromToken',
+                type: 'address',
+                internalType: 'address',
+            },
+            {
+                name: 'toToken',
+                type: 'address',
+                internalType: 'address',
+            },
+            {
+                name: 'fromTokenAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+            {
+                name: 'minReturnAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+            {
+                name: 'mixAdapters',
+                type: 'address[]',
+                internalType: 'address[]',
+            },
+            {
+                name: 'mixPairs',
+                type: 'address[]',
+                internalType: 'address[]',
+            },
+            {
+                name: 'assetTo',
+                type: 'address[]',
+                internalType: 'address[]',
+            },
+            {
+                name: 'directions',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+            {
+                name: 'moreInfos',
+                type: 'bytes[]',
+                internalType: 'bytes[]',
+            },
+            {
+                name: 'recipient',
+                type: 'address',
+                internalType: 'address',
+            },
+            {
+                name: 'feeData',
+                type: 'bytes',
+                internalType: 'bytes',
+            },
+            {
+                name: 'deadLine',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+        ],
+        outputs: [
+            {
+                name: 'receiveAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+        ],
+        stateMutability: 'payable',
+    },
+    {
+        type: 'function',
         name: 'multiSwap',
         inputs: [
             {
@@ -183,6 +257,65 @@ const _abi = [
                 name: 'sequence',
                 type: 'bytes[]',
                 internalType: 'bytes[]',
+            },
+            {
+                name: 'feeData',
+                type: 'bytes',
+                internalType: 'bytes',
+            },
+            {
+                name: 'deadLine',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+        ],
+        outputs: [
+            {
+                name: 'receiveAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+        ],
+        stateMutability: 'payable',
+    },
+    {
+        type: 'function',
+        name: 'multiSwapTo',
+        inputs: [
+            {
+                name: 'fromTokenAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+            {
+                name: 'minReturnAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+            {
+                name: 'splitNumber',
+                type: 'uint256[]',
+                internalType: 'uint256[]',
+            },
+            {
+                name: 'midToken',
+                type: 'address[]',
+                internalType: 'address[]',
+            },
+            {
+                name: 'assetFrom',
+                type: 'address[]',
+                internalType: 'address[]',
+            },
+            {
+                name: 'sequence',
+                type: 'bytes[]',
+                internalType: 'bytes[]',
+            },
+            {
+                name: 'recipient',
+                type: 'address',
+                internalType: 'address',
             },
             {
                 name: 'feeData',

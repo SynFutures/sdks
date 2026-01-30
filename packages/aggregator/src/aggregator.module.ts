@@ -421,7 +421,6 @@ export class AggregatorModule implements AggregatorInterface {
             slippageInBps,
             broker,
             brokerFeeRate,
-            recipient,
             deadline,
         } = params;
 
@@ -443,9 +442,7 @@ export class AggregatorModule implements AggregatorInterface {
                 }
             }),
         );
-        const finalRecipient = recipient ?? ZERO_ADDRESS;
         assetTo.push(this.oysterAggregator.address);
-        assetTo.push(finalRecipient);
         // default to empty string for now, may be used in new pool adapters
         const moreInfos = new Array(bestPoolPath.length).fill('0x');
         const feeData = new ethers.utils.AbiCoder().encode(['address', 'uint256'], [broker, brokerFeeRate]);
@@ -461,7 +458,7 @@ export class AggregatorModule implements AggregatorInterface {
         // sanity check
         if (mixPairs.length === 0) throw new Error('RouteProxy: PAIRS_EMPTY');
         if (mixPairs.length !== mixAdapters.length) throw new Error('RouteProxy: PAIR_ADAPTER_NOT_MATCH');
-        if (mixPairs.length + 2 !== assetTo.length) throw new Error('RouteProxy: PAIR_ASSETTO_NOT_MATCH');
+        if (mixPairs.length + 1 !== assetTo.length) throw new Error('RouteProxy: PAIR_ASSETTO_NOT_MATCH');
         if (minReturnAmount.eq(ZERO)) throw new Error('RouteProxy: RETURN_AMOUNT_ZERO');
 
         return {
@@ -519,6 +516,49 @@ export class AggregatorModule implements AggregatorInterface {
         return await this.context.tx.sendTx(tx, txOptions);
     }
 
+    mixSwapTo(params: MixSwapParam, txOptions: TxOptionsWithSigner): Promise<TransactionReceipt>;
+    mixSwapTo(params: MixSwapParam, txOptions?: TxOptions): Promise<PopulatedTransaction>;
+    async mixSwapTo(params: MixSwapParam, txOptions?: TxOptions): Promise<TransactionReceipt | PopulatedTransaction> {
+        const {
+            fromTokenAddress,
+            toTokenAddress,
+            fromTokenAmount,
+            minReturnAmount,
+            mixAdapters,
+            mixPairs,
+            assetTo,
+            directions,
+            moreInfos,
+            feeData,
+            deadline,
+        } = await this._mixSwap(params);
+
+        const recipient = params.recipient || ZERO_ADDRESS;
+
+        txOptions = {
+            ...txOptions,
+            value: fromTokenAddress === ETH_ADDRESS ? fromTokenAmount : ZERO,
+            gasLimitMultiple: txOptions?.gasLimitMultiple ?? this.DEFAULT_GAS_LIMIT_MULTIPLE,
+        };
+
+        const tx = await this.oysterAggregator.populateTransaction.mixSwapTo(
+            fromTokenAddress,
+            toTokenAddress,
+            fromTokenAmount,
+            minReturnAmount,
+            mixAdapters,
+            mixPairs,
+            assetTo,
+            directions,
+            moreInfos,
+            recipient,
+            feeData,
+            deadline,
+            { ...utils.toPopulatedTxOverrides(txOptions), from: await txOptions?.from },
+        );
+        return await this.context.tx.sendTx(tx, txOptions);
+    }
+
     private async _multiSwap(params: MultiSwapParam) {
         const {
             fromTokenAddress,
@@ -529,7 +569,6 @@ export class AggregatorModule implements AggregatorInterface {
             slippageInBps,
             broker,
             brokerFeeRate,
-            recipient,
             deadline,
         } = params;
 
@@ -577,15 +616,13 @@ export class AggregatorModule implements AggregatorInterface {
                 );
             }
         }
-        const finalRecipient = recipient ?? ZERO_ADDRESS;
         assetTo.push(this.oysterAggregator.address);
-        assetTo.push(finalRecipient);
         const midToken: string[] = [...bestPathInfo.tokens];
         midToken[0] = fromTokenAddressNonZero;
         midToken[midToken.length - 1] = toTokenAddressNonZero;
         const feeData = new ethers.utils.AbiCoder().encode(['address', 'uint256'], [broker, brokerFeeRate]);
 
-        if (assetTo.length !== splitNumber.length + 1) throw new Error('RouteProxy: PAIR_ASSETTO_NOT_MATCH');
+        if (assetTo.length !== splitNumber.length) throw new Error('RouteProxy: PAIR_ASSETTO_NOT_MATCH');
         if (minReturnAmount.eq(ZERO)) throw new Error('RouteProxy: RETURN_AMOUNT_ZERO');
 
         return {
@@ -629,6 +666,44 @@ export class AggregatorModule implements AggregatorInterface {
             midToken,
             assetTo,
             sequence,
+            feeData,
+            deadline,
+            { ...utils.toPopulatedTxOverrides(txOptions), from: await txOptions?.from },
+        );
+        return await this.context.tx.sendTx(tx, txOptions);
+    }
+
+    async multiSwapTo(params: MultiSwapParam, txOptions: TxOptionsWithSigner): Promise<TransactionReceipt>;
+    async multiSwapTo(params: MultiSwapParam, txOptions?: TxOptions): Promise<PopulatedTransaction>;
+    async multiSwapTo(params: MultiSwapParam, txOptions?: TxOptions): Promise<TransactionReceipt | PopulatedTransaction> {
+        const {
+            fromTokenAddress,
+            fromTokenAmount,
+            minReturnAmount,
+            splitNumber,
+            midToken,
+            assetTo,
+            sequence,
+            feeData,
+            deadline,
+        } = await this._multiSwap(params);
+
+        const recipient = params.recipient || ZERO_ADDRESS;
+
+        txOptions = {
+            ...txOptions,
+            value: fromTokenAddress === ETH_ADDRESS ? fromTokenAmount : ZERO,
+            gasLimitMultiple: txOptions?.gasLimitMultiple ?? this.DEFAULT_GAS_LIMIT_MULTIPLE,
+        };
+
+        const tx = await this.oysterAggregator.populateTransaction.multiSwapTo(
+            fromTokenAmount,
+            minReturnAmount,
+            splitNumber,
+            midToken,
+            assetTo,
+            sequence,
+            recipient,
             feeData,
             deadline,
             { ...utils.toPopulatedTxOverrides(txOptions), from: await txOptions?.from },

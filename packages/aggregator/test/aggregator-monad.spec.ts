@@ -604,7 +604,7 @@ describe('Aggregator', function () {
         expect(route.bestPathInfo.oneHops[0].pools.length).toBe(1);
 
         // Step 2: Execute multiSwap
-        const rawTx = await ctx.aggregator.multiSwap(
+        const rawTx = await ctx.aggregator.multiSwapTo(
             {
                 fromTokenAddress: ethAddress,
                 toTokenAddress: usdc.address,
@@ -632,6 +632,10 @@ describe('Aggregator', function () {
             value: rawTx.value?.toString(),
             dataLength: rawTx.data?.length,
         });
+
+        // const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, ctx.provider);
+        // const receipt = await ctx.tx.sendTx(rawTx, { signer, from: userAddress });
+        // console.log('Transaction receipt:', receipt);
     });
 
     it.skip('should query single pool route and execute multiSwap with Native MON as toToken succeed', async function () {
